@@ -160,7 +160,7 @@ Generate the content plan following the JSON schema.`;
   } catch (error) {
     console.error("Content plan generation error:", error);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

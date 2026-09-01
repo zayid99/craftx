@@ -145,7 +145,7 @@ Generate exactly ${requestedCount} distinct video ideas.`;
   } catch (error) {
     logger.error("Idea generation error", { requestId, route, error });
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment.", requestId },
+      { error: "CraftX is temporarily busy. Please try again in a moment.", requestId },
       { status: 500 }
     );
   }

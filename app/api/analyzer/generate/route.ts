@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are a video content analyst for Creova, a creator growth platform. Analyze the given video transcript and return ONLY valid JSON, no markdown fences, no preamble.
+    const systemPrompt = `You are a video content analyst for CraftX, a creator growth platform. Analyze the given video transcript and return ONLY valid JSON, no markdown fences, no preamble.
 
 Return this exact structure:
 {
@@ -96,7 +96,7 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
         console.error("[Analyzer] Unexpected provider error:", err);
       }
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -113,7 +113,7 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
     const textBlock = response.content.find((block) => block.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -125,7 +125,7 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
       parsed = JSON.parse(cleaned);
     } catch {
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -137,7 +137,7 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
       !Array.isArray(parsed.recommendations)
     ) {
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -146,7 +146,7 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
   } catch (err) {
     console.error("Video analyzer generate error:", err);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

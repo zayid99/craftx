@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("[Checkout] Error creating checkout session:", error);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

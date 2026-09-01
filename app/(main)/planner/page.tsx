@@ -78,7 +78,7 @@ export default function ContentPlannerPage() {
 
       setResult(data);
     } catch {
-      setError("Creova is temporarily busy. Please try again in a moment.");
+      setError("CraftX is temporarily busy. Please try again in a moment.");
     } finally {
       setLoading(false);
     }

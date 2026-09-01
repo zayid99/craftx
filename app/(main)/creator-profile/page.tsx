@@ -116,7 +116,7 @@ export default function CreatorProfilePage() {
 
       setSuccess(true);
     } catch {
-      setError("Creova is temporarily busy. Please try again in a moment.");
+      setError("CraftX is temporarily busy. Please try again in a moment.");
     } finally {
       setSaving(false);
     }
@@ -130,7 +130,7 @@ export default function CreatorProfilePage() {
     <div className="max-w-2xl">
       <h1 className="text-2xl font-semibold mb-1">Creator Profile</h1>
       <p className="text-black/50 mb-6">
-        This context is used across Creova to personalize your ideas, scripts, and recommendations.
+        This context is used across CraftX to personalize your ideas, scripts, and recommendations.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -37,7 +37,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold mb-1">Create your account</h1>
-        <p className="text-gray-500 mb-6">Start building with Creova.</p>
+        <p className="text-gray-500 mb-6">Start building with CraftX.</p>
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>

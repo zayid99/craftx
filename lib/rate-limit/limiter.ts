@@ -1,4 +1,4 @@
-// Simple in-memory rate limiter. Correct and sufficient as long as Creova
+// Simple in-memory rate limiter. Correct and sufficient as long as CraftX
 // runs as a single persistent Node process (true for Hostinger VPS/Managed
 // Node.js Hosting). If this ever moves to multiple instances behind a load
 // balancer, this would need to move to a shared store (e.g. Redis) instead,

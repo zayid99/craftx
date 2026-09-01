@@ -52,9 +52,14 @@ export default function Sidebar() {
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-black/10 bg-white">
-      <div className="flex h-16 items-center border-b border-black/10 px-6">
-        <Link href="/dashboard" className="text-xl font-semibold tracking-tight">
-          Creova
+      <div className="flex h-16 items-center gap-2.5 border-b border-black/10 px-6">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-blue to-brand-purple text-sm font-bold text-white">
+            C
+          </span>
+          <span className="text-xl font-semibold tracking-tight">
+            Craft<span className="text-brand-gradient">X</span>
+          </span>
         </Link>
       </div>
 

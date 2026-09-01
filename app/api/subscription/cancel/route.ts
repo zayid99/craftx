@@ -77,7 +77,7 @@ export async function POST() {
   } catch (error) {
     console.error("[Cancel] Error cancelling subscription:", error);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

@@ -23,10 +23,10 @@ export default function MainLayout({
   const pathname = usePathname();
   const title =
     TITLE_MATCHERS.find(([path]) => pathname.startsWith(path))?.[1] ??
-    "Creova";
+    "CraftX";
 
   return (
-    <div className="min-h-screen bg-[#f7f7f5] text-black">
+    <div className="min-h-screen bg-[var(--background)] text-black">
       <div className="flex min-h-screen">
         <div className="hidden md:block">
           <Sidebar />

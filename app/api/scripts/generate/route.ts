@@ -143,7 +143,7 @@ Write a complete script following the JSON schema.`;
   } catch (error) {
     console.error("Script generation error:", error);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

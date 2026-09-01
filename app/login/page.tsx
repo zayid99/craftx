@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold mb-1">Welcome back</h1>
-        <p className="text-gray-500 mb-6">Log in to your Creova account.</p>
+        <p className="text-gray-500 mb-6">Log in to your CraftX account.</p>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

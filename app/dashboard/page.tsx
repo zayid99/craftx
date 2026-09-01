@@ -59,7 +59,7 @@ export default function DashboardPage() {
     <div className="mx-auto w-full max-w-7xl space-y-8">
       <section>
         <p className="mb-2 text-sm font-medium text-black/45">
-          Welcome to Creova
+          Welcome to CraftX
         </p>
 
         <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -133,7 +133,7 @@ export default function DashboardPage() {
         </p>
 
         <h3 className="mt-2 text-xl font-semibold">
-          Tell Creova about your creator goals
+          Tell CraftX about your creator goals
         </h3>
 
         <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-black/50">

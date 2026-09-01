@@ -65,7 +65,7 @@ export default function AnalyzerPage() {
 
       setResult(data.result);
     } catch {
-      setError("Creova is temporarily busy. Please try again in a moment.");
+      setError("CraftX is temporarily busy. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export default function AnalyzerPage() {
 
       setSaved(true);
     } catch {
-      setError("Creova is temporarily busy. Please try again in a moment.");
+      setError("CraftX is temporarily busy. Please try again in a moment.");
     } finally {
       setSaving(false);
     }

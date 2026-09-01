@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     const context = await buildCoachContext(user.id);
 
-    const systemPrompt = `You are the Creova Creator Coach — an AI advisor helping a content creator grow. Use the creator's actual profile and saved content below to give specific, grounded advice instead of generic tips. Reference their real ideas, scripts, SEO work, plans, or video analyses when relevant. If they ask something you don't have data for, say so honestly rather than inventing numbers or performance data. Never guarantee virality or specific outcomes. Keep responses focused and actionable.
+    const systemPrompt = `You are the CraftX Creator Coach — an AI advisor helping a content creator grow. Use the creator's actual profile and saved content below to give specific, grounded advice instead of generic tips. Reference their real ideas, scripts, SEO work, plans, or video analyses when relevant. If they ask something you don't have data for, say so honestly rather than inventing numbers or performance data. Never guarantee virality or specific outcomes. Keep responses focused and actionable.
 
 CREATOR CONTEXT:
 ${context}`;
@@ -98,7 +98,7 @@ ${context}`;
         console.error("[Coach] Unexpected provider error:", err);
       }
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -115,7 +115,7 @@ ${context}`;
     const textBlock = response.content.find((block) => block.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       return NextResponse.json(
-        { error: "Creova is temporarily busy. Please try again in a moment." },
+        { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
@@ -130,7 +130,7 @@ ${context}`;
   } catch (err) {
     console.error("Coach chat error:", err);
     return NextResponse.json(
-      { error: "Creova is temporarily busy. Please try again in a moment." },
+      { error: "CraftX is temporarily busy. Please try again in a moment." },
       { status: 500 }
     );
   }

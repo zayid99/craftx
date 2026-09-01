@@ -94,7 +94,7 @@ export default function CreatorProfilePage() {
     <div className="max-w-2xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-1">Creator Profile</h1>
       <p className="text-gray-500 mb-6">
-        Tell Creova about yourself so it can personalize your ideas, scripts, and strategy.
+        Tell CraftX about yourself so it can personalize your ideas, scripts, and strategy.
       </p>
 
       {error && (

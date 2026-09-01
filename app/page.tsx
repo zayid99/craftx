@@ -33,13 +33,13 @@ const features = [
     number: "06",
     title: "Creator Coach",
     description:
-      "Get personalized strategic guidance based on your creator profile and work inside Creova.",
+      "Get personalized strategic guidance based on your creator profile and work inside CraftX.",
   },
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#f7f7f5] text-[#111111]">
+    <main className="min-h-screen overflow-hidden bg-[var(--background)] text-[#111111]">
       {/* Navigation */}
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
         <div className="flex items-center gap-3">
@@ -48,7 +48,7 @@ export default function Home() {
           </div>
 
           <span className="text-xl font-semibold tracking-tight">
-            Creova
+            CraftX
           </span>
         </div>
 
@@ -57,7 +57,7 @@ export default function Home() {
             Features
           </a>
           <a href="#vision" className="transition hover:text-black">
-            Why Creova
+            Why CraftX
           </a>
           <a href="#pricing" className="transition hover:text-black">
             Pricing
@@ -90,7 +90,7 @@ export default function Home() {
             </h1>
 
             <p className="mt-8 max-w-2xl text-lg leading-8 text-black/55 sm:text-xl">
-              Creova brings your ideas, scripts, SEO, planning, analysis, and
+              CraftX brings your ideas, scripts, SEO, planning, analysis, and
               creator strategy into one intelligent workspace.
             </p>
 
@@ -232,7 +232,7 @@ export default function Home() {
             </div>
 
             <p className="max-w-xl text-lg leading-8 text-black/50">
-              Creova is designed around the creator, not around isolated AI
+              CraftX is designed around the creator, not around isolated AI
               features. Your profile, ideas, scripts, plans, analyses, and
               strategy become part of one connected system.
             </p>
@@ -293,7 +293,7 @@ export default function Home() {
               </h2>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/50">
-                Creova starts with content creation and grows toward a complete
+                CraftX starts with content creation and grows toward a complete
                 creator operating system.
               </p>
 
@@ -301,7 +301,7 @@ export default function Home() {
                 href="#start"
                 className="mt-9 inline-flex rounded-full bg-white px-7 py-3.5 text-sm font-medium text-black transition hover:bg-white/90"
               >
-                Start with Creova
+                Start with CraftX
               </a>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-black/10 px-6 py-8 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-black/40 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Creova</span>
+          <span>© 2026 CraftX</span>
           <span>Create Better. Grow Smarter. Scale Bigger.</span>
         </div>
       </footer>

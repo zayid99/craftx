@@ -61,7 +61,7 @@ export default function CoachPage() {
 
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
     } catch {
-      setError("Creova is temporarily busy. Please try again in a moment.");
+      setError("CraftX is temporarily busy. Please try again in a moment.");
     } finally {
       setLoading(false);
     }

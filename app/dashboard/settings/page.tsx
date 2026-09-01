@@ -69,7 +69,7 @@ export default function SettingsPage() {
   return (
     <div className="max-w-xl">
       <h1 className="text-2xl font-semibold mb-1">Settings</h1>
-      <p className="text-black/50 mb-6">Manage your Creova account.</p>
+      <p className="text-black/50 mb-6">Manage your CraftX account.</p>
 
       <div className="rounded-xl border border-black/10 bg-white p-5 space-y-4 mb-6">
         <div>
