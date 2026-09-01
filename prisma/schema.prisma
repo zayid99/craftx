@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model CreatorProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  creatorName        String
+  niche              String
+  audience           String?
+  targetMarket       String?
+  primaryPlatform    String
+  secondaryPlatforms String[]
+  contentFormat      String?
+  goals              String?
+  experienceLevel    String?
+  contentStyle       String?
+  contentPillars     String[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("creator_profiles")
+}
+
+model SavedIdea {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  angle     String
+  reason    String
+  niche     String
+  audience  String?
+  platform  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SavedScript {
+  id            String   @id @default(cuid())
+  userId        String
+  topic         String
+  platform      String
+  format        String
+  duration      String?
+  tone          String?
+  audience      String?
+  hookStyle     String?
+  hooks         Json
+  script        Json
+  altEndings    Json
+  platformNotes String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SavedSEO {
+  id           String   @id @default(cuid())
+  userId       String
+  topic        String
+  platform     String
+  titles       Json
+  description  String
+  keywords     String[]
+  hashtags     String[]
+  searchIntent String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SavedContentPlan {
+  id           String   @id @default(cuid())
+  userId       String
+  niche        String
+  platform     String
+  goals        String?
+  durationDays Int
+  autoFill     Boolean  @default(false)
+  pillars      String[]
+  days         Json
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model VideoAnalysis {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String?
+  transcript         String   @db.Text
+  overallScore       Int
+  strengths          Json
+  weaknesses         Json
+  recommendations    Json
+  suggestedRewrite   String?  @db.Text
+  suggestedNextVideo String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model CoachMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String   // "user" or "assistant"
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model UsageEvent {
+  id               String   @id @default(cuid())
+  userId           String
+  feature          String   // "ideas" | "scripts" | "seo" | "planner" | "analyzer" | "coach"
+  provider         String   // "claude"
+  model            String   // "claude-sonnet-4-6"
+  quantity         Int      @default(1) // number of items this call produced (e.g. ideas count); defaults to 1 for features with no natural batch size
+  inputTokens      Int
+  outputTokens     Int
+  estimatedCostUsd Float
+  createdAt        DateTime @default(now())
+  @@index([userId])
+  @@index([feature, createdAt])
+  @@index([createdAt])
+}
+model Subscription {
+  id                        String    @id @default(cuid())
+  userId                    String    @unique
+
+  plan                      String    @default("free") // "free" | "creator" | "creator_pro"
+  status                    String    @default("active") // "active" | "cancelled" | "expired" | "past_due" | "paused"
+
+  lemonSqueezyCustomerId     String?
+  lemonSqueezySubscriptionId String?   @unique
+  lemonSqueezyVariantId      String?
+
+  renewsAt                  DateTime?
+  endsAt                    DateTime?
+
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@index([userId])
+}
