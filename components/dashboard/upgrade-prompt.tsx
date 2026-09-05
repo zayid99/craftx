@@ -33,7 +33,7 @@ export default function UpgradePrompt({ plan, message, currentUsage, limit }: Up
   return (
     <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
       <div>
-        <p className="text-sm font-medium text-amber-900">You've hit your {PLAN_LABELS[plan]} plan limit</p>
+        <p className="text-sm font-medium text-amber-900">You&apos;ve hit your {PLAN_LABELS[plan]} plan limit</p>
         {typeof currentUsage === "number" && typeof limit === "number" && (
           <p className="text-sm text-amber-700 mt-0.5">{currentUsage}/{limit} used this month</p>
         )}

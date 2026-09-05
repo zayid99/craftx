@@ -1,105 +1,175 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import PlanBadge from "./plan-badge";
+import { useEffect, useState } from "react";
+import {
+  HomeIcon,
+  LightbulbIcon,
+  FileTextIcon,
+  SearchIcon,
+  PlayCircleIcon,
+  CalendarIcon,
+  UserIcon,
+  SettingsIcon,
+  PlusIcon,
+} from "@/components/marketing/landing-icons";
 
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: "⌂",
-  },
-  {
-    name: "Creator Profile",
-    href: "/creator-profile",
-    icon: "◍",
-  },
-  {
-    name: "Idea Studio",
-    href: "/ideas",
-    icon: "✦",
-  },
-  {
-    name: "Script Studio",
-    href: "/scripts",
-    icon: "▤",
-  },
-  {
-    name: "SEO Studio",
-    href: "/seo",
-    icon: "⌕",
-  },
-  {
-    name: "Content Planner",
-    href: "/planner",
-    icon: "□",
-  },
-  {
-    name: "Video Analyzer",
-    href: "/analyzer",
-    icon: "▷",
-  },
-  {
-    name: "Creator Coach",
-    href: "/coach",
-    icon: "✧",
-  },
+type PlanId = "free" | "creator" | "creator_pro";
+
+const PLAN_LABELS: Record<PlanId, string> = {
+  free: "Free plan",
+  creator: "Creator",
+  creator_pro: "Creator Pro",
+};
+
+/** Shown on the sidebar plan card — copy only, no entitlement logic here. */
+const PLAN_PERKS: Record<PlanId, string[]> = {
+  free: ["Higher usage limits", "Advanced insights", "Priority support"],
+  creator: ["Full studio access", "More projects", "Priority processing"],
+  creator_pro: ["Unlimited projects", "Advanced insights", "Priority support"],
+};
+
+function CrownIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M3 8.5 6.5 12 12 5l5.5 7L21 8.5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" />
+    </svg>
+  );
+}
+
+const mainNav = [
+  { name: "Home", href: "/dashboard", Icon: HomeIcon },
+  { name: "Idea Studio", href: "/ideas", Icon: LightbulbIcon },
+  { name: "Script Studio", href: "/scripts", Icon: FileTextIcon },
+  { name: "SEO Studio", href: "/seo", Icon: SearchIcon },
+  { name: "Script Analyzer", href: "/analyzer", Icon: PlayCircleIcon },
+  { name: "Content Planner", href: "/planner", Icon: CalendarIcon },
+  { name: "Creator Coach", href: "/coach", Icon: UserIcon },
+];
+
+const accountNav = [
+  { name: "Creator Profile", href: "/creator-profile", Icon: UserIcon },
+  { name: "Settings", href: "/dashboard/settings", Icon: SettingsIcon },
+  { name: "Help & Support", href: "/help", Icon: PlusIcon },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [plan, setPlan] = useState<PlanId | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/subscription/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.plan) setPlan(d.plan as PlanId);
+      })
+      .catch(() => {
+        /* sidebar still renders without the plan card */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function isActive(href: string) {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  function renderLink(item: { name: string; href: string; Icon: typeof HomeIcon }) {
+    const active = isActive(item.href);
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+          active
+            ? "bg-[#0b1020] text-white"
+            : "text-[#6b7280] hover:bg-[#f4f5f8] hover:text-[#111827]"
+        }`}
+      >
+        <item.Icon className="h-[18px] w-[18px] shrink-0" />
+        <span className="truncate">{item.name}</span>
+      </Link>
+    );
+  }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-black/10 bg-white">
-      <div className="flex h-16 items-center gap-2.5 border-b border-black/10 px-6">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-blue to-brand-purple text-sm font-bold text-white">
-            C
-          </span>
-          <span className="text-xl font-semibold tracking-tight">
-            Craft<span className="text-brand-gradient">X</span>
-          </span>
+    <aside className="sticky top-0 flex h-screen w-[248px] flex-col border-r border-[#ececf1] bg-white">
+      {/* logo */}
+      <div className="flex h-[72px] shrink-0 items-center px-5">
+        <Link href="/dashboard" className="flex items-center">
+          <Image
+            src="/brand/craftx-logo.png"
+            alt="CRAFTX"
+            width={1780}
+            height={356}
+            priority
+            className="h-[26px] w-auto"
+          />
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        {navigation.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+      {/* nav */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <div className="space-y-1">{mainNav.map(renderLink)}</div>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-black text-white"
-                  : "text-black/60 hover:bg-black/5 hover:text-black"
-              }`}
-            >
-              <span className="flex w-5 justify-center text-base">
-                {item.icon}
-              </span>
-
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
+        <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-[1.2px] text-[#9ca3af]">
+          Account
+        </p>
+        <div className="space-y-1">{accountNav.map(renderLink)}</div>
       </nav>
 
-      <div className="border-t border-black/10 p-4 space-y-1">
-        <PlanBadge />
+      {/* plan card */}
+      <div className="shrink-0 p-3">
+        {plan ? (
+          <div
+            className="rounded-2xl p-4 text-white"
+            style={{
+              backgroundImage: "linear-gradient(150deg,#0b1020 0%,#191f38 55%,#3a2f7a 100%)",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <CrownIcon className="h-[18px] w-[18px] text-[#f5b544]" />
+              <div className="min-w-0">
+                <p className="text-[11px] leading-4 text-white/50">
+                  {plan === "free" ? "Upgrade to" : "You're on"}
+                </p>
+                <p className="truncate text-[15px] font-semibold leading-5">
+                  {plan === "free" ? "Creator Pro" : PLAN_LABELS[plan]}
+                </p>
+              </div>
+            </div>
 
-        <Link
-          href="/dashboard/settings"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-black/60 transition-colors hover:bg-black/5 hover:text-black"
-        >
-          <span className="flex w-5 justify-center text-base">⚙</span>
-          <span>Settings</span>
-        </Link>
+            <ul className="mt-3.5 space-y-1.5">
+              {PLAN_PERKS[plan].map((perk) => (
+                <li key={perk} className="flex items-center gap-2 text-xs text-[#c8ccdb]">
+                  <span className="text-[#5eead4]">✓</span>
+                  {perk}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              href="/dashboard/settings"
+              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+            >
+              {plan === "free" ? "Upgrade now" : "Manage plan"}
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="h-[186px] animate-pulse rounded-2xl bg-[#f4f5f8]" />
+        )}
       </div>
+
     </aside>
   );
 }

@@ -76,7 +76,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-sm text-gray-500 mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <a href="/signup" className="underline">
             Sign up
           </a>

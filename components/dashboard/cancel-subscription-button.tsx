@@ -63,7 +63,7 @@ export default function CancelSubscriptionButton({
       ) : (
         <div className="border border-red-200 rounded-md p-4 space-y-3">
           <p className="text-sm text-gray-700">
-            Are you sure? You'll keep access until the end of your current billing period, then your account will move to the Free plan.
+            Are you sure? You&apos;ll keep access until the end of your current billing period, then your account will move to the Free plan.
           </p>
           <div className="flex gap-3">
             <button

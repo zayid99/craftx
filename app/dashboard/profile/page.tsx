@@ -79,6 +79,7 @@ export default function CreatorProfilePage() {
       }
 
       router.push("/dashboard");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Could not save your profile. Please try again.");
     } finally {

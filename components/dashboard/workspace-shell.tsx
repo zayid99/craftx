@@ -5,9 +5,12 @@ import { getUserPlan } from "@/lib/entitlements/checkAccess";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar, { type Notice } from "@/components/dashboard/topbar";
 
-export const dynamic = "force-dynamic";
-
-export default async function MainLayout({
+/**
+ * Shared chrome for every signed-in page. Both app/(main)/layout.tsx and
+ * app/dashboard/layout.tsx render this so the sidebar and topbar stay
+ * identical across the whole workspace.
+ */
+export default async function WorkspaceShell({
   children,
 }: {
   children: React.ReactNode;
@@ -46,8 +49,7 @@ export default async function MainLayout({
       profile.contentStyle,
       profile.contentPillars.length ? "x" : "",
     ];
-    const filled = checks.filter(Boolean).length;
-    const pct = Math.round((filled / checks.length) * 100);
+    const pct = Math.round((checks.filter(Boolean).length / checks.length) * 100);
 
     if (pct < 100) {
       notices.push({
@@ -90,7 +92,7 @@ export default async function MainLayout({
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[#111827]">
-      <div className="flex min-h-screen">
+      <div className="flex">
         <div className="hidden md:block">
           <Sidebar />
         </div>
