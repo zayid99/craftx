@@ -1,7 +1,3 @@
-"use client";
-
-import { useState } from "react";
-
 type Plan = {
   name: string;
   monthly: number;
@@ -9,23 +5,34 @@ type Plan = {
   cta: string;
   featured: boolean;
   features: string[];
+  /** Small print under the feature list. Used to flag the one-time free tier. */
+  note?: string;
 };
 
+/**
+ * These numbers mirror lib/entitlements/limits.ts. Change them there and here
+ * together, or the pricing page promises what the entitlement system refuses.
+ *
+ * The Free plan is a ONE-TIME allocation, not a monthly one — checkAccess
+ * counts free usage over all time. Copy here must not imply a monthly refresh.
+ */
 const plans: Plan[] = [
   {
     name: "Free",
     monthly: 0,
-    tagline: "For exploring CRAFTX.",
+    tagline: "For trying CRAFTX end to end.",
     cta: "Get started free",
     featured: false,
     features: [
-      "Limited AI generations",
-      "Basic Idea Studio",
-      "Basic Script Studio",
-      "Limited SEO",
-      "Limited analysis",
-      "Limited projects",
+      "All five studios included",
+      "10 content ideas",
+      "5 scripts",
+      "15 SEO sets",
+      "5 content plans",
+      "3 script analyses",
+      "Creator profile/context",
     ],
+    note: "A one-time allocation to try the full workflow. It doesn't reset each month.",
   },
   {
     name: "Creator",
@@ -34,17 +41,16 @@ const plans: Plan[] = [
     cta: "Start creating →",
     featured: true,
     features: [
-      "More AI generations",
-      "Full Idea Studio",
-      "Full Script Studio",
-      "SEO Studio",
-      "Content Planner",
-      "Script Analyzer",
-      "Creator Coach",
+      "Unlimited content ideas",
+      "50 scripts a month",
+      "150 SEO sets a month",
+      "30 content plans a month",
+      "20 script analyses a month",
       "Creator profile/context",
       "More projects",
       "Priority processing",
     ],
+    note: "Limits refresh on the 1st of every month.",
   },
   {
     name: "Creator Pro",
@@ -53,69 +59,54 @@ const plans: Plan[] = [
     cta: "Go Pro →",
     featured: false,
     features: [
-      "Higher usage limits",
-      "Advanced analysis",
+      "Unlimited ideas, scripts and analyses",
+      "400 SEO sets a month",
+      "100 content plans a month",
       "Advanced growth insights",
-      "More projects",
-      "Extended content planning",
       "Priority AI processing",
-      "Advanced creator intelligence",
       "Early access to new features",
       "Premium support",
     ],
+    note: "Limits refresh on the 1st of every month.",
   },
 ];
 
+/**
+ * Monthly billing only.
+ *
+ * There was a Monthly/Yearly toggle here advertising "Save 20%", but
+ * /api/checkout only has monthly Lemon Squeezy variants (2070714 and
+ * 2070721). Nobody could ever be charged the annual price, and a public
+ * price you cannot honour is a chargeback risk with a merchant of record.
+ *
+ * To bring it back you need, in this order:
+ *   1. Annual variants created in Lemon Squeezy
+ *   2. A billingCycle param threaded through /api/checkout
+ *   3. The annual variant IDs mapped in the webhook handler
+ *   4. Only then, the toggle and the discounted display price
+ *
+ * This component no longer holds state, so it doesn't need "use client".
+ */
 export default function PricingSection() {
-  const [yearly, setYearly] = useState(false);
-
   return (
     <section id="pricing" className="px-6 py-[80px] lg:px-8">
       <div className="mx-auto max-w-[1200px]">
-        <div className="flex flex-wrap items-end justify-between gap-8">
-          <div>
-            <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[6px] text-[12px] tracking-[1.26px] text-[#5b5bd6]">
-              SIMPLE PRICING
-            </span>
-            <h2 className="mt-[22px] text-[38px] font-bold tracking-[-0.76px] text-[#111827]">
-              Choose your creator workflow.
-            </h2>
-            <p className="mt-[10px] text-[15px] text-[#6b7280]">
-              Start free, upgrade when you&apos;re ready. Cancel anytime.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-[4px] rounded-full border border-[#e5e7eb] bg-white p-[7px]">
-            <button
-              type="button"
-              onClick={() => setYearly(false)}
-              className={`rounded-full px-[20px] py-[9px] text-[15px] transition ${
-                !yearly ? "bg-[#0b1020] text-white" : "text-[#6b7280] hover:text-[#111827]"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              type="button"
-              onClick={() => setYearly(true)}
-              className={`flex items-center gap-2 rounded-full px-[20px] py-[9px] text-[15px] transition ${
-                yearly ? "bg-[#0b1020] text-white" : "text-[#6b7280] hover:text-[#111827]"
-              }`}
-            >
-              Yearly
-              <span className={yearly ? "text-white/70" : "text-[#5b5bd6]"}>Save 20%</span>
-            </button>
-          </div>
+        <div>
+          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[6px] text-[12px] tracking-[1.26px] text-[#5b5bd6]">
+            SIMPLE PRICING
+          </span>
+          <h2 className="mt-[22px] text-[38px] font-bold tracking-[-0.76px] text-[#111827]">
+            Choose your creator workflow.
+          </h2>
+          <p className="mt-[10px] text-[15px] text-[#6b7280]">
+            Start free, upgrade when you&apos;re ready. Cancel anytime.
+          </p>
         </div>
 
         <div className="mt-[47px] grid items-start gap-[22px] lg:grid-cols-3">
           {plans.map((plan) => {
             const price =
-              plan.monthly === 0
-                ? "$0"
-                : yearly
-                ? `$${(plan.monthly * 0.8).toFixed(2)}`
-                : `$${plan.monthly.toFixed(2)}`;
+              plan.monthly === 0 ? "$0" : `$${plan.monthly.toFixed(2)}`;
 
             return (
               <div
@@ -158,9 +149,15 @@ export default function PricingSection() {
                     ))}
                   </ul>
 
+                  {plan.note && (
+                    <p className="mt-[18px] border-t border-[#f1f2f6] pt-[14px] text-[13px] leading-[19px] text-[#9ca3af]">
+                      {plan.note}
+                    </p>
+                  )}
+
                   <a
                     href="/signup"
-                    className={`mt-[29px] rounded-[11px] py-[14px] text-center text-[16px] transition ${
+                    className={`mt-[22px] rounded-[11px] py-[14px] text-center text-[16px] transition ${
                       plan.featured
                         ? "bg-[#0b1020] text-white hover:bg-[#1b2338]"
                         : "border border-[#e5e7eb] text-[#111827] hover:bg-[#f7f8fa]"

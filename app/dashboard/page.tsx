@@ -10,7 +10,6 @@ import {
   SearchIcon,
   PlayCircleIcon,
   CalendarIcon,
-  UserIcon,
 } from "@/components/marketing/landing-icons";
 
 export const dynamic = "force-dynamic";
@@ -21,13 +20,15 @@ const PLAN_LABEL: Record<string, string> = {
   creator_pro: "Creator Pro",
 };
 
+// "Get coaching" removed pre-launch — Creator Coach ran on Claude Sonnet and
+// accounted for ~95% of projected API cost. Add it back here (with UserIcon
+// re-imported and the grid returned to lg:grid-cols-6) when the Coach returns.
 const quickActions = [
   { label: "Generate ideas", href: "/ideas", Icon: LightbulbIcon, tint: "bg-[#eef4ff] text-[#3b82f6]" },
   { label: "Write a script", href: "/scripts", Icon: FileTextIcon, tint: "bg-[#f3eeff] text-[#8b5cf6]" },
   { label: "Optimize SEO", href: "/seo", Icon: SearchIcon, tint: "bg-[#e9f9f0] text-[#10b981]" },
   { label: "Analyze a script", href: "/analyzer", Icon: PlayCircleIcon, tint: "bg-[#fdeef6] text-[#ec4899]" },
   { label: "Plan content", href: "/planner", Icon: CalendarIcon, tint: "bg-[#fff2e8] text-[#f97316]" },
-  { label: "Get coaching", href: "/coach", Icon: UserIcon, tint: "bg-[#eef0fb] text-[#6856fd]" },
 ];
 
 /** Safely turns a Prisma Json column into a short human-readable string. */
@@ -316,7 +317,7 @@ export default async function DashboardPage() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {quickActions.map((a) => (
                 <Link
                   key={a.href}

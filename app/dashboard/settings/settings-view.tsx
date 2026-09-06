@@ -36,7 +36,13 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_PERKS: Record<string, string[]> = {
-  free: ["Limited AI generations", "Basic Idea & Script Studio", "Limited projects"],
+    // Mirrors lib/entitlements/limits.ts. There is no "basic" tier — free users
+  // get every studio, just a smaller one-time allocation.
+  free: [
+    "All five studios included",
+    "A one-time set of free generations",
+    "Creator profile context",
+  ],
   creator: ["Unlimited ideas", "Full studio access", "Priority processing"],
   creator_pro: ["Higher usage limits", "Advanced insights", "Priority support"],
 };
@@ -83,6 +89,11 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
   const [passwordErr, setPasswordErr] = useState<string | null>(null);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteErr, setDeleteErr] = useState<string | null>(null);
 
   const loadSubscription = useCallback(async () => {
     setLoadingSub(true);
@@ -181,6 +192,41 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
     }
   }
 
+  async function handleDeleteAccount() {
+    setDeleteErr(null);
+
+    if (confirmEmail.trim().toLowerCase() !== email.trim().toLowerCase()) {
+      setDeleteErr("The email you typed doesn't match this account.");
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmEmail }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDeleteErr(data.error || "Could not delete your account. Please try again.");
+        return;
+      }
+
+      // The server already signed the session out; clear the local one too.
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch {
+      setDeleteErr("Could not delete your account. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -267,6 +313,76 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 >
                   Log out
                 </button>
+              </div>
+
+              {/* Deleting is irreversible, so it asks for the account email
+                  rather than a yes/no a stray click could get through. */}
+              <div className="mt-6 rounded-xl border border-[#fecaca] bg-[#fffbfb] p-5">
+                <p className="text-sm font-semibold text-[#b91c1c]">Delete account</p>
+                <p className="mt-1.5 text-sm leading-6 text-[#6b7280]">
+                                   Permanently removes your profile, saved ideas, scripts, SEO sets, content plans
+                  and analyses. This cannot be undone.
+                </p>
+
+                {isPaid && !subscription?.isCancelling ? (
+                  <p className="mt-4 rounded-lg bg-[#fff2e8] px-4 py-3 text-sm leading-6 text-[#ea580c]">
+                    Cancel your subscription first, in Plan &amp; billing. You&apos;ll keep access
+                    until the end of the period you&apos;ve paid for, and can delete your account
+                    any time after that.
+                  </p>
+                ) : !deleteOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteOpen(true)}
+                    className="mt-4 rounded-xl border border-[#fecaca] bg-white px-5 py-2.5 text-sm font-medium text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                  >
+                    Delete my account
+                  </button>
+                ) : (
+                  <div className="mt-4 space-y-3">
+                    <label htmlFor="confirmEmail" className="block text-sm font-medium text-[#374151]">
+                      Type <span className="font-semibold text-[#111827]">{email}</span> to confirm
+                    </label>
+                    <input
+                      id="confirmEmail"
+                      type="email"
+                      autoComplete="off"
+                      value={confirmEmail}
+                      onChange={(e) => setConfirmEmail(e.target.value)}
+                      placeholder="your email address"
+                      className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#fecaca] sm:max-w-sm"
+                    />
+
+                    {deleteErr && (
+                      <p className="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#b91c1c]">
+                        {deleteErr}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleDeleteAccount}
+                        disabled={deleting || !confirmEmail}
+                        className="rounded-xl bg-[#b91c1c] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#991b1b] disabled:opacity-50"
+                      >
+                        {deleting ? "Deleting…" : "Permanently delete"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDeleteOpen(false);
+                          setConfirmEmail("");
+                          setDeleteErr(null);
+                        }}
+                        disabled={deleting}
+                        className="text-sm text-[#6b7280] transition hover:text-[#111827]"
+                      >
+                        Never mind
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -567,7 +683,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
               </Link>
 
               <a
-                href="mailto:support@craftx.app"
+                href="mailto:craftxofficialbd@gmail.com"
                 className="flex items-center justify-between rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
                 <span>
@@ -576,6 +692,26 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 </span>
                 <span className="text-[#9ca3af]">→</span>
               </a>
+            </div>
+          </div>
+
+          <div className={card}>
+            <p className="text-sm font-semibold text-[#111827]">Policies</p>
+            <div className="mt-4 space-y-1">
+              {[
+                { href: "/terms", label: "Terms of Service" },
+                { href: "/privacy", label: "Privacy Policy" },
+                { href: "/refunds", label: "Refund Policy" },
+              ].map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="flex items-center justify-between rounded-lg px-2 py-2 text-sm text-[#6b7280] transition hover:bg-[#fafafc] hover:text-[#111827]"
+                >
+                  {l.label}
+                  <span className="text-[#c3c7d0]">→</span>
+                </Link>
+              ))}
             </div>
           </div>
         </aside>

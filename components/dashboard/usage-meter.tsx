@@ -5,13 +5,14 @@ import { useCallback, useEffect, useState } from "react";
 
 type PlanId = "free" | "creator" | "creator_pro";
 
+// "coach" removed pre-launch alongside the Creator Coach. Add it back here and
+// in FEATURE_NOUNS when the Coach returns.
 type FeatureKey =
   | "ideas"
   | "scripts"
   | "seo"
   | "planner"
-  | "analyzer"
-  | "coach";
+  | "analyzer";
 
 interface FeatureUsage {
   feature: FeatureKey;
@@ -23,8 +24,12 @@ interface FeatureUsage {
 
 interface UsageResponse {
   plan: PlanId;
-  periodStart: string;
-  resetsAt: string;
+  /** true when the allocation never refreshes (free plan). */
+  isLifetime: boolean;
+  /** null on the free plan — there is no period. */
+  periodStart: string | null;
+  /** null on the free plan — nothing ever resets. */
+  resetsAt: string | null;
   features: Record<string, FeatureUsage>;
 }
 
@@ -54,7 +59,6 @@ const FEATURE_NOUNS: Record<FeatureKey, [string, string]> = {
   seo: ["SEO set", "SEO sets"],
   planner: ["plan", "plans"],
   analyzer: ["analysis", "analyses"],
-  coach: ["coach message", "coach messages"],
 };
 
 function noun(feature: FeatureKey, count: number): string {
@@ -156,6 +160,10 @@ export default function UsageMeter({
   const isEmpty = remaining === 0;
   const isLow = !isEmpty && remaining <= Math.max(1, Math.ceil(limit * 0.2));
 
+  // The free allocation is one-time. Saying "this month" or showing a reset
+  // date here would promise a refill that never arrives.
+  const isLifetime = data.isLifetime;
+
   const barColor = isEmpty
     ? "bg-red-500"
     : isLow
@@ -168,20 +176,21 @@ export default function UsageMeter({
       ? "text-amber-700"
       : "text-black/60";
 
+  let headline: string;
+  if (isEmpty) {
+    headline = isLifetime
+      ? `You've used all ${limit} free ${FEATURE_NOUNS[feature][1]}`
+      : `No ${FEATURE_NOUNS[feature][1]} left this month`;
+  } else {
+    headline = isLifetime
+      ? `${remaining} of ${limit} free ${noun(feature, remaining)} left`
+      : `${remaining} of ${limit} ${noun(feature, remaining)} left`;
+  }
+
   return (
     <div className={`w-full max-w-sm ${className}`}>
       <div className="flex items-baseline justify-between gap-3">
-        <p className={`text-sm font-medium ${textColor}`}>
-          {isEmpty ? (
-            <>
-              No {FEATURE_NOUNS[feature][1]} left this month
-            </>
-          ) : (
-            <>
-              {remaining} of {limit} {noun(feature, remaining)} left
-            </>
-          )}
-        </p>
+        <p className={`text-sm font-medium ${textColor}`}>{headline}</p>
         <p className="shrink-0 text-xs text-black/40">
           {used}/{limit} used
         </p>
@@ -193,7 +202,11 @@ export default function UsageMeter({
         aria-valuemin={0}
         aria-valuemax={limit}
         aria-valuenow={used}
-        aria-label={`${FEATURE_NOUNS[feature][1]} used this month`}
+        aria-label={
+          isLifetime
+            ? `${FEATURE_NOUNS[feature][1]} used from your free allocation`
+            : `${FEATURE_NOUNS[feature][1]} used this month`
+        }
       >
         <div
           className={`h-full rounded-full transition-all duration-300 ${barColor}`}
@@ -203,7 +216,11 @@ export default function UsageMeter({
 
       <div className="mt-1.5 flex items-center justify-between gap-3">
         <p className="text-xs text-black/40">
-          Resets {formatResetDate(data.resetsAt)}
+          {isLifetime
+            ? "One-time free allocation"
+            : data.resetsAt
+              ? `Resets ${formatResetDate(data.resetsAt)}`
+              : ""}
         </p>
 
         {(isEmpty || isLow) && data.plan !== "creator_pro" && (

@@ -4,6 +4,7 @@ import { trackUsage } from "@/lib/usage/tracker";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
+import { checkSpendCap } from "@/lib/usage/spendCap";
 
 const client = new Anthropic({
   apiKey: process.env.DEEPSEEK_API_KEY,
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
     }
 
     const rateLimit = checkRateLimit(`analyzer:${user.id}`, 10, 60 * 1000);
+        const spend = await checkSpendCap(user.id);
+    if (!spend.allowed) {
+      return NextResponse.json({ error: spend.message }, { status: 503 });
+    }
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: "You're generating requests too quickly. Please slow down and try again in a moment." },

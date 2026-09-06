@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Caveat } from "next/font/google";
-import { withSentryConfig } from "@sentry/nextjs/config";
 import "./globals.css";
 
 // Loaded once at the root so every page (landing + workspace) can use them.

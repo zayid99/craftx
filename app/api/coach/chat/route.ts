@@ -4,7 +4,6 @@ import { prisma } from "@/lib/db/prisma";
 import { buildCoachContext } from "@/lib/coach/context";
 import { trackUsage } from "@/lib/usage/tracker";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
-import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
 
 const anthropic = new Anthropic({
@@ -25,6 +24,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+        // Creator Coach is disabled pre-launch. Hard stop before any provider
+    // call so a stale client or direct POST can't reach Anthropic.
+    if (process.env.COACH_ENABLED !== "true") {
+      return NextResponse.json(
+        { error: "Creator Coach is coming soon." },
+        { status: 404 }
+      );
+    }
+
     const rateLimit = checkRateLimit(`coach:${user.id}`, 20, 60 * 1000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -33,21 +41,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const access = await checkAccess(user.id, "coach");
-
-    if (!access.allowed) {
-      return NextResponse.json(
-        {
-          error: access.reason,
-          upgradeRequired: true,
-          plan: access.plan,
-          currentUsage: access.currentUsage,
-          limit: access.limit,
-          remaining: access.remaining,
-        },
-        { status: 403 }
-      );
-    }
+    
 
     const body = await req.json();
     const { message } = body;

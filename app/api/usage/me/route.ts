@@ -12,7 +12,6 @@ const FEATURES: FeatureKey[] = [
   "seo",
   "planner",
   "analyzer",
-  "coach",
 ];
 
 export interface FeatureUsage {
@@ -27,9 +26,14 @@ export interface FeatureUsage {
  * Read-only usage summary for the CURRENT user.
  *
  * Mirrors the exact counting logic in lib/entitlements/checkAccess.ts:
- * summed `quantity` on UsageEvent, from the first day of the calendar month.
- * If those two ever disagree, the meter would lie to the user — so any change
- * to the window or the aggregate here must be mirrored there.
+ * summed `quantity` on UsageEvent, over the SAME window that file uses —
+ * all time for the free plan, calendar month for paid plans. If those two
+ * ever disagree the meter lies to the user, so any change to the window or
+ * the aggregate here must be mirrored there.
+ *
+ * `resetsAt` is null on the free plan because that allocation never refreshes.
+ * The UI must not render a reset date when this is null; promising a refill
+ * that will never arrive is worse than showing no date at all.
  */
 export async function GET() {
   try {
@@ -40,19 +44,25 @@ export async function GET() {
     }
 
     const plan = await getUserPlan(user.id);
+    const isLifetime = plan === "free";
 
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
+    let periodStart: Date | null = null;
+    let resetsAt: Date | null = null;
 
-    const resetsAt = new Date(startOfMonth);
-    resetsAt.setMonth(resetsAt.getMonth() + 1);
+    if (!isLifetime) {
+      periodStart = new Date();
+      periodStart.setDate(1);
+      periodStart.setHours(0, 0, 0, 0);
+
+      resetsAt = new Date(periodStart);
+      resetsAt.setMonth(resetsAt.getMonth() + 1);
+    }
 
     const grouped = await prisma.usageEvent.groupBy({
       by: ["feature"],
       where: {
         userId: user.id,
-        createdAt: { gte: startOfMonth },
+        ...(periodStart ? { createdAt: { gte: periodStart } } : {}),
       },
       _sum: { quantity: true },
     });
@@ -78,8 +88,9 @@ export async function GET() {
 
     return NextResponse.json({
       plan,
-      periodStart: startOfMonth.toISOString(),
-      resetsAt: resetsAt.toISOString(),
+      isLifetime,
+      periodStart: periodStart ? periodStart.toISOString() : null,
+      resetsAt: resetsAt ? resetsAt.toISOString() : null,
       features,
     });
   } catch (error) {

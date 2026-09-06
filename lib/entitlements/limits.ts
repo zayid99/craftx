@@ -5,8 +5,10 @@ export type FeatureKey =
   | "scripts"
   | "seo"
   | "planner"
-  | "analyzer"
-  | "coach";
+  | "analyzer";
+  // "coach" removed pre-launch — Creator Coach runs on Claude Sonnet and
+  // accounted for ~95% of projected API cost. Re-add with a limit here when
+  // revenue supports it. The route and CoachMessage model are untouched.
 
 // null = unlimited
 const LIMITS: Record<PlanId, Record<FeatureKey, number | null>> = {
@@ -16,7 +18,6 @@ const LIMITS: Record<PlanId, Record<FeatureKey, number | null>> = {
     seo: 15,
     planner: 5,
     analyzer: 3,
-    coach: 20,
   },
   creator: {
     ideas: null,
@@ -24,7 +25,6 @@ const LIMITS: Record<PlanId, Record<FeatureKey, number | null>> = {
     seo: 150,
     planner: 30,
     analyzer: 20,
-    coach: 200,
   },
   creator_pro: {
     ideas: null,
@@ -32,7 +32,6 @@ const LIMITS: Record<PlanId, Record<FeatureKey, number | null>> = {
     seo: 400,
     planner: 100,
     analyzer: null,
-    coach: 500,
   },
 };
 

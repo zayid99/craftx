@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
 import { logger, createRequestId } from "@/lib/logging/logger";
+import { checkSpendCap } from "@/lib/usage/spendCap";
 
 export async function POST(req: NextRequest) {
   const requestId = createRequestId();
@@ -32,6 +33,10 @@ export async function POST(req: NextRequest) {
     const requestedCount = Math.max(1, Math.min(Number(count) || 5, 20));
 
     const rateLimit = checkRateLimit(`ideas:${user.id}`, 10, 60 * 1000);
+        const spend = await checkSpendCap(user.id);
+    if (!spend.allowed) {
+      return NextResponse.json({ error: spend.message }, { status: 503 });
+    }
     if (!rateLimit.allowed) {
       logger.warn("Rate limit exceeded", { requestId, route, userId: user.id });
       return NextResponse.json(

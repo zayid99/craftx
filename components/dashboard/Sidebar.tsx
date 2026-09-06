@@ -39,6 +39,9 @@ function CrownIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+// Creator Coach removed pre-launch — it ran on Claude Sonnet and accounted for
+// ~95% of projected API cost. The route and page still exist but are gated by
+// COACH_ENABLED; re-add the nav entry here when the Coach comes back.
 const mainNav = [
   { name: "Home", href: "/dashboard", Icon: HomeIcon },
   { name: "Idea Studio", href: "/ideas", Icon: LightbulbIcon },
@@ -46,7 +49,6 @@ const mainNav = [
   { name: "SEO Studio", href: "/seo", Icon: SearchIcon },
   { name: "Script Analyzer", href: "/analyzer", Icon: PlayCircleIcon },
   { name: "Content Planner", href: "/planner", Icon: CalendarIcon },
-  { name: "Creator Coach", href: "/coach", Icon: UserIcon },
 ];
 
 const accountNav = [
