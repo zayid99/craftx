@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import GoogleButton from "@/components/auth/google-button";
 import {
   LightbulbIcon,
   UserIcon,
@@ -222,7 +223,11 @@ export default function SignupPage() {
                   All five tools on the free plan. No credit card needed.
                 </p>
 
-                <form onSubmit={handleSignup} className="mt-[26px] space-y-[16px]">
+                <div className="mt-[26px]">
+                  <GoogleButton label="Sign up with Google" />
+                </div>
+
+                <form onSubmit={handleSignup} className="mt-0 space-y-[16px]">
                   <div>
                     <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#374151]">
                       Email address
@@ -300,6 +305,21 @@ export default function SignupPage() {
                     {loading ? "Creating account…" : "Create free account →"}
                   </button>
                 </form>
+
+                {/* The Google button skips the Terms checkbox above, so consent
+                    has to be stated somewhere the user will actually see it —
+                    next to the buttons, not in the page footer. */}
+                <p className="mt-4 text-[13px] leading-[19px] text-[#9ca3af]">
+                  By continuing with Google, you agree to our{" "}
+                  <Link href="/terms" className="text-[#5b5bd6] hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-[#5b5bd6] hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
 
                 <div className="mt-[22px] flex items-start gap-[12px] rounded-[14px] border border-[#e9ebf3] bg-[#fafbfd] p-[16px]">
                   <span className="mt-[1px] text-[16px]">🔒</span>

@@ -76,7 +76,7 @@ export default function Sidebar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pathname]);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";

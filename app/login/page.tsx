@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import GoogleButton from "@/components/auth/google-button";
 import {
   FolderIcon,
   UserIcon,
@@ -155,7 +156,11 @@ export default function LoginPage() {
           <h2 className="text-[26px] font-bold tracking-[-0.4px] text-[#111827]">Log in</h2>
           <p className="mt-[6px] text-[15px] text-[#6b7280]">Continue to your workspace.</p>
 
-          <form onSubmit={handleLogin} className="mt-[26px] space-y-[16px]">
+                    <div className="mt-[26px]">
+            <GoogleButton label="Continue with Google" />
+          </div>
+
+          <form onSubmit={handleLogin} className="mt-0 space-y-[16px]">
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#374151]">
                 Email address
