@@ -495,7 +495,11 @@ export default function Home() {
             />
           </Link>
 
-          <div className="hidden items-center gap-[40px] text-[17px] text-[#374151] md:flex">
+          {/* max-md:hidden / max-sm:hidden instead of `hidden md:flex` and
+              `hidden sm:block` — see the note in workspace-shell.tsx. These
+              default to visible and hide below the breakpoint, so nothing
+              disappears if the breakpoint rule doesn't land. */}
+          <div className="flex items-center gap-[40px] text-[17px] text-[#374151] max-md:hidden">
             <a href="#tools" className="transition hover:text-[#111827]">Product</a>
             <a href="#workflow" className="transition hover:text-[#111827]">How it works</a>
             <a href="#pricing" className="transition hover:text-[#111827]">Pricing</a>
@@ -505,7 +509,7 @@ export default function Home() {
           <div className="flex items-center gap-[10px] sm:gap-[16px]">
             <Link
               href="/login"
-              className="hidden rounded-full border border-[#e5e7eb] bg-white px-[27px] py-[13px] text-[16px] text-[#111827] transition hover:border-[#c9c6f6] sm:block"
+              className="block whitespace-nowrap rounded-full border border-[#e5e7eb] bg-white px-[27px] py-[13px] text-[16px] text-[#111827] transition hover:border-[#c9c6f6] max-sm:hidden"
             >
               Log in
             </Link>

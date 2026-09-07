@@ -99,8 +99,14 @@ export default async function WorkspaceShell({
     <div className="min-h-screen bg-[var(--background)] text-[#111827]">
       <div className="flex">
         {/* The sticky/height wrapper lives here rather than on the aside, so
-            the same Sidebar can also render inside Topbar's mobile drawer. */}
-        <div className="sticky top-0 hidden h-screen shrink-0 md:block">
+            the same Sidebar can also render inside Topbar's mobile drawer.
+
+            max-md:hidden rather than `hidden md:block`. The second form is
+            "hidden by default, shown at md" — if the md: rule fails to apply
+            for any reason the element stays gone at every width, which is
+            exactly what Brave was doing. This form defaults to visible and
+            only hides below md, so a lost rule fails toward showing. */}
+        <div className="sticky top-0 block h-screen shrink-0 max-md:hidden">
           <Sidebar />
         </div>
 
