@@ -58,6 +58,23 @@ export default function Topbar({ email, plan, notices }: Props) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const wrapRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Close the drawer when the route changes.
+   *
+   * This was a useEffect calling setNavOpen(false), which Next 15's
+   * react-hooks/set-state-in-effect rule rejects — it fails the production
+   * build, not just the linter. Adjusting state during render is React's
+   * documented pattern for state derived from a prop or hook value, and it
+   * closes the drawer in the same render as the navigation rather than a
+   * frame later. https://react.dev/learn/you-might-not-need-an-effect
+   */
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    if (navOpen) setNavOpen(false);
+    if (openMenu !== "none") setOpenMenu("none");
+  }
+
   const title = TITLE_MATCHERS.find(([p]) => pathname.startsWith(p))?.[1] ?? "CraftX";
   const visible = notices.filter((n) => !dismissed.has(n.id));
   const initial = (email?.[0] ?? "C").toUpperCase();
@@ -83,13 +100,8 @@ export default function Topbar({ email, plan, notices }: Props) {
     };
   }, []);
 
-  // A route change while the drawer is open would otherwise leave the overlay
-  // covering the page it just navigated to.
-  useEffect(() => {
-    setNavOpen(false);
-  }, [pathname]);
-
-  // Stop the page behind the drawer from scrolling under it.
+  // Stop the page behind the drawer from scrolling under it. This effect only
+  // touches the DOM — no setState — so the rule above doesn't apply to it.
   useEffect(() => {
     if (!navOpen) return;
     const previous = document.body.style.overflow;
