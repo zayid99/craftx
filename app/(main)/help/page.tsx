@@ -79,10 +79,14 @@ export default function HelpPage() {
           >
             Contact support →
           </a>
-                    <p className="mt-3 text-xs leading-5 text-[#9ca3af]">
-            Or email us directly at{" "}
-            <span className="text-[#6b7280]">{SUPPORT_EMAIL}</span>
-          </p>
+                              <div className="mt-4 rounded-xl border border-[#e9ebf3] bg-[#fafbfd] px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-[0.8px] text-[#9ca3af]">
+              Email us
+            </p>
+            <p className="mt-1 select-all break-all text-[15px] font-semibold text-[#111827]">
+              {SUPPORT_EMAIL}
+            </p>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-[#ececf1] bg-white p-6">
