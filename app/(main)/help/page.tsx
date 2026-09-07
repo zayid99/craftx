@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const FAQS = [
   {
-    q: "How do the six studios work together?",
-    a: "Idea Studio finds topics, Script Studio structures one into a script, SEO Studio packages it for search, Content Planner schedules it, Script Analyzer reviews what you wrote, and Creator Coach ties it together. Saved work from one studio can be imported into the next.",
+    q: "How do the five studios work together?",
+    a: "Idea Studio finds topics, Script Studio structures one into a script, SEO Studio packages it for search, Content Planner schedules it, and Script Analyzer reviews what you wrote. Saved work from one studio can be imported into the next.",
   },
   {
     q: "Where does my saved work go?",
@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: "What happens when I hit my plan limit?",
-    a: "The studio shows how much of your monthly allowance you've used and offers an upgrade. Nothing you've already saved is affected.",
+    a: "The studio shows how much of your allowance you've used and offers an upgrade. On the free plan that allowance is a one-time amount to try the whole workflow; on paid plans it refreshes on the 1st of each month. Nothing you've already saved is affected either way.",
   },
   {
     q: "Can I cancel my subscription?",
@@ -26,6 +26,8 @@ const FAQS = [
     a: "Not currently. Script Analyzer works from a script or transcript you paste in. Most editing tools can export a transcript, and YouTube Studio can too for your own uploads.",
   },
 ];
+
+const SUPPORT_EMAIL = "craftxofficialbd@gmail.com";
 
 export default function HelpPage() {
   return (
@@ -71,9 +73,8 @@ export default function HelpPage() {
             Email us and we&apos;ll get back to you. Include the studio you were
             using and what you expected to happen.
           </p>
-          {/* TODO: replace with your real support address */}
           <a
-            href="mailto:support@craftx.app"
+            href={`mailto:${SUPPORT_EMAIL}`}
             className="mt-4 inline-flex rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
           >
             Contact support →
