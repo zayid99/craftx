@@ -791,16 +791,7 @@ export default function Home() {
                       <span className="truncate text-[15px] font-medium text-[#111827]">
                         {m.name}
                       </span>
-                      {m.status === "live" ? (
-                        <span
-                          className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981]"
-                          title="Available now"
-                        />
-                      ) : (
-                        <span className="shrink-0 rounded-full bg-[#f4f5f9] px-[7px] py-[1px] text-[10.5px] font-medium text-[#9ca3af]">
-                          Soon
-                        </span>
-                      )}
+                      <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981]" title="Available" />
                     </span>
                     <span className="mt-[2px] block truncate text-[12.5px] text-[#9ca3af]">
                      {m.provider}
