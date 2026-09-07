@@ -103,8 +103,15 @@ export default function SignupPage() {
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport
+   * whenever a focused input has a font-size below 16px, and it does not zoom
+   * back out afterwards — the page just stays shifted sideways. This is the
+   * form a paying customer meets first; keep the mobile value at 16px and
+   * step down to 14px only from sm: upward.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,600px)]">
@@ -167,42 +174,44 @@ export default function SignupPage() {
 
       {/* ============ right: the form ============ */}
       <main className="flex min-h-screen flex-col bg-white">
-        <header className="flex items-center justify-between px-6 py-[16px] lg:px-[52px]">
-          <Link href="/" className="flex shrink-0 items-center lg:hidden">
+        {/* A 44px logo is 220px wide at this 5:1 aspect ratio; with the log-in
+            line beside it the row overflowed a 390px viewport. */}
+        <header className="flex items-center justify-between gap-4 px-5 py-[12px] sm:px-6 sm:py-[16px] lg:px-[52px]">
+          <Link href="/" className="flex min-w-0 shrink items-center lg:hidden">
             <Image
               src="/brand/craftx-logo.png"
               alt="CraftX"
               width={1780}
               height={356}
-              className="h-[44px] w-auto"
+              className="h-[32px] w-auto sm:h-[44px]"
             />
           </Link>
-          <p className="ml-auto text-[14.5px] text-[#6b7280]">
-            Already have an account?{" "}
+          <p className="ml-auto shrink-0 text-[14px] text-[#6b7280] sm:text-[14.5px]">
+            <span className="hidden sm:inline">Already have an account? </span>
             <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
               Log in
             </Link>
           </p>
         </header>
 
-        <div className="flex flex-1 items-center justify-center px-6 py-[32px] lg:px-[52px]">
+        <div className="flex flex-1 items-center justify-center px-5 py-[24px] sm:px-6 sm:py-[32px] lg:px-[52px]">
           <div className="w-full max-w-[420px]">
             {checkInbox ? (
-              <div className="rounded-[20px] border border-[#ececf1] bg-[#fafbfd] p-[32px] text-center">
+              <div className="rounded-[20px] border border-[#ececf1] bg-[#fafbfd] p-[22px] text-center sm:p-[32px]">
                 <span className="mx-auto flex h-[52px] w-[52px] items-center justify-center rounded-[15px] bg-[#e9f9f0] text-[22px] text-[#059669]">
                   ✓
                 </span>
-                <h2 className="mt-[18px] text-[22px] font-bold tracking-[-0.3px] text-[#111827]">
+                <h2 className="mt-[18px] text-[21px] font-bold tracking-[-0.3px] text-[#111827] sm:text-[22px]">
                   Check your inbox
                 </h2>
                 <p className="mt-[10px] text-[15px] leading-[25px] text-[#6b7280]">
                   We sent a confirmation link to{" "}
-                  <span className="font-medium text-[#111827]">{email}</span>. Click it to
+                  <span className="break-all font-medium text-[#111827]">{email}</span>. Click it to
                   activate your account, then log in.
                 </p>
                 <Link
                   href="/login"
-                  className="mt-[22px] inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-5 py-3 text-[15px] font-medium text-white transition hover:bg-[#1b2338]"
+                  className="mt-[22px] inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] sm:py-3"
                 >
                   Go to login
                 </Link>
@@ -216,14 +225,14 @@ export default function SignupPage() {
                   FREE TO START
                 </span>
 
-                <h2 className="mt-[16px] text-[30px] font-bold tracking-[-0.5px] text-[#111827]">
+                <h2 className="mt-[16px] text-[27px] font-bold tracking-[-0.5px] text-[#111827] sm:text-[30px]">
                   Create your account
                 </h2>
                 <p className="mt-[8px] text-[15px] leading-[25px] text-[#6b7280]">
                   All five tools on the free plan. No credit card needed.
                 </p>
 
-                <div className="mt-[26px]">
+                <div className="mt-[22px] sm:mt-[26px]">
                   <GoogleButton label="Sign up with Google" />
                 </div>
 
@@ -237,6 +246,12 @@ export default function SignupPage() {
                       type="email"
                       required
                       autoComplete="email"
+                      /* Without these a mobile keyboard capitalises and
+                         autocorrects the address on the way in. */
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
@@ -255,6 +270,9 @@ export default function SignupPage() {
                         required
                         minLength={MIN_PASSWORD}
                         autoComplete="new-password"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder={`At least ${MIN_PASSWORD} characters`}
@@ -262,20 +280,23 @@ export default function SignupPage() {
                       />
                       <button
                         type="button"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#6b7280] transition hover:text-[#111827]"
+                        className="absolute right-0 top-0 flex h-full items-center px-[14px] text-[13px] font-medium text-[#6b7280] transition hover:text-[#111827]"
                       >
                         {showPassword ? "Hide" : "Show"}
                       </button>
                     </div>
                   </div>
 
-                  <label className="flex cursor-pointer items-start gap-[10px] text-[14px] leading-[21px] text-[#6b7280]">
+                  {/* 15px was below the 24px minimum for a comfortable touch
+                      target, and this checkbox gates the submit button. */}
+                  <label className="flex cursor-pointer items-start gap-[10px] py-[2px] text-[14px] leading-[21px] text-[#6b7280]">
                     <input
                       type="checkbox"
                       checked={agreed}
                       onChange={(e) => setAgreed(e.target.checked)}
-                      className="mt-[3px] h-[15px] w-[15px] shrink-0 rounded border-[#d8d9e4]"
+                      className="mt-[2px] h-[18px] w-[18px] shrink-0 rounded border-[#d8d9e4] accent-[#6856fd]"
                     />
                     <span>
                       I agree to the{" "}
@@ -299,7 +320,7 @@ export default function SignupPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-xl px-5 py-3 text-[15px] font-medium text-white transition hover:opacity-95 disabled:opacity-50"
+                    className="w-full rounded-xl px-5 py-3.5 text-[15px] font-medium text-white transition hover:opacity-95 disabled:opacity-50 sm:py-3"
                     style={{ backgroundImage: "linear-gradient(90deg,#6856fd,#3d98fb)" }}
                   >
                     {loading ? "Creating account…" : "Create free account →"}
@@ -321,7 +342,7 @@ export default function SignupPage() {
                   .
                 </p>
 
-                <div className="mt-[22px] flex items-start gap-[12px] rounded-[14px] border border-[#e9ebf3] bg-[#fafbfd] p-[16px]">
+                <div className="mt-[22px] flex items-start gap-[12px] rounded-[14px] border border-[#e9ebf3] bg-[#fafbfd] p-[14px] sm:p-[16px]">
                   <span className="mt-[1px] text-[16px]">🔒</span>
                   <p className="text-[13.5px] leading-[21px] text-[#6b7280]">
                     Your work stays private. We never use your content to train AI models, and we
@@ -333,8 +354,8 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <footer className="border-t border-[#eceef2] px-6 py-[18px] lg:px-[52px]">
-          <div className="flex flex-col gap-[10px] text-[13.5px] text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between">
+        <footer className="border-t border-[#eceef2] px-5 py-[16px] sm:px-6 sm:py-[18px] lg:px-[52px]">
+          <div className="flex flex-col gap-[10px] text-[13px] text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between sm:text-[13.5px]">
             <span>© 2026 CraftX. All rights reserved.</span>
             <div className="flex flex-wrap gap-[18px]">
               <Link href="/terms" className="transition hover:text-[#111827]">Terms</Link>

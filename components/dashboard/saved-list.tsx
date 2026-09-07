@@ -79,14 +79,30 @@ export default function SavedList({
   const [openId, setOpenId] = useState<string | null>(null);
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const alive = items.filter((i) => !removed.has(i.id));
   const visible = alive.filter((i) => filter === "all" || i.kind === filter);
 
+  /**
+   * Delete is permanent and there's no undo, so it now takes two taps. The
+   * buttons sit close together on a phone and a mis-tap used to destroy saved
+   * work outright.
+   */
   function handleDelete(item: SavedItem) {
     setError(null);
+
+    if (confirmId !== item.id) {
+      setConfirmId(item.id);
+      window.setTimeout(() => {
+        setConfirmId((current) => (current === item.id ? null : current));
+      }, 4000);
+      return;
+    }
+
+    setConfirmId(null);
     startTransition(async () => {
       const res = await deleteSavedItem(item.kind, item.id);
       if (res.ok) {
@@ -108,16 +124,22 @@ export default function SavedList({
     }
   }
 
+  /** Shared button sizing — a taller target below sm:, original size above. */
+  const action =
+    "rounded-lg px-3 py-2 text-xs font-medium transition sm:px-2.5 sm:py-1.5";
+
   return (
     <section className="rounded-2xl border border-[#ececf1] bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#ececf1] px-6 py-5">
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight text-[#111827]">{title}</h3>
-          <p className="mt-1 text-sm text-[#6b7280]">{description}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#ececf1] px-4 py-4 sm:items-center sm:gap-4 sm:px-6 sm:py-5">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
+            {title}
+          </h3>
+          <p className="mt-1 text-[13px] text-[#6b7280] sm:text-sm">{description}</p>
         </div>
 
         {showFilters ? (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto">
             {FILTERS.map((f) => {
               const count =
                 f.key === "all" ? alive.length : alive.filter((i) => i.kind === f.key).length;
@@ -127,7 +149,7 @@ export default function SavedList({
                   key={f.key}
                   type="button"
                   onClick={() => setFilter(f.key)}
-                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                  className={`rounded-full px-3 py-2 text-[13px] font-medium transition sm:px-3.5 sm:py-1.5 sm:text-sm ${
                     filter === f.key
                       ? "bg-[#0b1020] text-white"
                       : "border border-[#e5e7eb] text-[#6b7280] hover:text-[#111827]"
@@ -149,13 +171,13 @@ export default function SavedList({
       </div>
 
       {error && (
-        <p className="border-b border-[#ececf1] bg-[#fef2f2] px-6 py-3 text-sm text-[#b91c1c]">
+        <p className="border-b border-[#ececf1] bg-[#fef2f2] px-4 py-3 text-sm text-[#b91c1c] sm:px-6">
           {error}
         </p>
       )}
 
       {visible.length === 0 ? (
-        <div className="px-6 py-14 text-center">
+        <div className="px-4 py-10 text-center sm:px-6 sm:py-14">
           <p className="text-sm font-medium text-[#374151]">
             {alive.length === 0 ? emptyTitle : "Nothing saved in this category yet."}
           </p>
@@ -163,7 +185,7 @@ export default function SavedList({
           {emptyCta && (
             <Link
               href={emptyCta.href}
-              className="mt-5 inline-flex rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
+              className="mt-5 inline-flex rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
             >
               {emptyCta.label} →
             </Link>
@@ -174,10 +196,15 @@ export default function SavedList({
           {visible.map((item) => {
             const meta = KIND_META[item.kind];
             const isOpen = openId === item.id;
+            const isConfirming = confirmId === item.id;
 
             return (
-              <li key={item.id} className="px-6 py-4">
-                <div className="flex items-start justify-between gap-4">
+              <li key={item.id} className="px-4 py-4 sm:px-6">
+                {/* The action row was shrink-0 beside a min-w-0 flex-1 title.
+                    Four buttons come to ~248px, which left under 50px for the
+                    title on a phone — so it collapsed instead of wrapping.
+                    Stack the two below sm: and let the buttons wrap. */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <button
                     type="button"
                     onClick={() => setOpenId(isOpen ? null : item.id)}
@@ -187,10 +214,10 @@ export default function SavedList({
 
                     <span className="min-w-0">
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="truncate text-sm font-medium text-[#111827]">
+                        <span className="min-w-0 break-words text-sm font-medium text-[#111827] sm:truncate">
                           {item.title}
                         </span>
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.chip}`}>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.chip}`}>
                           {meta.label}
                         </span>
                       </span>
@@ -208,11 +235,11 @@ export default function SavedList({
                     </span>
                   </button>
 
-                  <div className="flex shrink-0 items-center gap-1">
+                  <div className="-mx-1 flex flex-wrap items-center gap-1 sm:mx-0 sm:shrink-0 sm:flex-nowrap">
                     <button
                       type="button"
                       onClick={() => setOpenId(isOpen ? null : item.id)}
-                      className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#6b7280] transition hover:bg-[#f4f5f8] hover:text-[#111827]"
+                      className={`${action} text-[#6b7280] hover:bg-[#f4f5f8] hover:text-[#111827]`}
                     >
                       {isOpen ? "Hide" : "View"}
                     </button>
@@ -220,7 +247,7 @@ export default function SavedList({
                     <button
                       type="button"
                       onClick={() => handleCopy(item)}
-                      className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#6b7280] transition hover:bg-[#f4f5f8] hover:text-[#111827]"
+                      className={`${action} text-[#6b7280] hover:bg-[#f4f5f8] hover:text-[#111827]`}
                     >
                       {copiedId === item.id ? "Copied ✓" : "Copy"}
                     </button>
@@ -228,7 +255,7 @@ export default function SavedList({
                     {showOpenStudio && (
                       <Link
                         href={item.href}
-                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#6b7280] transition hover:bg-[#f4f5f8] hover:text-[#111827]"
+                        className={`${action} text-[#6b7280] hover:bg-[#f4f5f8] hover:text-[#111827]`}
                       >
                         Open studio
                       </Link>
@@ -238,21 +265,28 @@ export default function SavedList({
                       type="button"
                       disabled={pending}
                       onClick={() => handleDelete(item)}
-                      className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#9ca3af] transition hover:bg-[#fef2f2] hover:text-[#b91c1c] disabled:opacity-50"
+                      aria-label={
+                        isConfirming ? `Confirm delete ${item.title}` : `Delete ${item.title}`
+                      }
+                      className={`${action} disabled:opacity-50 ${
+                        isConfirming
+                          ? "bg-[#fef2f2] text-[#b91c1c]"
+                          : "text-[#9ca3af] hover:bg-[#fef2f2] hover:text-[#b91c1c]"
+                      }`}
                     >
-                      Delete
+                      {isConfirming ? "Tap to confirm" : "Delete"}
                     </button>
                   </div>
                 </div>
 
                 {isOpen && (
-                  <div className="mt-3 space-y-3 rounded-xl bg-[#fafafc] p-4">
+                  <div className="mt-3 space-y-3 rounded-xl bg-[#fafafc] p-3.5 sm:p-4">
                     {item.preview.map((p) => (
                       <div key={p.label}>
                         <p className="text-[11px] font-medium uppercase tracking-wide text-[#9ca3af]">
                           {p.label}
                         </p>
-                        <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#374151]">
+                        <p className="mt-1 whitespace-pre-line break-words text-sm leading-6 text-[#374151]">
                           {p.value}
                         </p>
                       </div>

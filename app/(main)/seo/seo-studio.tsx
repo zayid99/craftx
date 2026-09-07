@@ -258,13 +258,21 @@ export default function SEOStudio({
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport when a
+   * focused input or select is under 16px and never zooms back out.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
   const copyBtn =
-    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa]";
+    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa] sm:py-1.5";
+  /** Six tabs wrapped to three rows on a phone. One scrolling line instead. */
+  const tabRow =
+    "-mx-4 flex flex-1 gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden";
+  const tabBtn = "shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition sm:py-1.5";
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-6">
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 sm:space-y-6">
       {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
@@ -272,7 +280,7 @@ export default function SEOStudio({
             SEO STUDIO
           </span>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:mt-4 sm:text-3xl md:text-4xl">
             Rank higher.{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -282,7 +290,7 @@ export default function SEOStudio({
             </span>
           </h2>
 
-          <p className="mt-2 text-[#6b7280]">
+          <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
             Optimize your titles, descriptions, keywords and hashtags to reach the right audience.
           </p>
         </div>
@@ -292,14 +300,14 @@ export default function SEOStudio({
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ============ main column ============ */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* input card */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                   Enter your video details
                 </h3>
                 <p className="mt-1 text-sm text-[#6b7280]">
@@ -308,6 +316,8 @@ export default function SEOStudio({
               </div>
 
               {scriptOptions.length > 0 && (
+                /* Intrinsic-width select next to a heading in a flex-wrap row
+                   could exceed the viewport. Full width on a phone instead. */
                 <select
                   aria-label="Import a topic from Script Studio"
                   value=""
@@ -317,7 +327,7 @@ export default function SEOStudio({
                     setTopic(s.topic.slice(0, TOPIC_LIMIT));
                     if (PLATFORMS.some((p) => p.value === s.platform)) setPlatform(s.platform);
                   }}
-                  className="rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm text-[#374151] outline-none transition focus:border-[#c9c6f6]"
+                  className="w-full max-w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] text-[#374151] outline-none transition focus:border-[#c9c6f6] sm:w-auto sm:py-2.5 sm:text-sm"
                 >
                   <option value="">Import from Script Studio…</option>
                   {scriptOptions.map((s) => (
@@ -329,7 +339,7 @@ export default function SEOStudio({
               )}
             </div>
 
-            <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="mt-4 grid gap-4 sm:mt-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
               <div>
                 <label htmlFor="topic" className="mb-1.5 block text-sm font-medium text-[#374151]">
                   Video topic / title
@@ -372,7 +382,7 @@ export default function SEOStudio({
               <button
                 type="button"
                 onClick={() => setAdvancedOpen((v) => !v)}
-                className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-[#374151]"
+                className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-medium text-[#374151] sm:py-3"
               >
                 Advanced options
                 <span className={`text-[#9ca3af] transition-transform ${advancedOpen ? "rotate-180" : ""}`}>
@@ -426,7 +436,7 @@ export default function SEOStudio({
                       value={contentDescription}
                       onChange={(e) => setContentDescription(e.target.value)}
                       placeholder="Anything specific the video covers — produces sharper keywords."
-                      className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6]"
+                      className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -442,7 +452,7 @@ export default function SEOStudio({
               type="button"
               onClick={handleGenerate}
               disabled={loading || !topic.trim()}
-              className="mt-4 w-full rounded-xl bg-[#0b1020] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:w-auto"
+              className="mt-4 w-full rounded-xl bg-[#0b1020] px-6 py-3.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:w-auto sm:py-3"
             >
               {loading ? "Generating…" : "Generate SEO →"}
             </button>
@@ -474,14 +484,14 @@ export default function SEOStudio({
           {/* results */}
           {!loading && result && (
             <div className="rounded-2xl border border-[#ececf1] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-5 py-4">
-                <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-4 py-3 sm:px-5 sm:py-4">
+                <div className={tabRow}>
                   {TABS.map((t) => (
                     <button
                       key={t.key}
                       type="button"
                       onClick={() => setTab(t.key)}
-                      className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                      className={`${tabBtn} ${
                         tab === t.key
                           ? "bg-[#eef0fb] text-[#5b5bd6]"
                           : "text-[#6b7280] hover:text-[#111827]"
@@ -502,17 +512,17 @@ export default function SEOStudio({
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* OVERVIEW */}
                 {tab === "overview" && (
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-[#ececf1] p-5">
-                      <div className="flex items-start justify-between gap-4">
+                    <div className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-3 sm:gap-4">
                         <div className="min-w-0">
                           <p className="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                             Recommended title
                           </p>
-                          <p className="mt-2 text-base font-semibold leading-7 text-[#111827]">
+                          <p className="mt-2 break-words text-base font-semibold leading-7 text-[#111827]">
                             {result.titles[0]?.text}
                           </p>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -543,8 +553,8 @@ export default function SEOStudio({
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-[#ececf1] p-5">
-                      <div className="flex items-start justify-between gap-4">
+                    <div className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-3 sm:gap-4">
                         <p className="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                           Recommended description
                         </p>
@@ -556,13 +566,13 @@ export default function SEOStudio({
                           {copiedKey === "d" ? "Copied ✓" : "Copy"}
                         </button>
                       </div>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#374151]">
+                      <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-[#374151]">
                         {result.description}
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-[#ececf1] p-5">
-                      <div className="flex items-start justify-between gap-4">
+                    <div className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-3 sm:gap-4">
                         <p className="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                           Top keywords
                         </p>
@@ -583,7 +593,7 @@ export default function SEOStudio({
                       </div>
                     </div>
 
-                    <div className="rounded-xl bg-[#fafafc] p-5">
+                    <div className="rounded-xl bg-[#fafafc] p-4 sm:p-5">
                       <p className="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                         Search intent
                       </p>
@@ -598,12 +608,12 @@ export default function SEOStudio({
                     {result.titles.map((t, i) => {
                       const long = t.text.length > TITLE_LIMIT;
                       return (
-                        <li key={i} className="flex items-start justify-between gap-4 py-4 first:pt-0">
+                        <li key={i} className="flex items-start justify-between gap-3 py-4 first:pt-0 sm:gap-4">
                           <div className="min-w-0">
                             <span className="rounded-full bg-[#eef4ff] px-2 py-0.5 text-[11px] font-medium text-[#2563eb]">
                               {t.angle}
                             </span>
-                            <p className="mt-2 text-sm leading-6 text-[#111827]">{t.text}</p>
+                            <p className="mt-2 break-words text-sm leading-6 text-[#111827]">{t.text}</p>
                             <p className={`mt-1 text-xs ${long ? "text-[#ea580c]" : "text-[#9ca3af]"}`}>
                               {t.text.length} characters{long ? " · may be truncated in search" : ""}
                             </p>
@@ -620,7 +630,7 @@ export default function SEOStudio({
                 {/* DESCRIPTION */}
                 {tab === "description" && (
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="text-sm text-[#6b7280]">
                         {result.description.length} characters
                       </p>
@@ -628,7 +638,7 @@ export default function SEOStudio({
                         {copiedKey === "d2" ? "Copied ✓" : "Copy"}
                       </button>
                     </div>
-                    <p className="mt-4 whitespace-pre-wrap rounded-xl bg-[#fafafc] p-5 text-sm leading-7 text-[#374151]">
+                    <p className="mt-4 whitespace-pre-wrap break-words rounded-xl bg-[#fafafc] p-4 text-sm leading-7 text-[#374151] sm:p-5">
                       {result.description}
                     </p>
                   </div>
@@ -637,7 +647,7 @@ export default function SEOStudio({
                 {/* KEYWORDS */}
                 {tab === "keywords" && (
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="text-sm text-[#6b7280]">{result.keywords.length} keywords</p>
                       <button type="button" onClick={() => copy("k2", result.keywords.join(", "))} className={copyBtn}>
                         {copiedKey === "k2" ? "Copied ✓" : "Copy all"}
@@ -656,7 +666,7 @@ export default function SEOStudio({
                 {/* HASHTAGS */}
                 {tab === "hashtags" && (
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="text-sm text-[#6b7280]">{result.hashtags.length} hashtags</p>
                       <button
                         type="button"
@@ -690,7 +700,7 @@ export default function SEOStudio({
                         >
                           ✓
                         </span>
-                        <div>
+                        <div className="min-w-0">
                           <p className={`text-sm ${c.passed ? "text-[#374151]" : "text-[#9ca3af]"}`}>
                             {c.label}
                           </p>
@@ -707,12 +717,12 @@ export default function SEOStudio({
                   </p>
                 )}
 
-                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#f1f2f6] pt-5">
+                <div className="mt-6 flex flex-col items-stretch gap-3 border-t border-[#f1f2f6] pt-5 sm:flex-row sm:flex-wrap sm:items-center">
                   <button
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                    className="rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-2.5"
                   >
                     {saving ? "Saving…" : "Save SEO set"}
                   </button>
@@ -723,7 +733,7 @@ export default function SEOStudio({
           )}
 
           {!loading && !result && !error && !upgradeInfo && (
-            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-6 py-14 text-center">
+            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-4 py-10 text-center sm:px-6 sm:py-14">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#e9f9f0] text-[#10b981]">
                 <SearchIcon className="h-6 w-6" />
               </span>
@@ -736,8 +746,8 @@ export default function SEOStudio({
         </div>
 
         {/* ============ right rail ============ */}
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+        <aside className="space-y-4 sm:space-y-6">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Optimization score</p>
             <p className="mt-1 text-xs text-[#9ca3af]">
               Based on the checklist below — not external search data.
@@ -791,7 +801,7 @@ export default function SEOStudio({
 
           {plan === "free" && (
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white sm:p-5"
               style={{
                 backgroundImage:
                   "linear-gradient(140deg,#0b1020 0%,#151a2e 55%,#3a2f7a 100%)",
@@ -803,7 +813,7 @@ export default function SEOStudio({
               </p>
               <Link
                 href="/dashboard/settings"
-                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →
               </Link>

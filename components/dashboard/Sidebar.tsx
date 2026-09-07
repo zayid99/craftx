@@ -57,7 +57,16 @@ const accountNav = [
   { name: "Help & Support", href: "/help", Icon: PlusIcon },
 ];
 
-export default function Sidebar() {
+/**
+ * Rendered in two places:
+ *   - desktop: a fixed column in WorkspaceShell (>= md)
+ *   - mobile:  inside the slide-in drawer owned by Topbar (< md)
+ *
+ * `onNavigate` is only passed by the drawer. It fires on every link tap so the
+ * drawer closes itself — without it, tapping a studio navigates behind an
+ * overlay that stays open.
+ */
+export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const [plan, setPlan] = useState<PlanId | null>(null);
 
@@ -90,6 +99,7 @@ export default function Sidebar() {
       <Link
         key={item.href}
         href={item.href}
+        onClick={onNavigate}
         aria-current={active ? "page" : undefined}
         className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
           active
@@ -104,10 +114,13 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[248px] flex-col border-r border-[#ececf1] bg-white">
+    /* h-full, not h-screen: inside the drawer the parent already sets the
+       height, and h-screen there overflows past the bottom of the viewport
+       on browsers with a dynamic URL bar. */
+    <aside className="flex h-full w-[248px] shrink-0 flex-col border-r border-[#ececf1] bg-white">
       {/* logo */}
-      <div className="flex h-[72px] shrink-0 items-center px-5">
-        <Link href="/dashboard" className="flex items-center">
+      <div className="flex h-[60px] shrink-0 items-center px-5 md:h-[72px]">
+        <Link href="/dashboard" onClick={onNavigate} className="flex items-center">
           <Image
             src="/brand/craftx-logo.png"
             alt="CRAFTX"
@@ -161,6 +174,7 @@ export default function Sidebar() {
 
             <Link
               href="/dashboard/settings"
+              onClick={onNavigate}
               className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
             >
               {plan === "free" ? "Upgrade now" : "Manage plan"}
@@ -171,7 +185,6 @@ export default function Sidebar() {
           <div className="h-[186px] animate-pulse rounded-2xl bg-[#f4f5f8]" />
         )}
       </div>
-
     </aside>
   );
 }

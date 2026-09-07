@@ -253,26 +253,35 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-[1400px]">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 sm:space-y-6">
+      {/* SavedList used to live at the bottom of the left column. Below xl the
+          right rail stacks underneath that column, which buried the upgrade CTA
+          and the profile-completion card under up to 40 library items. Pulling
+          the library out as a sibling keeps the rail beside the top content on
+          desktop and directly after it on every narrower screen. It also gives
+          the filterable library the full width, which suits it better. */}
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* ---------------- main column ---------------- */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* greeting */}
           <div>
-            <p className="text-sm text-[#9ca3af]">{today}</p>
-            <h2 className="mt-1 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+            <p className="text-[13px] text-[#9ca3af] sm:text-sm">{today}</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:text-3xl md:text-4xl">
               {greeting()}, {displayName}.
             </h2>
-            <p className="mt-2 text-[#6b7280]">What are you creating today?</p>
+            <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
+              What are you creating today?
+            </p>
           </div>
 
-          {/* stats */}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {/* stats — two across on the phone. One column meant ~560px of
+              scroll for four numbers. */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
             {stats.map((s) => (
               <Link
                 key={s.label}
                 href={s.href}
-                className={`group rounded-2xl ${s.tint} p-5 transition hover:-translate-y-0.5`}
+                className={`group rounded-2xl ${s.tint} p-4 transition hover:-translate-y-0.5 sm:p-5`}
               >
                 <div className="flex items-center justify-between">
                   <span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 ${s.icon}`}>
@@ -280,8 +289,10 @@ export default async function DashboardPage() {
                   </span>
                   <span className="text-[#9ca3af] transition group-hover:translate-x-0.5">→</span>
                 </div>
-                <p className="mt-4 text-3xl font-bold tracking-tight text-[#111827]">{s.value}</p>
-                <p className="mt-1 text-sm text-[#6b7280]">
+                <p className="mt-3 text-2xl font-bold tracking-tight text-[#111827] sm:mt-4 sm:text-3xl">
+                  {s.value}
+                </p>
+                <p className="mt-1 text-[13px] text-[#6b7280] sm:text-sm">
                   {s.label} <span className="text-[#9ca3af]">{s.hint}</span>
                 </p>
               </Link>
@@ -290,20 +301,22 @@ export default async function DashboardPage() {
 
           {/* recommended next step */}
           <div
-            className="relative overflow-hidden rounded-2xl p-7 text-white"
+            className="relative overflow-hidden rounded-2xl p-5 text-white sm:p-7"
             style={{
               backgroundImage:
                 "linear-gradient(100deg,#0b1020 0%,#151a2e 55%,#3a2f7a 82%,#5b6fd6 100%)",
             }}
           >
-            <p className="text-xs uppercase tracking-[1.5px] text-white/45">
+            <p className="text-[11px] uppercase tracking-[1.5px] text-white/45 sm:text-xs">
               {nextStep.eyebrow}
             </p>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight">{nextStep.title}</h3>
+            <h3 className="mt-2.5 text-xl font-semibold tracking-tight sm:mt-3 sm:text-2xl">
+              {nextStep.title}
+            </h3>
             <p className="mt-2 max-w-xl text-sm leading-6 text-[#c8ccdb]">{nextStep.body}</p>
             <Link
               href={nextStep.href}
-              className="mt-5 inline-flex rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+              className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-5 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:mt-5 sm:w-auto sm:py-2.5"
             >
               {nextStep.cta} →
             </Link>
@@ -311,8 +324,8 @@ export default async function DashboardPage() {
 
           {/* quick actions */}
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+            <div className="mb-3 flex items-center justify-between sm:mb-4">
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                 Quick actions
               </h3>
             </div>
@@ -334,25 +347,15 @@ export default async function DashboardPage() {
               ))}
             </div>
           </div>
-
-          {/* saved work — the library at the bottom */}
-          <SavedList
-            items={savedItems}
-            showFilters
-            description="Everything you've saved across CraftX, newest first."
-            emptyTitle="You haven't saved anything yet."
-            emptyBody="Generate ideas, scripts, SEO, plans or analyses and hit save — they all collect here."
-            emptyCta={{ label: "Generate your first idea", href: "/ideas" }}
-          />
         </div>
 
         {/* ---------------- right rail ---------------- */}
-        <aside className="space-y-6">
+        <aside className="space-y-4 sm:space-y-6">
           {/* plan */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
-            <div className="flex items-center justify-between">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-[#6b7280]">Your plan</p>
-              <span className="rounded-full bg-[#eef0fb] px-2.5 py-1 text-xs font-medium text-[#6856fd]">
+              <span className="shrink-0 rounded-full bg-[#eef0fb] px-2.5 py-1 text-xs font-medium text-[#6856fd]">
                 {PLAN_LABEL[plan] ?? "Free plan"}
               </span>
             </div>
@@ -365,7 +368,7 @@ export default async function DashboardPage() {
                 </p>
                 <Link
                   href="/dashboard/settings"
-                  className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
+                  className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
                 >
                   Upgrade now →
                 </Link>
@@ -377,7 +380,7 @@ export default async function DashboardPage() {
                 </p>
                 <Link
                   href="/dashboard/settings"
-                  className="mt-4 inline-flex w-full justify-center rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa]"
+                  className="mt-4 inline-flex w-full justify-center rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] sm:py-2.5"
                 >
                   Manage subscription
                 </Link>
@@ -386,12 +389,12 @@ export default async function DashboardPage() {
           </div>
 
           {/* profile completion */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
-            <div className="flex items-center justify-between">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-[#111827]">
                 Complete your creator profile
               </p>
-              <span className="text-sm font-semibold text-[#111827]">{completion}%</span>
+              <span className="shrink-0 text-sm font-semibold text-[#111827]">{completion}%</span>
             </div>
 
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f1f2f6]">
@@ -404,17 +407,19 @@ export default async function DashboardPage() {
               />
             </div>
 
-            <ul className="mt-4 space-y-2.5">
+            {/* Two across below sm: six single-file rows is a lot of height for
+                a checklist that's mostly ticks. */}
+            <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-1 sm:space-y-0">
               {profileChecks.map((c) => (
                 <li key={c.label} className="flex items-center gap-2.5 text-sm">
                   <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] ${
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
                       c.done ? "bg-[#6856fd] text-white" : "border border-[#d8d9e4] text-transparent"
                     }`}
                   >
                     ✓
                   </span>
-                  <span className={c.done ? "text-[#374151]" : "text-[#9ca3af]"}>
+                  <span className={`truncate ${c.done ? "text-[#374151]" : "text-[#9ca3af]"}`}>
                     {c.label}
                   </span>
                 </li>
@@ -423,14 +428,14 @@ export default async function DashboardPage() {
 
             <Link
               href="/creator-profile"
-              className="mt-5 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
+              className="mt-5 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
             >
               {completion === 100 ? "Edit profile" : "Continue setup"} →
             </Link>
           </div>
 
           {/* library summary */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Your library</p>
             <ul className="mt-4 space-y-3">
               {[
@@ -440,18 +445,28 @@ export default async function DashboardPage() {
                 { label: "Content plans", value: planCount, dot: "bg-[#f97316]" },
                 { label: "Script analyses", value: analysisCount, dot: "bg-[#ec4899]" },
               ].map((row) => (
-                <li key={row.label} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2.5 text-[#6b7280]">
-                    <span className={`h-2 w-2 rounded-full ${row.dot}`} />
-                    {row.label}
+                <li key={row.label} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="flex min-w-0 items-center gap-2.5 text-[#6b7280]">
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`} />
+                    <span className="truncate">{row.label}</span>
                   </span>
-                  <span className="font-semibold text-[#111827]">{row.value}</span>
+                  <span className="shrink-0 font-semibold text-[#111827]">{row.value}</span>
                 </li>
               ))}
             </ul>
           </div>
         </aside>
       </div>
+
+      {/* saved work — the library, full width below both columns */}
+      <SavedList
+        items={savedItems}
+        showFilters
+        description="Everything you've saved across CraftX, newest first."
+        emptyTitle="You haven't saved anything yet."
+        emptyBody="Generate ideas, scripts, SEO, plans or analyses and hit save — they all collect here."
+        emptyCta={{ label: "Generate your first idea", href: "/ideas" }}
+      />
     </div>
   );
 }

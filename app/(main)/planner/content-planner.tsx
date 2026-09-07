@@ -231,14 +231,19 @@ export default function ContentPlanner({
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport when a
+   * focused input or select is under 16px and never zooms back out — and every
+   * day of a 30-day plan is editable in place here.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
   const label = "mb-1.5 block text-sm font-medium text-[#374151]";
   const smallBtn =
-    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa]";
+    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa] sm:py-1.5";
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-6">
+    <div className="mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
       {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
@@ -246,7 +251,7 @@ export default function ContentPlanner({
             CONTENT PLANNER
           </span>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:mt-4 sm:text-3xl md:text-4xl">
             Plan today. Post with purpose.{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -256,7 +261,7 @@ export default function ContentPlanner({
             </span>
           </h2>
 
-          <p className="mt-2 text-[#6b7280]">
+          <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
             Organize your content, plan ahead and never run out of ideas.
           </p>
         </div>
@@ -266,7 +271,7 @@ export default function ContentPlanner({
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* ============ main ============ */}
         <div className="space-y-4">
           {/* setup form */}
@@ -274,10 +279,10 @@ export default function ContentPlanner({
             <button
               type="button"
               onClick={() => setFormOpen((v) => !v)}
-              className="flex w-full items-center justify-between px-6 py-5 text-left"
+              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:px-6 sm:py-5"
             >
-              <div>
-                <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                   {result ? "Plan settings" : "Set up your content plan"}
                 </h3>
                 <p className="mt-1 text-sm text-[#6b7280]">
@@ -286,13 +291,13 @@ export default function ContentPlanner({
                     : "Tell CraftX your niche, platform and how far ahead to plan."}
                 </p>
               </div>
-              <span className={`text-[#9ca3af] transition-transform ${formOpen ? "rotate-180" : ""}`}>
+              <span className={`shrink-0 text-[#9ca3af] transition-transform ${formOpen ? "rotate-180" : ""}`}>
                 ⌄
               </span>
             </button>
 
             {formOpen && (
-              <div className="border-t border-[#ececf1] p-6">
+              <div className="border-t border-[#ececf1] p-4 sm:p-6">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <div>
                     <label htmlFor="niche" className={label}>Niche</label>
@@ -353,7 +358,7 @@ export default function ContentPlanner({
                           key={d}
                           type="button"
                           onClick={() => setDurationDays(d)}
-                          className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                          className={`flex-1 rounded-xl border px-3 py-3 text-sm font-medium transition sm:py-2.5 ${
                             durationDays === d
                               ? "border-transparent bg-[#0b1020] text-white"
                               : "border-[#e5e7eb] text-[#374151] hover:bg-[#f7f8fa]"
@@ -366,12 +371,12 @@ export default function ContentPlanner({
                   </div>
                 </div>
 
-                <label className="mt-4 flex items-center gap-2.5 text-sm text-[#374151]">
+                <label className="mt-4 flex cursor-pointer items-center gap-2.5 py-1 text-sm text-[#374151]">
                   <input
                     type="checkbox"
                     checked={autoFill}
                     onChange={(e) => setAutoFill(e.target.checked)}
-                    className="h-4 w-4 rounded border-[#d8d9e4]"
+                    className="h-[18px] w-[18px] shrink-0 rounded border-[#d8d9e4] accent-[#6856fd]"
                   />
                   Auto-fill every day with a topic
                 </label>
@@ -385,7 +390,7 @@ export default function ContentPlanner({
                   type="button"
                   onClick={handleGenerate}
                   disabled={loading || !niche.trim()}
-                  className="mt-4 rounded-xl bg-[#0b1020] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                  className="mt-4 w-full rounded-xl bg-[#0b1020] px-6 py-3.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:w-auto sm:py-3"
                 >
                   {loading ? "Building your plan…" : result ? "Regenerate plan →" : "Generate plan →"}
                 </button>
@@ -419,15 +424,16 @@ export default function ContentPlanner({
           {/* the plan */}
           {!loading && result && (
             <div className="rounded-2xl border border-[#ececf1] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-6 py-4">
-                <div className="flex flex-wrap items-center gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-4 py-3 sm:px-6 sm:py-4">
+                {/* A 30-day plan is five week tabs — scroll rather than wrap. */}
+                <div className="-mx-4 flex flex-1 items-center gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
                   {weeks.length > 1 ? (
                     weeks.map((_, i) => (
                       <button
                         key={i}
                         type="button"
                         onClick={() => setWeek(i)}
-                        className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                        className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition sm:py-1.5 ${
                           week === i ? "bg-[#eef0fb] text-[#5b5bd6]" : "text-[#6b7280] hover:text-[#111827]"
                         }`}
                       >
@@ -463,7 +469,7 @@ export default function ContentPlanner({
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="rounded-lg bg-[#0b1020] px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                    className="shrink-0 rounded-lg bg-[#0b1020] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-1.5"
                   >
                     {saving ? "Saving…" : "Save plan"}
                   </button>
@@ -471,7 +477,7 @@ export default function ContentPlanner({
               </div>
 
               {savedMessage && (
-                <p className="border-b border-[#ececf1] bg-[#fafafc] px-6 py-2.5 text-sm text-[#6b7280]">
+                <p className="border-b border-[#ececf1] bg-[#fafafc] px-4 py-2.5 text-sm text-[#6b7280] sm:px-6">
                   {savedMessage}
                 </p>
               )}
@@ -482,8 +488,11 @@ export default function ContentPlanner({
                   const isEditing = editingDay === d.day;
 
                   return (
-                    <li key={d.day} className="px-6 py-5">
-                      <div className="flex items-start gap-4">
+                    <li key={d.day} className="px-4 py-4 sm:px-6 sm:py-5">
+                      {/* Edit/Copy were a shrink-0 column beside the content.
+                          On a phone that left the topic about 200px wide; below
+                          sm: the actions move under the day instead. */}
+                      <div className="flex items-start gap-3 sm:gap-4">
                         <span className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[#f4f5f8]">
                           <span className="text-[10px] uppercase text-[#9ca3af]">Day</span>
                           <span className="text-sm font-bold text-[#111827]">{d.day}</span>
@@ -527,12 +536,12 @@ export default function ContentPlanner({
                                 value={d.notes}
                                 onChange={(e) => updateDay(d.day, "notes", e.target.value)}
                                 placeholder="Notes"
-                                className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm leading-6 outline-none transition focus:border-[#c9c6f6]"
+                                className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] leading-6 outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm"
                               />
                             </div>
                           ) : (
                             <>
-                              <p className="text-[15px] font-semibold leading-6 text-[#111827]">
+                              <p className="break-words text-[15px] font-semibold leading-6 text-[#111827]">
                                 {d.topic}
                               </p>
                               <div className="mt-2 flex flex-wrap gap-2">
@@ -544,19 +553,19 @@ export default function ContentPlanner({
                                 </span>
                               </div>
                               {d.hook && (
-                                <p className="mt-3 text-sm leading-6 text-[#374151]">
+                                <p className="mt-3 break-words text-sm leading-6 text-[#374151]">
                                   <span className="text-[#9ca3af]">Hook: </span>
                                   {d.hook}
                                 </p>
                               )}
                               {d.notes && (
-                                <p className="mt-1.5 text-sm leading-6 text-[#6b7280]">{d.notes}</p>
+                                <p className="mt-1.5 break-words text-sm leading-6 text-[#6b7280]">{d.notes}</p>
                               )}
                             </>
                           )}
                         </div>
 
-                        <div className="flex shrink-0 flex-col gap-1.5">
+                        <div className="hidden shrink-0 flex-col gap-1.5 sm:flex">
                           <button
                             type="button"
                             onClick={() => setEditingDay(isEditing ? null : d.day)}
@@ -578,6 +587,28 @@ export default function ContentPlanner({
                           </button>
                         </div>
                       </div>
+
+                      <div className="mt-3 flex gap-2 pl-[60px] sm:hidden">
+                        <button
+                          type="button"
+                          onClick={() => setEditingDay(isEditing ? null : d.day)}
+                          className={smallBtn}
+                        >
+                          {isEditing ? "Done" : "Edit"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            copy(
+                              `d-${d.day}`,
+                              `Day ${d.day} — ${d.topic}\nPillar: ${d.pillar} | Format: ${d.format}\nHook: ${d.hook}\nNotes: ${d.notes}`
+                            )
+                          }
+                          className={smallBtn}
+                        >
+                          {copiedKey === `d-${d.day}` ? "Copied ✓" : "Copy"}
+                        </button>
+                      </div>
                     </li>
                   );
                 })}
@@ -586,7 +617,7 @@ export default function ContentPlanner({
           )}
 
           {!loading && !result && !error && !upgradeInfo && (
-            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-6 py-16 text-center">
+            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-4 py-12 text-center sm:px-6 sm:py-16">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff2e8] text-[#f97316]">
                 <CalendarIcon className="h-6 w-6" />
               </span>
@@ -599,8 +630,8 @@ export default function ContentPlanner({
         </div>
 
         {/* ============ right rail ============ */}
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+        <aside className="space-y-4 sm:space-y-6">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Plan overview</p>
 
             {result ? (
@@ -630,11 +661,11 @@ export default function ContentPlanner({
           </div>
 
           {result && mix.length > 0 && (
-            <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+            <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
               <p className="text-sm font-semibold text-[#111827]">Content mix</p>
               <p className="mt-1 text-xs text-[#9ca3af]">Formats across your plan.</p>
 
-              <div className="mt-5 flex items-center gap-5">
+              <div className="mt-5 flex items-center gap-4 sm:gap-5">
                 <div
                   className="flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full"
                   style={{ background: donut }}
@@ -660,14 +691,14 @@ export default function ContentPlanner({
           )}
 
           {result && pillarCounts.length > 0 && (
-            <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+            <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
               <p className="text-sm font-semibold text-[#111827]">Pillar balance</p>
               <ul className="mt-4 space-y-3">
                 {pillarCounts.map((p) => {
                   const pct = Math.round((p.count / result.days.length) * 100);
                   return (
                     <li key={p.label}>
-                      <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center justify-between gap-3 text-xs">
                         <span className="truncate text-[#374151]">{p.label}</span>
                         <span className="shrink-0 text-[#9ca3af]">
                           {p.count} {p.count === 1 ? "day" : "days"}
@@ -689,10 +720,10 @@ export default function ContentPlanner({
             </div>
           )}
 
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
-            <div className="flex items-center justify-between">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-[#111827]">Ideas to plan</p>
-              <Link href="/ideas" className="text-xs font-medium text-[#5b5bd6] hover:underline">
+              <Link href="/ideas" className="shrink-0 text-xs font-medium text-[#5b5bd6] hover:underline">
                 View all
               </Link>
             </div>
@@ -709,7 +740,7 @@ export default function ContentPlanner({
                       <LightbulbIcon className="h-3.5 w-3.5" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-xs leading-5 text-[#374151]">{i.title}</span>
+                      <span className="block break-words text-xs leading-5 text-[#374151]">{i.title}</span>
                       <span className="block text-[11px] text-[#9ca3af]">
                         {i.platform ? `Best for ${i.platform}` : i.niche}
                       </span>
@@ -722,7 +753,7 @@ export default function ContentPlanner({
 
           {plan === "free" && (
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white sm:p-5"
               style={{ backgroundImage: "linear-gradient(140deg,#0b1020 0%,#151a2e 55%,#3a2f7a 100%)" }}
             >
               <p className="text-sm font-semibold">Plan further ahead</p>
@@ -731,7 +762,7 @@ export default function ContentPlanner({
               </p>
               <Link
                 href="/dashboard/settings"
-                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →
               </Link>

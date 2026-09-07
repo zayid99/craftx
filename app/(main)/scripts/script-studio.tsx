@@ -171,7 +171,11 @@ export default function ScriptStudio({
     const a = document.createElement("a");
     a.href = url;
     a.download = `${generatedTopic.slice(0, 40).replace(/[^\w\s-]/g, "").trim() || "craftx-script"}.txt`;
+    // Safari (including every iOS browser) ignores a click on an anchor that
+    // isn't in the document, so the download silently did nothing on iPhone.
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
@@ -261,14 +265,22 @@ export default function ScriptStudio({
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport when a
+   * focused input or select is under 16px and never zooms back out.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
   const label = "mb-1.5 block text-sm font-medium text-[#374151]";
   const copyBtn =
-    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa]";
+    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa] sm:py-1.5";
+  /** Tabs scroll on one line below sm: rather than wrapping to three rows. */
+  const tabRow =
+    "-mx-4 flex flex-1 gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden";
+  const tabBtn = "shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition sm:py-1.5";
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-6">
+    <div className="mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
       {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
@@ -276,7 +288,7 @@ export default function ScriptStudio({
             SCRIPT STUDIO
           </span>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:mt-4 sm:text-3xl md:text-4xl">
             Turn your ideas into{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -287,7 +299,7 @@ export default function ScriptStudio({
             <span className="text-[#6d5cf5]">.</span>
           </h2>
 
-          <p className="mt-2 max-w-2xl text-[#6b7280]">
+          <p className="mt-2 max-w-2xl text-[15px] text-[#6b7280] sm:text-base">
             Get structured scripts with hooks, a clear flow and a call to action — built for your audience.
           </p>
         </div>
@@ -298,14 +310,14 @@ export default function ScriptStudio({
       </div>
 
       {/* stepper */}
-      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-[#ececf1] bg-white p-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#ececf1] bg-white p-2 sm:gap-3 sm:p-3 sm:grid-cols-4">
         {STEPS.map((s) => {
           const active = step === s.n;
           const done = step > s.n;
           return (
             <div
               key={s.n}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 ${
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3 ${
                 active ? "bg-[#eef0fb]" : ""
               }`}
             >
@@ -321,7 +333,7 @@ export default function ScriptStudio({
                 {done ? "✓" : s.n}
               </span>
               <div className="min-w-0">
-                <p className={`text-sm font-medium ${active ? "text-[#111827]" : "text-[#6b7280]"}`}>
+                <p className={`truncate text-sm font-medium ${active ? "text-[#111827]" : "text-[#6b7280]"}`}>
                   {s.title}
                 </p>
                 <p className="truncate text-xs text-[#9ca3af]">{s.sub}</p>
@@ -331,11 +343,11 @@ export default function ScriptStudio({
         })}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_290px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[320px_minmax(0,1fr)_290px]">
         {/* ============ left: form ============ */}
-        <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+        <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+            <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
               Tell us about your video
             </h3>
           </div>
@@ -374,7 +386,7 @@ export default function ScriptStudio({
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g. Why people stop watching videos after 3 seconds and how to fix it"
-                className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-3.5 py-2.5 text-sm leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white"
+                className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-3.5 py-3 text-[16px] leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white sm:py-2.5 sm:text-sm"
               />
               <p className="mt-1 text-right text-xs text-[#9ca3af]">
                 {topic.length}/{TOPIC_LIMIT}
@@ -433,7 +445,7 @@ export default function ScriptStudio({
               type="button"
               onClick={handleGenerate}
               disabled={loading || !topic.trim()}
-              className="w-full rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+              className="w-full rounded-xl bg-[#0b1020] px-5 py-3.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-3"
             >
               {loading ? "Generating…" : "Generate script →"}
             </button>
@@ -467,14 +479,14 @@ export default function ScriptStudio({
 
           {!loading && result && (
             <div className="rounded-2xl border border-[#ececf1] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-5 py-4">
-                <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-4 py-3 sm:px-5 sm:py-4">
+                <div className={tabRow}>
                   {TABS.map((t) => (
                     <button
                       key={t.key}
                       type="button"
                       onClick={() => setTab(t.key)}
-                      className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                      className={`${tabBtn} ${
                         tab === t.key ? "bg-[#eef0fb] text-[#5b5bd6]" : "text-[#6b7280] hover:text-[#111827]"
                       }`}
                     >
@@ -488,8 +500,8 @@ export default function ScriptStudio({
                 </button>
               </div>
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold leading-8 tracking-tight text-[#111827]">
+              <div className="p-4 sm:p-6">
+                <h3 className="break-words text-lg font-bold leading-7 tracking-tight text-[#111827] sm:text-xl sm:leading-8">
                   {generatedTopic}
                 </h3>
 
@@ -505,20 +517,20 @@ export default function ScriptStudio({
 
                 {/* SCRIPT */}
                 {tab === "script" && (
-                  <div className="mt-6 space-y-3">
+                  <div className="mt-5 space-y-3 sm:mt-6">
                     {[
                       { key: "intro", label: "Intro", body: result.script.intro },
                       { key: "body", label: "Body", body: result.script.body },
                       { key: "cta", label: "Call to action", body: result.script.cta },
                     ].map((sec) => (
-                      <div key={sec.key} className="rounded-xl border border-[#ececf1] p-5">
-                        <div className="flex items-start justify-between gap-4">
+                      <div key={sec.key} className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-3 sm:gap-4">
                           <p className="text-sm font-semibold text-[#111827]">{sec.label}</p>
                           <button type="button" onClick={() => copy(sec.key, sec.body)} className={copyBtn}>
                             {copiedKey === sec.key ? "Copied ✓" : "Copy"}
                           </button>
                         </div>
-                        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#374151]">
+                        <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-[#374151]">
                           {sec.body}
                         </p>
                         <p className="mt-3 text-xs text-[#9ca3af]">{countWords(sec.body)} words</p>
@@ -529,14 +541,14 @@ export default function ScriptStudio({
 
                 {/* HOOKS */}
                 {tab === "hooks" && (
-                  <ul className="mt-6 divide-y divide-[#f1f2f6]">
+                  <ul className="mt-5 divide-y divide-[#f1f2f6] sm:mt-6">
                     {result.hooks.map((h, i) => (
-                      <li key={i} className="flex items-start justify-between gap-4 py-4 first:pt-0">
+                      <li key={i} className="flex items-start justify-between gap-3 py-4 first:pt-0 sm:gap-4">
                         <div className="min-w-0">
                           <span className="rounded-full bg-[#f3eeff] px-2 py-0.5 text-[11px] font-medium text-[#7c3aed]">
                             {h.style}
                           </span>
-                          <p className="mt-2 text-sm leading-7 text-[#374151]">{h.text}</p>
+                          <p className="mt-2 break-words text-sm leading-7 text-[#374151]">{h.text}</p>
                         </div>
                         <button type="button" onClick={() => copy(`h-${i}`, h.text)} className={copyBtn}>
                           {copiedKey === `h-${i}` ? "Copied ✓" : "Copy"}
@@ -548,7 +560,7 @@ export default function ScriptStudio({
 
                 {/* ALT ENDINGS */}
                 {tab === "endings" && (
-                  <div className="mt-6">
+                  <div className="mt-5 sm:mt-6">
                     {result.altEndings.length === 0 ? (
                       <p className="rounded-xl bg-[#fafafc] px-4 py-8 text-center text-sm text-[#9ca3af]">
                         No alternate endings were generated for this script.
@@ -556,8 +568,8 @@ export default function ScriptStudio({
                     ) : (
                       <ul className="divide-y divide-[#f1f2f6]">
                         {result.altEndings.map((e, i) => (
-                          <li key={i} className="flex items-start justify-between gap-4 py-4 first:pt-0">
-                            <p className="text-sm leading-7 text-[#374151]">{e.text}</p>
+                          <li key={i} className="flex items-start justify-between gap-3 py-4 first:pt-0 sm:gap-4">
+                            <p className="min-w-0 break-words text-sm leading-7 text-[#374151]">{e.text}</p>
                             <button type="button" onClick={() => copy(`e-${i}`, e.text)} className={copyBtn}>
                               {copiedKey === `e-${i}` ? "Copied ✓" : "Copy"}
                             </button>
@@ -570,9 +582,9 @@ export default function ScriptStudio({
 
                 {/* PLATFORM NOTES */}
                 {tab === "notes" && (
-                  <div className="mt-6">
+                  <div className="mt-5 sm:mt-6">
                     {result.platformNotes ? (
-                      <p className="whitespace-pre-wrap rounded-xl bg-[#fafafc] p-5 text-sm leading-7 text-[#374151]">
+                      <p className="whitespace-pre-wrap break-words rounded-xl bg-[#fafafc] p-4 text-sm leading-7 text-[#374151] sm:p-5">
                         {result.platformNotes}
                       </p>
                     ) : (
@@ -587,21 +599,21 @@ export default function ScriptStudio({
           )}
 
           {!loading && !result && !error && !upgradeInfo && (
-            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-6 py-20 text-center">
+            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-4 py-12 text-center sm:px-6 sm:py-20">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#f3eeff] text-[#8b5cf6]">
                 <FileTextIcon className="h-6 w-6" />
               </span>
               <p className="mt-4 text-sm font-medium text-[#374151]">No script yet</p>
               <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#9ca3af]">
-                Fill in your video details on the left and generate your first script.
+                Fill in your video details above and generate your first script.
               </p>
             </div>
           )}
         </div>
 
         {/* ============ right rail ============ */}
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+        <aside className="space-y-4 sm:space-y-6">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Script stats</p>
 
             {stats ? (
@@ -636,7 +648,7 @@ export default function ScriptStudio({
             )}
           </div>
 
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Save &amp; export</p>
 
             <div className="mt-4 space-y-2">
@@ -644,7 +656,7 @@ export default function ScriptStudio({
                 type="button"
                 onClick={handleSave}
                 disabled={!result || saving}
-                className="w-full rounded-xl bg-[#0b1020] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-40"
+                className="w-full rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-40 sm:py-2.5"
               >
                 {saving ? "Saving…" : "Save script"}
               </button>
@@ -653,7 +665,7 @@ export default function ScriptStudio({
                 type="button"
                 onClick={() => result && copy("full", fullScriptText(generatedTopic, result))}
                 disabled={!result}
-                className="w-full rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-40"
+                className="w-full rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-40 sm:py-2.5"
               >
                 {copiedKey === "full" ? "Copied ✓" : "Copy full script"}
               </button>
@@ -662,7 +674,7 @@ export default function ScriptStudio({
                 type="button"
                 onClick={downloadTxt}
                 disabled={!result}
-                className="w-full rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-40"
+                className="w-full rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-40 sm:py-2.5"
               >
                 Download .txt
               </button>
@@ -671,36 +683,36 @@ export default function ScriptStudio({
             {savedMessage && <p className="mt-3 text-xs text-[#6b7280]">{savedMessage}</p>}
           </div>
 
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Next steps</p>
             <div className="mt-4 space-y-2">
               <Link
                 href="/seo"
-                className="flex items-center justify-between rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
-                <span>
+                <span className="min-w-0">
                   <span className="block font-medium text-[#111827]">Optimize for search</span>
                   <span className="block text-xs text-[#9ca3af]">Titles, keywords, hashtags</span>
                 </span>
-                <span className="text-[#9ca3af]">→</span>
+                <span className="shrink-0 text-[#9ca3af]">→</span>
               </Link>
 
               <Link
                 href="/planner"
-                className="flex items-center justify-between rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
-                <span>
+                <span className="min-w-0">
                   <span className="block font-medium text-[#111827]">Schedule it</span>
                   <span className="block text-xs text-[#9ca3af]">Add to your content plan</span>
                 </span>
-                <span className="text-[#9ca3af]">→</span>
+                <span className="shrink-0 text-[#9ca3af]">→</span>
               </Link>
             </div>
           </div>
 
           {plan === "free" && (
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white sm:p-5"
               style={{ backgroundImage: "linear-gradient(140deg,#0b1020 0%,#151a2e 55%,#3a2f7a 100%)" }}
             >
               <p className="text-sm font-semibold">Want higher limits?</p>
@@ -709,7 +721,7 @@ export default function ScriptStudio({
               </p>
               <Link
                 href="/dashboard/settings"
-                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →
               </Link>

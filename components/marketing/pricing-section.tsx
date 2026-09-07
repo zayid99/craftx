@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Plan = {
   name: string;
   monthly: number;
@@ -86,24 +88,31 @@ const plans: Plan[] = [
  *   4. Only then, the toggle and the discounted display price
  *
  * This component no longer holds state, so it doesn't need "use client".
+ *
+ * MOBILE NOTE: sizes here are mobile-first, matching app/page.tsx. A bare
+ * value is the phone size; sm:/lg: restores the desktop size.
  */
 export default function PricingSection() {
   return (
-    <section id="pricing" className="px-6 py-[80px] lg:px-8">
-      <div className="mx-auto max-w-[1200px]">
+    /* Padding and max-width now match the `shell` constant in app/page.tsx.
+       This section was on px-6/max-w-[1200px] while every other section used
+       px-5 sm:px-6 lg:px-10 / max-w-[1280px], so the cards sat 40px narrower
+       than the content above and below them. */
+    <section id="pricing" className="px-5 py-[48px] sm:px-6 sm:py-[80px] lg:px-10">
+      <div className="mx-auto max-w-[1280px]">
         <div>
-          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[6px] text-[12px] tracking-[1.26px] text-[#5b5bd6]">
+          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:text-[12px] sm:tracking-[1.26px]">
             SIMPLE PRICING
           </span>
-          <h2 className="mt-[22px] text-[38px] font-bold tracking-[-0.76px] text-[#111827]">
+          <h2 className="mt-[18px] text-[28px] font-bold tracking-[-0.56px] text-[#111827] sm:mt-[22px] sm:text-[38px] sm:tracking-[-0.76px]">
             Choose your creator workflow.
           </h2>
-          <p className="mt-[10px] text-[15px] text-[#6b7280]">
+          <p className="mt-[10px] text-[14.5px] text-[#6b7280] sm:text-[15px]">
             Start free, upgrade when you&apos;re ready. Cancel anytime.
           </p>
         </div>
 
-        <div className="mt-[47px] grid items-start gap-[22px] lg:grid-cols-3">
+        <div className="mt-[28px] grid items-start gap-[16px] sm:mt-[47px] sm:gap-[22px] lg:grid-cols-3">
           {plans.map((plan) => {
             const price =
               plan.monthly === 0 ? "$0" : `$${plan.monthly.toFixed(2)}`;
@@ -111,10 +120,10 @@ export default function PricingSection() {
             return (
               <div
                 key={plan.name}
-                className={`flex flex-col rounded-[18px] bg-white pb-[25px] ${
+                className={`flex flex-col rounded-[18px] bg-white pb-[20px] sm:pb-[25px] ${
                   plan.featured
                     ? "overflow-hidden border border-[#c9c6f6] shadow-[0_20px_60px_rgba(80,70,200,0.10)]"
-                    : "border border-[#ececf1] pt-[29px]"
+                    : "border border-[#ececf1] pt-[22px] sm:pt-[29px]"
                 }`}
               >
                 {plan.featured && (
@@ -126,23 +135,27 @@ export default function PricingSection() {
                   </div>
                 )}
 
-                <div className={`flex flex-1 flex-col px-[29px] ${plan.featured ? "pt-[24px]" : ""}`}>
-                  <h3 className="text-[19px] text-[#111827]">{plan.name}</h3>
+                <div
+                  className={`flex flex-1 flex-col px-[20px] sm:px-[29px] ${
+                    plan.featured ? "pt-[20px] sm:pt-[24px]" : ""
+                  }`}
+                >
+                  <h3 className="text-[18px] text-[#111827] sm:text-[19px]">{plan.name}</h3>
 
-                  <div className="mt-[14px] flex items-baseline gap-[8px]">
-                    <span className="text-[45px] font-bold leading-none tracking-[-0.9px] text-[#111827]">
+                  <div className="mt-[12px] flex items-baseline gap-[8px] sm:mt-[14px]">
+                    <span className="text-[38px] font-bold leading-none tracking-[-0.76px] text-[#111827] sm:text-[45px] sm:tracking-[-0.9px]">
                       {price}
                     </span>
                     {plan.monthly > 0 && (
-                      <span className="text-[16px] text-[#6b7280]">/month</span>
+                      <span className="text-[15px] text-[#6b7280] sm:text-[16px]">/month</span>
                     )}
                   </div>
 
                   <p className="mt-[9px] text-[14px] text-[#6b7280]">{plan.tagline}</p>
 
-                  <ul className="mt-[22px] flex-1 space-y-[9px]">
+                  <ul className="mt-[18px] flex-1 space-y-[9px] sm:mt-[22px]">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-[11px] text-[15px]">
+                      <li key={f} className="flex items-start gap-[11px] text-[14.5px] sm:text-[15px]">
                         <span className="mt-[2px] text-[14px] text-[#22c55e]">✓</span>
                         <span className="text-[#374151]">{f}</span>
                       </li>
@@ -150,21 +163,23 @@ export default function PricingSection() {
                   </ul>
 
                   {plan.note && (
-                    <p className="mt-[18px] border-t border-[#f1f2f6] pt-[14px] text-[13px] leading-[19px] text-[#9ca3af]">
+                    <p className="mt-[16px] border-t border-[#f1f2f6] pt-[14px] text-[13px] leading-[19px] text-[#9ca3af] sm:mt-[18px]">
                       {plan.note}
                     </p>
                   )}
 
-                  <a
+                  {/* Was a plain <a>, which forced a full document reload on the
+                      one click that leads to signup. Link keeps it client-side. */}
+                  <Link
                     href="/signup"
-                    className={`mt-[22px] rounded-[11px] py-[14px] text-center text-[16px] transition ${
+                    className={`mt-[20px] rounded-[11px] py-[14px] text-center text-[15px] transition sm:mt-[22px] sm:text-[16px] ${
                       plan.featured
                         ? "bg-[#0b1020] text-white hover:bg-[#1b2338]"
                         : "border border-[#e5e7eb] text-[#111827] hover:bg-[#f7f8fa]"
                     }`}
                   >
                     {plan.cta}
-                  </a>
+                  </Link>
                 </div>
               </div>
             );

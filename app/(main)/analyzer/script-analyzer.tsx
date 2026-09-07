@@ -179,13 +179,18 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport when a
+   * focused input is under 16px and never zooms back out — and the transcript
+   * box below is the entire point of this page.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
   const smallBtn =
-    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa]";
+    "shrink-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa] sm:py-1.5";
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-6">
+    <div className="mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
       {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
@@ -193,7 +198,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
             SCRIPT ANALYZER
           </span>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:mt-4 sm:text-3xl md:text-4xl">
             Understand what&apos;s{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -203,7 +208,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
             </span>
           </h2>
 
-          <p className="mt-2 text-[#6b7280]">
+          <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
             Get insights from your script or transcript to improve your content and grow your audience.
           </p>
         </div>
@@ -213,13 +218,13 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* ============ main ============ */}
         <div className="space-y-4">
           {/* input card */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-6">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-6">
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                 Paste your script or transcript
               </h3>
               <p className="mt-1 text-sm text-[#6b7280]">
@@ -227,7 +232,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
               </p>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="mt-4 space-y-4 sm:mt-5">
               <div>
                 <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-[#374151]">
                   Title <span className="text-[#9ca3af]">(optional)</span>
@@ -252,9 +257,9 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
                   placeholder="Paste the full script or transcript here…"
-                  className="w-full resize-y rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white"
+                  className="w-full resize-y rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-4 py-3 text-[16px] leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white sm:text-sm"
                 />
-                <div className="mt-2 flex flex-wrap gap-4 text-xs text-[#9ca3af]">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#9ca3af]">
                   <span>{transcriptStats.words} words</span>
                   <span>{transcriptStats.chars} characters</span>
                   <span>~{transcriptStats.runtime} spoken</span>
@@ -271,7 +276,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
               type="button"
               onClick={handleAnalyze}
               disabled={loading || transcript.trim().length < 50}
-              className="mt-4 rounded-xl bg-[#0b1020] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+              className="mt-4 w-full rounded-xl bg-[#0b1020] px-6 py-3.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:w-auto sm:py-3"
             >
               {loading ? "Analyzing…" : "Analyze script →"}
             </button>
@@ -301,16 +306,42 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
           )}
 
           {/* results */}
-          {!loading && result && (
+          {!loading && result && meta && (
             <div className="rounded-2xl border border-[#ececf1] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-5 py-4">
-                <div className="flex flex-wrap gap-1">
+              {/* The score dial lives in the right rail, which stacks BELOW this
+                  card under xl. Without this strip you'd have to scroll past
+                  every tab to find out what you scored. */}
+              <div className="flex items-center gap-4 border-b border-[#ececf1] px-4 py-4 sm:px-5 xl:hidden">
+                <span
+                  className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full"
+                  style={{
+                    background: `conic-gradient(${meta.hex} ${result.overallScore * 3.6}deg, #f1f2f6 0deg)`,
+                  }}
+                >
+                  <span className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-white text-lg font-bold text-[#111827]">
+                    {result.overallScore}
+                  </span>
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold" style={{ color: meta.hex }}>
+                    {meta.label}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#9ca3af]">
+                    {result.strengths.length} strengths · {result.weaknesses.length} to improve
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#ececf1] px-4 py-3 sm:px-5 sm:py-4">
+                {/* Five tabs wrapped to three rows on a phone. A single
+                    scrolling row is the standard pattern and stays one line. */}
+                <div className="-mx-4 flex flex-1 gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
                   {TABS.map((t) => (
                     <button
                       key={t.key}
                       type="button"
                       onClick={() => setTab(t.key)}
-                      className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                      className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition sm:py-1.5 ${
                         tab === t.key ? "bg-[#eef0fb] text-[#5b5bd6]" : "text-[#6b7280] hover:text-[#111827]"
                       }`}
                     >
@@ -324,16 +355,16 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {title && (
-                  <h3 className="mb-4 text-xl font-bold leading-8 tracking-tight text-[#111827]">
+                  <h3 className="mb-4 break-words text-lg font-bold leading-7 tracking-tight text-[#111827] sm:text-xl sm:leading-8">
                     {title}
                   </h3>
                 )}
 
                 {tab === "overview" && (
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-[#ececf1] p-5">
+                    <div className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
                       <p className="text-xs font-medium uppercase tracking-wide text-[#059669]">
                         Strengths
                       </p>
@@ -349,7 +380,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                       </ul>
                     </div>
 
-                    <div className="rounded-xl border border-[#ececf1] p-5">
+                    <div className="rounded-xl border border-[#ececf1] p-4 sm:p-5">
                       <p className="text-xs font-medium uppercase tracking-wide text-[#ea580c]">
                         Areas to improve
                       </p>
@@ -365,7 +396,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                       </ul>
                     </div>
 
-                    <div className="rounded-xl bg-[#fafafc] p-5 md:col-span-2">
+                    <div className="rounded-xl bg-[#fafafc] p-4 sm:p-5 md:col-span-2">
                       <div className="flex items-start justify-between gap-4">
                         <p className="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                           Top recommendations
@@ -420,7 +451,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
 
                 {tab === "rewrite" && (
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="text-sm text-[#6b7280]">A stronger version of your opening.</p>
                       <button
                         type="button"
@@ -430,7 +461,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                         {copiedKey === "rw" ? "Copied ✓" : "Copy"}
                       </button>
                     </div>
-                    <p className="mt-4 whitespace-pre-wrap rounded-xl bg-[#fafafc] p-5 text-sm leading-7 text-[#374151]">
+                    <p className="mt-4 whitespace-pre-wrap break-words rounded-xl bg-[#fafafc] p-4 text-sm leading-7 text-[#374151] sm:p-5">
                       {result.suggestedRewrite || "No rewrite was suggested for this transcript."}
                     </p>
                   </div>
@@ -439,19 +470,19 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                 {tab === "next" && (
                   <div>
                     <p className="text-sm text-[#6b7280]">What to make next, based on this video.</p>
-                    <p className="mt-4 rounded-xl bg-[#fafafc] p-5 text-sm leading-7 text-[#374151]">
+                    <p className="mt-4 break-words rounded-xl bg-[#fafafc] p-4 text-sm leading-7 text-[#374151] sm:p-5">
                       {result.suggestedNextVideo || "No suggestion was returned."}
                     </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                       <Link
                         href="/scripts"
-                        className="rounded-xl bg-[#0b1020] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
+                        className="rounded-xl bg-[#0b1020] px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
                       >
                         Write this script →
                       </Link>
                       <Link
                         href="/ideas"
-                        className="rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa]"
+                        className="rounded-xl border border-[#e5e7eb] px-4 py-3 text-center text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] sm:py-2.5"
                       >
                         Explore more ideas
                       </Link>
@@ -459,12 +490,12 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                   </div>
                 )}
 
-                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#f1f2f6] pt-5">
+                <div className="mt-6 flex flex-col items-stretch gap-3 border-t border-[#f1f2f6] pt-5 sm:flex-row sm:flex-wrap sm:items-center">
                   <button
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                    className="rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-2.5"
                   >
                     {saving ? "Saving…" : "Save analysis"}
                   </button>
@@ -475,7 +506,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
           )}
 
           {!loading && !result && !error && !upgradeInfo && (
-            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-6 py-16 text-center">
+            <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-4 py-12 text-center sm:px-6 sm:py-16">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#fdeef6] text-[#ec4899]">
                 <PlayCircleIcon className="h-6 w-6" />
               </span>
@@ -488,8 +519,10 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
         </div>
 
         {/* ============ right rail ============ */}
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+        <aside className="space-y-4 sm:space-y-6">
+          {/* The full dial is redundant on a phone, where the compact strip
+              above the results already carries the score. */}
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Overall score</p>
 
             {result && meta ? (
@@ -532,20 +565,20 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
           </div>
 
           {/* transcript stats */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Script length</p>
             <ul className="mt-4 space-y-3 text-sm">
-              <li className="flex items-center justify-between">
+              <li className="flex items-center justify-between gap-3">
                 <span className="text-[#6b7280]">Words</span>
                 <span className="font-semibold text-[#111827]">{transcriptStats.words}</span>
               </li>
-              <li className="flex items-center justify-between">
+              <li className="flex items-center justify-between gap-3">
                 <span className="text-[#6b7280]">Characters</span>
                 <span className="font-semibold text-[#111827]">{transcriptStats.chars}</span>
               </li>
-              <li className="flex items-center justify-between">
+              <li className="flex items-center justify-between gap-3">
                 <span className="text-[#6b7280]">Est. spoken length</span>
-                <span className="font-semibold text-[#111827]">{transcriptStats.runtime}</span>
+                <span className="shrink-0 font-semibold text-[#111827]">{transcriptStats.runtime}</span>
               </li>
             </ul>
             <p className="mt-3 text-xs leading-5 text-[#9ca3af]">
@@ -555,7 +588,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
 
           {/* score history — real, from saved analyses */}
           {previousScores.length > 0 && (
-            <div className="rounded-2xl border border-[#ececf1] bg-white p-5">
+            <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
               <p className="text-sm font-semibold text-[#111827]">Your score history</p>
               <p className="mt-1 text-xs text-[#9ca3af]">
                 Last {previousScores.length} saved {previousScores.length === 1 ? "analysis" : "analyses"}.
@@ -588,7 +621,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
 
           {plan === "free" && (
             <div
-              className="rounded-2xl p-5 text-white"
+              className="rounded-2xl p-4 text-white sm:p-5"
               style={{ backgroundImage: "linear-gradient(140deg,#0b1020 0%,#151a2e 55%,#3a2f7a 100%)" }}
             >
               <p className="text-sm font-semibold">Analyze more scripts</p>
@@ -597,7 +630,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
               </p>
               <Link
                 href="/dashboard/settings"
-                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
+                className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →
               </Link>

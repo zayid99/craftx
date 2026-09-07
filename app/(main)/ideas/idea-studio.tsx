@@ -62,6 +62,11 @@ export default function IdeaStudio({
       return;
     }
 
+    // Clearing the number field sets count to 0, and a spinner-less mobile
+    // keyboard makes that easy to do. Clamp at submit rather than on change,
+    // so the field stays editable while you retype it.
+    const safeCount = Math.min(10, Math.max(1, Number.isFinite(count) ? count : 5));
+
     setLoading(true);
     setError(null);
     setUpgradeInfo(null);
@@ -71,7 +76,7 @@ export default function IdeaStudio({
       const res = await fetch("/api/ideas/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ niche, audience, platform, count }),
+        body: JSON.stringify({ niche, audience, platform, count: safeCount }),
       });
 
       const data = await res.json();
@@ -139,15 +144,23 @@ export default function IdeaStudio({
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport when a
+   * focused input is under 16px and never zooms back out. Step down to 14px
+   * only from sm: upward.
+   */
+  const field =
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
+
   return (
-    <div className="mx-auto w-full max-w-[1100px] space-y-6">
+    <div className="mx-auto w-full max-w-[1100px] space-y-4 sm:space-y-6">
       {/* header */}
       <div>
         <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-3.5 py-1.5 text-xs font-medium tracking-[1px] text-[#5b5bd6]">
           IDEA STUDIO
         </span>
 
-        <h2 className="mt-4 text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+        <h2 className="mt-3 text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:mt-4 sm:text-3xl md:text-4xl">
           Find ideas that{" "}
           <span
             className="bg-clip-text text-transparent"
@@ -158,14 +171,14 @@ export default function IdeaStudio({
           <span className="text-[#6d5cf5]">.</span>
         </h2>
 
-        <p className="mt-2 text-[#6b7280]">
+        <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
           Get fresh content ideas based on your niche, audience and platform.
         </p>
       </div>
 
       {/* input card */}
-      <div className="rounded-2xl border border-[#ececf1] bg-white p-6">
-        <label htmlFor="niche" className="block text-lg font-semibold tracking-tight text-[#111827]">
+      <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-6">
+        <label htmlFor="niche" className="block text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
           What do you want to create content about?
         </label>
 
@@ -176,11 +189,11 @@ export default function IdeaStudio({
           rows={3}
           maxLength={500}
           placeholder="Enter a topic, niche or keywords — e.g. personal finance for beginners, AI tools, home cooking"
-          className="mt-4 w-full resize-none rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-4 py-3 text-sm leading-6 text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white"
+          className="mt-3 w-full resize-none rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-4 py-3 text-[16px] leading-6 text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white sm:mt-4 sm:text-sm"
         />
         <p className="mt-1 text-right text-xs text-[#9ca3af]">{niche.length}/500</p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           <div>
             <label htmlFor="audience" className="mb-1.5 block text-sm font-medium text-[#374151]">
               Audience
@@ -191,7 +204,7 @@ export default function IdeaStudio({
               value={audience}
               onChange={(e) => setAudience(e.target.value)}
               placeholder="e.g. beginners"
-              className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]"
+              className={field}
             />
           </div>
 
@@ -206,7 +219,7 @@ export default function IdeaStudio({
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
               placeholder="e.g. YouTube"
-              className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]"
+              className={field}
             />
             <datalist id="platform-options">
               {PLATFORMS.map((p) => (
@@ -222,11 +235,12 @@ export default function IdeaStudio({
             <input
               id="count"
               type="number"
+              inputMode="numeric"
               min={1}
               max={10}
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]"
+              className={field}
             />
           </div>
 
@@ -235,7 +249,7 @@ export default function IdeaStudio({
               type="button"
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+              className="w-full rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-2.5"
             >
               {loading ? "Generating…" : "Generate ideas →"}
             </button>
@@ -257,7 +271,7 @@ export default function IdeaStudio({
                 key={p}
                 type="button"
                 onClick={() => setNiche(p)}
-                className="rounded-full border border-[#e5e7eb] bg-white px-3.5 py-1.5 text-xs text-[#6b7280] transition hover:border-[#c9c6f6] hover:text-[#111827]"
+                className="rounded-full border border-[#e5e7eb] bg-white px-3.5 py-2 text-xs text-[#6b7280] transition hover:border-[#c9c6f6] hover:text-[#111827] sm:py-1.5"
               >
                 {p}
               </button>
@@ -294,7 +308,7 @@ export default function IdeaStudio({
         <div>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                 Generated ideas
               </h3>
               <p className="mt-1 text-sm text-[#6b7280]">
@@ -310,13 +324,13 @@ export default function IdeaStudio({
               return (
                 <div
                   key={i}
-                  className="flex flex-col rounded-2xl border border-[#ececf1] bg-white p-5 transition hover:border-[#d8d9e4]"
+                  className="flex flex-col rounded-2xl border border-[#ececf1] bg-white p-4 transition hover:border-[#d8d9e4] sm:p-5"
                 >
                   <div className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#eef4ff] text-xs font-semibold text-[#3b82f6]">
                       {i + 1}
                     </span>
-                    <h4 className="text-[15px] font-semibold leading-6 text-[#111827]">
+                    <h4 className="min-w-0 break-words text-[15px] font-semibold leading-6 text-[#111827]">
                       {idea.title}
                     </h4>
                   </div>
@@ -341,7 +355,7 @@ export default function IdeaStudio({
                       type="button"
                       onClick={() => handleSave(idea, i)}
                       disabled={isSaved}
-                      className={`rounded-lg px-3.5 py-2 text-xs font-medium transition ${
+                      className={`rounded-lg px-3.5 py-2.5 text-xs font-medium transition sm:py-2 ${
                         isSaved
                           ? "bg-[#e9f9f0] text-[#059669]"
                           : "bg-[#0b1020] text-white hover:bg-[#1b2338]"
@@ -353,7 +367,7 @@ export default function IdeaStudio({
                     <button
                       type="button"
                       onClick={() => handleCopy(idea, i)}
-                      className="rounded-lg border border-[#e5e7eb] px-3.5 py-2 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa]"
+                      className="rounded-lg border border-[#e5e7eb] px-3.5 py-2.5 text-xs font-medium text-[#374151] transition hover:bg-[#f7f8fa] sm:py-2"
                     >
                       {copiedIndex === i ? "Copied ✓" : "Copy"}
                     </button>
@@ -372,7 +386,7 @@ export default function IdeaStudio({
       )}
 
       {!loading && ideas.length === 0 && !error && !upgradeInfo && (
-        <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-6 py-14 text-center">
+        <div className="rounded-2xl border border-dashed border-[#dfe1e8] bg-white/60 px-4 py-10 text-center sm:px-6 sm:py-14">
           <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef4ff] text-[#3b82f6]">
             <LightbulbIcon className="h-6 w-6" />
           </span>

@@ -28,8 +28,14 @@ import {
 /* ---------------------------------------------------------------
    One shared container width (1280px) across every section, so no
    section reads as narrow content stranded in white space.
+
+   MOBILE NOTE: every size in this file is written mobile-first.
+   A bare value (text-[40px]) is the PHONE size; the sm:/lg: prefix
+   restores the desktop size. If you add a new fixed size here and
+   don't give it a phone value, it will render at desktop scale on a
+   390px screen — which is what made this page ~19 screens tall.
    --------------------------------------------------------------- */
-const shell = "mx-auto w-full max-w-[1280px] px-6 lg:px-10";
+const shell = "mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-10";
 
 const platforms = [
   { name: "YouTube", Icon: YoutubeIcon },
@@ -43,13 +49,17 @@ const platforms = [
 ];
 
 // Replaces the four blank pastel circles, which said nothing.
+// `short` is the phone label — the full one wraps to three lines in a
+// one-third-width column and reads as a layout bug.
 const heroStats = [
-  { value: "5", label: "tools in one workspace" },
-  { value: "7", label: "platforms supported" },
-  { value: "$0", label: "to start — no card needed" },
+  { value: "5", label: "tools in one workspace", short: "tools in one place" },
+  { value: "7", label: "platforms supported", short: "platforms" },
+  { value: "$0", label: "to start — no card needed", short: "no card needed" },
 ];
 
 // Figma node 5:120 — each chip carries its own left indent.
+// The indent is applied as a CSS variable so it can be switched off
+// below sm:, where a staggered stack just reads as misalignment.
 const painPoints = [
   { text: "What should I make next?", indent: 0 },
   { text: "How do I write a good script?", indent: 14 },
@@ -469,7 +479,7 @@ export default function Home() {
     <main className="min-h-screen overflow-x-hidden bg-white text-[#111827] antialiased">
       {/* ============ NAV ============ */}
       <header className="relative z-20">
-        <nav className={`${shell} flex items-center justify-between py-[12px]`}>
+        <nav className={`${shell} flex items-center justify-between py-[10px] sm:py-[12px]`}>
           <Link href="/" className="flex shrink-0 items-center">
             <Image
               src="/brand/craftx-logo.png"
@@ -477,7 +487,7 @@ export default function Home() {
               width={1780}
               height={356}
               priority
-              className="h-[54px] w-auto"
+              className="h-[36px] w-auto sm:h-[46px] lg:h-[54px]"
             />
           </Link>
 
@@ -488,7 +498,7 @@ export default function Home() {
             <a href="#faq" className="transition hover:text-[#111827]">FAQ</a>
           </div>
 
-          <div className="flex items-center gap-[16px]">
+          <div className="flex items-center gap-[10px] sm:gap-[16px]">
             <Link
               href="/login"
               className="hidden rounded-full border border-[#e5e7eb] bg-white px-[27px] py-[13px] text-[16px] text-[#111827] transition hover:border-[#c9c6f6] sm:block"
@@ -497,9 +507,10 @@ export default function Home() {
             </Link>
             <Link
               href="/signup"
-              className="rounded-full bg-[#0b1020] px-[23px] py-[13px] text-[16px] text-white transition hover:bg-[#1b2338]"
+              className="whitespace-nowrap rounded-full bg-[#0b1020] px-[16px] py-[10px] text-[14px] text-white transition hover:bg-[#1b2338] sm:px-[23px] sm:py-[13px] sm:text-[16px]"
             >
-              Get started free →
+              <span className="sm:hidden">Start free →</span>
+              <span className="hidden sm:inline">Get started free →</span>
             </Link>
           </div>
         </nav>
@@ -540,18 +551,18 @@ export default function Home() {
         <DecorArt src="sparkle.png" size={40} className="left-[150px] top-[80px] hidden 2xl:block" opacity={0.7} />
 
         <div
-          className={`${shell} relative grid grid-cols-1 items-center gap-[60px] pb-[64px] pt-[34px] lg:grid-cols-[minmax(0,470px)_minmax(0,1fr)]`}
+          className={`${shell} relative grid grid-cols-1 items-center gap-[36px] pb-[44px] pt-[24px] sm:gap-[60px] sm:pb-[64px] sm:pt-[34px] lg:grid-cols-[minmax(0,470px)_minmax(0,1fr)]`}
         >
           {/* Left column */}
           <div>
-            <div className="inline-flex items-center gap-[11px] rounded-full border border-[#e3e5ef] bg-white/70 px-[18px] py-[7px]">
+            <div className="inline-flex items-center gap-[9px] rounded-full border border-[#e3e5ef] bg-white/70 px-[14px] py-[6px] sm:gap-[11px] sm:px-[18px] sm:py-[7px]">
               <span className="h-[7px] w-[7px] rounded-[3px] bg-[#7c5cff]" />
-              <span className="text-[13.5px] tracking-[1.21px] text-[#6b7280]">
+              <span className="whitespace-nowrap text-[11px] tracking-[1px] text-[#6b7280] sm:text-[13.5px] sm:tracking-[1.21px]">
                 THE CREATOR GROWTH WORKSPACE
               </span>
             </div>
 
-            <h1 className="mt-[28px] text-[68px] font-extrabold leading-[77px] tracking-[-1.71px] text-[#111827]">
+            <h1 className="mt-[20px] text-[41px] font-extrabold leading-[46px] tracking-[-1.1px] text-[#111827] sm:mt-[28px] sm:text-[56px] sm:leading-[63px] sm:tracking-[-1.4px] lg:text-[68px] lg:leading-[77px] lg:tracking-[-1.71px]">
               Turn ideas
               <br />
               into{" "}
@@ -564,34 +575,38 @@ export default function Home() {
               <span className="text-[#6d5cf5]">.</span>
             </h1>
 
-            <p className="mt-[18px] max-w-[459px] text-[19px] leading-[31px] text-[#4b5563]">
+            <p className="mt-[14px] max-w-[459px] text-[16px] leading-[26px] text-[#4b5563] sm:mt-[18px] sm:text-[19px] sm:leading-[31px]">
               CRAFTX helps creators research ideas, build content, optimize every
               upload, and understand what actually drives growth — all in one
               workspace.
             </p>
 
-            <div className="mt-[30px] flex flex-wrap items-center gap-[18px]">
+            <div className="mt-[24px] flex flex-col items-stretch gap-[12px] sm:mt-[30px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-[18px]">
               <Link
                 href="/signup"
-                className="rounded-full bg-[#0b1020] px-[29px] py-[18px] text-[17px] text-white transition hover:bg-[#1b2338]"
+                className="rounded-full bg-[#0b1020] px-[29px] py-[16px] text-center text-[16px] text-white transition hover:bg-[#1b2338] sm:py-[18px] sm:text-[17px]"
               >
                 Start creating free →
               </Link>
               <a
                 href="#workflow"
-                className="inline-flex items-center gap-[9px] rounded-full border border-[#e5e7eb] bg-white px-[27px] py-[16px] text-[17px] text-[#111827] transition hover:border-[#c9c6f6]"
+                className="inline-flex items-center justify-center gap-[9px] rounded-full border border-[#e5e7eb] bg-white px-[27px] py-[15px] text-[16px] text-[#111827] transition hover:border-[#c9c6f6] sm:py-[16px] sm:text-[17px]"
               >
                 <span className="text-[12px]">▶</span> See how it works
               </a>
             </div>
 
-            {/* Real numbers where four blank avatar circles used to sit */}
-            <div className="mt-[34px] flex flex-wrap gap-x-[40px] gap-y-[18px] border-t border-[#e2e5f0] pt-[24px]">
+            {/* Real numbers where four blank avatar circles used to sit.
+                Three across on the phone — stacked, they cost a whole screen. */}
+            <div className="mt-[26px] grid grid-cols-3 gap-x-[12px] border-t border-[#e2e5f0] pt-[20px] sm:mt-[34px] sm:flex sm:flex-wrap sm:gap-x-[40px] sm:gap-y-[18px] sm:pt-[24px]">
               {heroStats.map((s) => (
                 <div key={s.label}>
-                  <p className="text-[26px] font-bold leading-[32px] text-[#111827]">{s.value}</p>
-                  <p className="mt-[2px] max-w-[150px] text-[14px] leading-[20px] text-[#6b7280]">
-                    {s.label}
+                  <p className="text-[22px] font-bold leading-[28px] text-[#111827] sm:text-[26px] sm:leading-[32px]">
+                    {s.value}
+                  </p>
+                  <p className="mt-[2px] text-[12px] leading-[17px] text-[#6b7280] sm:max-w-[150px] sm:text-[14px] sm:leading-[20px]">
+                    <span className="sm:hidden">{s.short}</span>
+                    <span className="hidden sm:inline">{s.label}</span>
                   </p>
                 </div>
               ))}
@@ -606,23 +621,23 @@ export default function Home() {
               creator workspace
             </span>
 
-            <div className="rounded-[20px] bg-[#0f1218] p-[10px] shadow-[0_40px_90px_rgba(17,19,24,0.22)] lg:w-[calc(100%+90px)]">
+            <div className="rounded-[20px] bg-[#0f1218] p-[7px] shadow-[0_40px_90px_rgba(17,19,24,0.22)] sm:p-[10px] lg:w-[calc(100%+90px)]">
               {/* window top bar */}
-              <div className="flex items-center gap-[12px] px-[10px] py-[9px]">
-                <span className="flex items-center gap-[6px] text-[13px] font-bold uppercase tracking-tight text-white">
-                  <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill="none">
+              <div className="flex items-center gap-[9px] px-[6px] py-[8px] sm:gap-[12px] sm:px-[10px] sm:py-[9px]">
+                <span className="flex shrink-0 items-center gap-[6px] text-[12px] font-bold uppercase tracking-tight text-white sm:text-[13px]">
+                  <svg viewBox="0 0 24 24" className="h-[14px] w-[14px] sm:h-[15px] sm:w-[15px]" fill="none">
                     <path d="M15 4 6 12l9 8" stroke="#ffffff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M20 4 11 12l9 8" stroke="#4cc9f0" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   CRAFTX
                 </span>
-                <span className="flex flex-1 items-center gap-[8px] rounded-[8px] bg-white/[0.06] px-[12px] py-[7px] text-[12px] text-white/35">
-                  <SearchIcon className="h-[13px] w-[13px]" />
-                  Search anything...
+                <span className="flex min-w-0 flex-1 items-center gap-[8px] rounded-[8px] bg-white/[0.06] px-[10px] py-[7px] text-[11px] text-white/35 sm:px-[12px] sm:text-[12px]">
+                  <SearchIcon className="h-[13px] w-[13px] shrink-0" />
+                  <span className="truncate">Search anything...</span>
                 </span>
-                <BellIcon className="h-[16px] w-[16px] text-white/40" />
+                <BellIcon className="h-[16px] w-[16px] shrink-0 text-white/40" />
                 <span
-                  className="h-[24px] w-[24px] rounded-full"
+                  className="h-[24px] w-[24px] shrink-0 rounded-full"
                   style={{ background: "linear-gradient(135deg,#6856fd,#3d98fb)" }}
                 />
               </div>
@@ -660,53 +675,58 @@ export default function Home() {
                 </div>
 
                 {/* app content */}
-                <div className="flex-1 bg-white p-[18px]">
-                  <h2 className="text-[17px] font-semibold text-[#111827]">
+                <div className="min-w-0 flex-1 bg-white p-[13px] sm:p-[18px]">
+                  <h2 className="text-[15px] font-semibold text-[#111827] sm:text-[17px]">
                     Good morning, Creator 👋
                   </h2>
-                  <p className="mt-[3px] text-[11.5px] text-[#9ca3af]">
+                  <p className="mt-[3px] text-[11px] text-[#9ca3af] sm:text-[11.5px]">
                     Here&apos;s your content overview for today.
                   </p>
 
-                  <div className="mt-[16px] grid grid-cols-4 gap-[9px]">
+                  {/* Four across on a 390px screen forced the whole mock wider
+                      than the viewport — the fourth chip and the badges below
+                      were being sliced by the right edge. */}
+                  <div className="mt-[13px] grid grid-cols-2 gap-[8px] sm:mt-[16px] sm:grid-cols-4 sm:gap-[9px]">
                     {statChips.map((s) => (
-                      <div key={s.label} className={`rounded-[11px] p-[11px] ${s.tint}`}>
+                      <div key={s.label} className={`rounded-[11px] p-[10px] sm:p-[11px] ${s.tint}`}>
                         <s.Icon className="h-[15px] w-[15px]" />
-                        <p className="mt-[7px] text-[17px] font-semibold text-[#111827]">{s.value}</p>
-                        <div className="mt-[1px] flex items-center justify-between">
-                          <span className="text-[10.5px] text-[#6b7280]">{s.label}</span>
-                          <span className="text-[10px] font-medium text-[#10b981]">{s.delta}</span>
+                        <p className="mt-[6px] text-[16px] font-semibold text-[#111827] sm:mt-[7px] sm:text-[17px]">
+                          {s.value}
+                        </p>
+                        <div className="mt-[1px] flex items-center justify-between gap-[4px]">
+                          <span className="truncate text-[10.5px] text-[#6b7280]">{s.label}</span>
+                          <span className="shrink-0 text-[10px] font-medium text-[#10b981]">{s.delta}</span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-[10px] rounded-[13px] border border-[#eceef2] bg-white p-[14px]">
+                  <div className="mt-[10px] rounded-[13px] border border-[#eceef2] bg-white p-[12px] sm:p-[14px]">
                     <p className="text-[11px] font-medium text-[#111827]">Recommended next step</p>
-                    <div className="mt-[7px] flex items-end justify-between gap-4">
-                      <div>
+                    <div className="mt-[7px] flex items-end justify-between gap-[10px] sm:gap-4">
+                      <div className="min-w-0">
                         <p className="text-[11px] text-[#6b7280]">Turn your idea into a script</p>
                         <p className="mt-[3px] text-[10.5px] text-[#9ca3af]">
                           &quot;Why people stop watching after 3 seconds&quot;
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-[#0b1020] px-[13px] py-[6px] text-[10.5px] font-medium text-white">
+                      <span className="shrink-0 rounded-full bg-[#0b1020] px-[11px] py-[6px] text-[10.5px] font-medium text-white sm:px-[13px]">
                         Continue →
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-[10px] rounded-[13px] bg-[#f6f7fa] p-[14px]">
+                  <div className="mt-[10px] rounded-[13px] bg-[#f6f7fa] p-[12px] sm:p-[14px]">
                     <div className="flex items-center justify-between">
                       <p className="text-[11.5px] font-medium text-[#374151]">Recent projects</p>
-                      <span className="text-[10.5px] text-[#9ca3af]">View all</span>
+                      <span className="shrink-0 text-[10.5px] text-[#9ca3af]">View all</span>
                     </div>
                     <div className="mt-[10px] space-y-[8px]">
                       {[
                         { t: "The truth about sleep and productivity", m: "Script · 2 hours ago", s: "In progress", c: "bg-[#e9f9f0] text-[#10b981]" },
                         { t: "How to stay consistent as a creator", m: "Idea · 5 hours ago", s: "Idea", c: "bg-[#eef4ff] text-[#3b82f6]" },
                       ].map((p) => (
-                        <div key={p.t} className="flex items-center justify-between gap-3">
+                        <div key={p.t} className="flex items-center justify-between gap-[8px] sm:gap-3">
                           <div className="flex min-w-0 items-center gap-[9px]">
                             <span className="h-[26px] w-[26px] shrink-0 rounded-[7px] bg-[#e6e8ef]" />
                             <div className="min-w-0">
@@ -732,7 +752,7 @@ export default function Home() {
       {/* Sits directly under the hero: the first thing a visitor reads after
           the headline is why this costs less than the tools they already pay
           for. Light panel so brand logos read at full colour. */}
-      <section className="relative overflow-hidden bg-white pb-[64px] pt-[56px]">
+      <section className="relative overflow-hidden bg-white pb-[44px] pt-[40px] sm:pb-[64px] sm:pt-[56px]">
         <Orb className="-left-[70px] top-[80px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#dbe4ff" />
         <Orb className="-right-[70px] bottom-[60px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#e5dcff" />
         <DecorArt src="sparkle.png" size={54} className="left-[40px] top-[70px] hidden 2xl:block" opacity={0.7} />
@@ -740,12 +760,12 @@ export default function Home() {
 
         <div className={`${shell} relative`}>
           <div className="text-center">
-            <span className="inline-flex items-center gap-[9px] rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[7px] text-[12.5px] tracking-[1.2px] text-[#5b5bd6]">
+            <span className="inline-flex items-center gap-[8px] rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[13px] py-[6px] text-[11px] tracking-[1px] text-[#5b5bd6] sm:gap-[9px] sm:px-[16px] sm:py-[7px] sm:text-[12.5px] sm:tracking-[1.2px]">
               <span className="h-[6px] w-[6px] rounded-full bg-[#6856fd]" />
               PREMIUM AI MODELS. ONE PRICE.
             </span>
 
-            <h2 className="mx-auto mt-[20px] max-w-[820px] text-[36px] font-bold leading-[46px] tracking-[-0.72px] text-[#111827] lg:text-[40px] lg:leading-[52px]">
+            <h2 className="mx-auto mt-[16px] max-w-[820px] text-[27px] font-bold leading-[35px] tracking-[-0.5px] text-[#111827] sm:mt-[20px] sm:text-[36px] sm:leading-[46px] sm:tracking-[-0.72px] lg:text-[40px] lg:leading-[52px]">
               The world&apos;s best AI models, from{" "}
               <span
                 className="bg-clip-text text-transparent"
@@ -756,45 +776,47 @@ export default function Home() {
               <span className="text-[#6b7280]">/month</span>
             </h2>
 
-            <p className="mx-auto mt-[14px] max-w-[620px] text-[16.5px] leading-[27px] text-[#6b7280]">
+            <p className="mx-auto mt-[12px] max-w-[620px] text-[15px] leading-[24px] text-[#6b7280] sm:mt-[14px] sm:text-[16.5px] sm:leading-[27px]">
               Each studio runs the model best suited to the job. You never pick one,
               manage an API key, or pay a provider directly.
             </p>
           </div>
 
-          {/* --- the models --- */}
-          <div className="mt-[38px] rounded-[22px] border border-[#e9ebf3] bg-[#fbfbfe] p-[18px] sm:p-[22px]">
-            <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2 lg:grid-cols-4">
+          {/* --- the models ---
+              Two across on the phone with the logo stacked above the name.
+              Eight full-width rows was a screen and a half on its own. */}
+          <div className="mt-[26px] rounded-[22px] border border-[#e9ebf3] bg-[#fbfbfe] p-[12px] sm:mt-[38px] sm:p-[22px]">
+            <div className="grid grid-cols-2 gap-[10px] sm:gap-[14px] lg:grid-cols-4">
               {models.map((m) => (
                 <div
                   key={m.name}
-                  className="flex items-center gap-[14px] rounded-[15px] border border-[#eceef4] bg-white p-[16px]"
+                  className="flex flex-col items-start gap-[8px] rounded-[15px] border border-[#eceef4] bg-white p-[12px] sm:flex-row sm:items-center sm:gap-[14px] sm:p-[16px]"
                 >
-                  <span className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-[#f4f5f9]">
+                  <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-[#f4f5f9] sm:h-[44px] sm:w-[44px] sm:rounded-[12px]">
                     {MODEL_LOGOS && m.logo ? (
                       <Image
                         src={`/models/${m.logo}`}
                         alt={m.provider}
                         width={128}
                         height={128}
-                        className="h-[26px] w-[26px] object-contain"
+                        className="h-[20px] w-[20px] object-contain sm:h-[26px] sm:w-[26px]"
                       />
                     ) : (
-                      <span className="text-[13px] font-semibold text-[#4b5563]">
+                      <span className="text-[12px] font-semibold text-[#4b5563] sm:text-[13px]">
                         {m.provider.slice(0, 2).toUpperCase()}
                       </span>
                     )}
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-[8px]">
-                      <span className="truncate text-[15px] font-medium text-[#111827]">
+                    <span className="flex items-start gap-[6px] sm:items-center sm:gap-[8px]">
+                      <span className="text-[13px] font-medium leading-[18px] text-[#111827] sm:truncate sm:text-[15px] sm:leading-normal">
                         {m.name}
                       </span>
-                      <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981]" title="Available" />
+                      <span className="mt-[6px] h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981] sm:mt-0" title="Available" />
                     </span>
-                    <span className="mt-[2px] block truncate text-[12.5px] text-[#9ca3af]">
-                     {m.provider}
+                    <span className="mt-[2px] block truncate text-[11.5px] text-[#9ca3af] sm:text-[12.5px]">
+                      {m.provider}
                     </span>
                   </span>
                 </div>
@@ -803,11 +825,11 @@ export default function Home() {
           </div>
 
           {/* --- why it matters --- */}
-          <div className="mt-[26px] grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-[24px] grid grid-cols-1 gap-[16px] sm:mt-[26px] sm:grid-cols-2 sm:gap-[18px] lg:grid-cols-4">
             {modelBenefits.map((b) => (
               <div key={b.title} className="flex items-start gap-[13px]">
-                <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[11px] bg-[#f3eeff] text-[#6856fd]">
-                  <b.Icon className="h-[19px] w-[19px]" />
+                <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] bg-[#f3eeff] text-[#6856fd] sm:h-[38px] sm:w-[38px]">
+                  <b.Icon className="h-[18px] w-[18px] sm:h-[19px] sm:w-[19px]" />
                 </span>
                 <span>
                   <span className="block text-[14.5px] font-medium text-[#111827]">{b.title}</span>
@@ -820,10 +842,10 @@ export default function Home() {
           </div>
 
           {/* --- the cost argument --- */}
-          <div className="mt-[38px] grid grid-cols-1 gap-[16px] lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
-            <div className="rounded-[18px] border border-[#e9ebf3] bg-[#fafbfd] px-[26px] py-[24px]">
+          <div className="mt-[30px] grid grid-cols-1 gap-[12px] sm:mt-[38px] sm:gap-[16px] lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
+            <div className="rounded-[18px] border border-[#e9ebf3] bg-[#fafbfd] px-[20px] py-[20px] sm:px-[26px] sm:py-[24px]">
               <p className="text-[13.5px] text-[#9ca3af]">Subscribing to each one yourself</p>
-              <p className="mt-[8px] text-[34px] font-bold leading-[40px] text-[#9ca3af]">
+              <p className="mt-[8px] text-[30px] font-bold leading-[36px] text-[#9ca3af] sm:text-[34px] sm:leading-[40px]">
                 ≈${soloTotal}
                 <span className="ml-[4px] text-[15px] font-normal">/month</span>
               </p>
@@ -833,16 +855,17 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex justify-center py-[4px] lg:px-[10px]">
-              <span className="text-[20px] text-[#c3c7d0]">→</span>
+            {/* Points down while the cards are stacked, right once they sit side by side. */}
+            <div className="flex justify-center py-[2px] lg:px-[10px] lg:py-[4px]">
+              <span className="inline-block rotate-90 text-[20px] text-[#c3c7d0] lg:rotate-0">→</span>
             </div>
 
             <div
-              className="rounded-[18px] px-[26px] py-[24px]"
+              className="rounded-[18px] px-[20px] py-[20px] sm:px-[26px] sm:py-[24px]"
               style={{ backgroundImage: "linear-gradient(135deg,#6856fd,#3d98fb)" }}
             >
               <p className="text-[13.5px] text-white/80">Inside CRAFTX Creator</p>
-              <p className="mt-[8px] text-[34px] font-bold leading-[40px] text-white">
+              <p className="mt-[8px] text-[30px] font-bold leading-[36px] text-white sm:text-[34px] sm:leading-[40px]">
                 $9.99
                 <span className="ml-[4px] text-[15px] font-normal text-white/80">/month</span>
               </p>
@@ -853,7 +876,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-[24px] flex flex-wrap items-center justify-between gap-[18px]">
+          <div className="mt-[22px] flex flex-col items-stretch gap-[16px] sm:mt-[24px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-[18px]">
             <p className="max-w-[560px] text-[13px] leading-[20px] text-[#9ca3af]">
               {liveCount} model{liveCount === 1 ? "" : "s"} power{liveCount === 1 ? "s" : ""}{" "}
               CRAFTX today. The rest are rolling out to paid plans as each provider is
@@ -862,7 +885,7 @@ export default function Home() {
 
             <Link
               href="/signup"
-              className="rounded-full bg-[#0b1020] px-[26px] py-[14px] text-[16px] text-white transition hover:bg-[#1b2338]"
+              className="rounded-full bg-[#0b1020] px-[26px] py-[14px] text-center text-[15px] text-white transition hover:bg-[#1b2338] sm:text-[16px]"
             >
               Start creating free →
             </Link>
@@ -873,19 +896,19 @@ export default function Home() {
       {/* ============ PLATFORMS ============ */}
       {/* Was near-invisible grey text with icons at 40% opacity. Now legible
           bordered chips that fill the row instead of floating in it. */}
-      <section className="border-y border-[#e9ebf1] bg-[#f4f5f8] py-[38px]">
+      <section className="border-y border-[#e9ebf1] bg-[#f4f5f8] py-[30px] sm:py-[38px]">
         <div className={shell}>
-          <p className="text-center text-[17px] text-[#4b5563]">
+          <p className="text-center text-[15px] text-[#4b5563] sm:text-[17px]">
             Create better content for every platform
           </p>
 
-          <div className="mt-[26px] grid grid-cols-2 gap-[12px] sm:grid-cols-4 lg:grid-cols-8">
+          <div className="mt-[20px] grid grid-cols-2 gap-[10px] sm:mt-[26px] sm:grid-cols-4 sm:gap-[12px] lg:grid-cols-8">
             {platforms.map((p) => (
               <span
                 key={p.name}
-                className="flex items-center justify-center gap-[9px] rounded-[12px] border border-[#e4e6ee] bg-white px-[12px] py-[14px] text-[15px] text-[#374151]"
+                className="flex items-center justify-center gap-[8px] rounded-[12px] border border-[#e4e6ee] bg-white px-[10px] py-[12px] text-[14px] text-[#374151] sm:gap-[9px] sm:px-[12px] sm:py-[14px] sm:text-[15px]"
               >
-                <p.Icon className="h-[19px] w-[19px] shrink-0 text-[#6b7280]" />
+                <p.Icon className="h-[18px] w-[18px] shrink-0 text-[#6b7280] sm:h-[19px] sm:w-[19px]" />
                 <span className="truncate">{p.name}</span>
               </span>
             ))}
@@ -897,7 +920,7 @@ export default function Home() {
       {/* The chips used to sit alone in a wide empty field. A "how it works
           today" card now gives the left column real weight. */}
       <section
-        className="relative overflow-hidden py-[72px]"
+        className="relative overflow-hidden py-[48px] sm:py-[72px]"
         style={{
           backgroundImage: "linear-gradient(120deg,#f6f7fa 0%,#f3f5fb 60%,#e9edfa 100%)",
         }}
@@ -915,38 +938,38 @@ export default function Home() {
         <DecorArt src="robot.png" size={130} className="left-[18px] top-[110px] hidden 2xl:block" />
         <DecorArt src="target.png" size={92} className="bottom-[110px] right-[34px] hidden 2xl:block" opacity={0.8} />
 
-        <div className={`${shell} relative grid grid-cols-1 gap-[48px] lg:grid-cols-2 lg:items-start`}>
+        <div className={`${shell} relative grid grid-cols-1 gap-[34px] sm:gap-[48px] lg:grid-cols-2 lg:items-start`}>
           <div>
-            <h2 className="text-[43px] font-extrabold leading-[52px] tracking-[-0.86px] text-[#111827]">
+            <h2 className="text-[30px] font-extrabold leading-[37px] tracking-[-0.6px] text-[#111827] sm:text-[43px] sm:leading-[52px] sm:tracking-[-0.86px]">
               Creating shouldn&apos;t
               <br />
               feel fragmented.
             </h2>
-            <p className="mt-[22px] max-w-[460px] text-[17px] leading-[29px] text-[#4b5563]">
+            <p className="mt-[16px] max-w-[460px] text-[15.5px] leading-[26px] text-[#4b5563] sm:mt-[22px] sm:text-[17px] sm:leading-[29px]">
               Great content doesn&apos;t usually fail because creators can&apos;t
               make it. It fails because they&apos;re creating without a clear
               direction.
             </p>
 
-            <div className="mt-[32px] max-w-[460px] rounded-[18px] border border-[#e4e7f1] bg-white p-[26px]">
+            <div className="mt-[24px] max-w-[460px] rounded-[18px] border border-[#e4e7f1] bg-white p-[20px] sm:mt-[32px] sm:p-[26px]">
               <p className="text-[12.5px] tracking-[1.1px] text-[#9ca3af]">HOW IT WORKS TODAY</p>
-              <ul className="mt-[16px] space-y-[13px]">
+              <ul className="mt-[14px] space-y-[12px] sm:mt-[16px] sm:space-y-[13px]">
                 {scatteredTools.map((t) => (
-                  <li key={t} className="flex items-center gap-[12px] text-[15.5px] text-[#6b7280]">
+                  <li key={t} className="flex items-center gap-[12px] text-[14.5px] text-[#6b7280] sm:text-[15.5px]">
                     <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-[#d6d9e3]" />
                     {t}
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-[22px] flex items-center gap-[14px] border-t border-[#eceef4] pt-[20px]">
+              <div className="mt-[20px] flex items-center gap-[13px] border-t border-[#eceef4] pt-[18px] sm:mt-[22px] sm:gap-[14px] sm:pt-[20px]">
                 <span
                   className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[11px] text-white"
                   style={{ backgroundImage: "linear-gradient(135deg,#6856fd,#3d98fb)" }}
                 >
                   <TrendingUpIcon className="h-[19px] w-[19px]" />
                 </span>
-                <p className="text-[15.5px] leading-[22px] text-[#111827]">
+                <p className="text-[14.5px] leading-[21px] text-[#111827] sm:text-[15.5px] sm:leading-[22px]">
                   With CRAFTX, all of it lives in one place.
                 </p>
               </div>
@@ -954,18 +977,18 @@ export default function Home() {
           </div>
 
           <div className="relative lg:pl-[40px] lg:pt-[10px]">
-            <span className="mb-[18px] block text-right text-[22px] leading-[29px] text-[#374151] font-[family-name:var(--font-caveat)]">
+            <span className="mb-[14px] block text-left text-[20px] leading-[26px] text-[#374151] font-[family-name:var(--font-caveat)] sm:mb-[18px] sm:text-right sm:text-[22px] sm:leading-[29px]">
               One workspace.
               <br />
               All the answers.
             </span>
 
-            <div className="flex flex-col items-start gap-[14px]">
+            <div className="flex flex-col items-start gap-[11px] sm:gap-[14px]">
               {painPoints.map((p) => (
                 <span
                   key={p.text}
-                  style={{ marginLeft: p.indent }}
-                  className="rounded-full border border-[#ececf3] bg-white px-[23px] py-[11px] text-[16px] text-[#374151] shadow-[0_2px_3px_rgba(0,0,0,0.03)]"
+                  style={{ "--chip-indent": `${p.indent}px` } as React.CSSProperties}
+                  className="ml-0 rounded-full border border-[#ececf3] bg-white px-[18px] py-[10px] text-[14.5px] text-[#374151] shadow-[0_2px_3px_rgba(0,0,0,0.03)] sm:ml-[var(--chip-indent)] sm:px-[23px] sm:py-[11px] sm:text-[16px]"
                 >
                   {p.text}
                 </span>
@@ -977,8 +1000,9 @@ export default function Home() {
 
       {/* ============ WORKFLOW ============ */}
       {/* Five steps on a tinted panel with a connector line behind the icons,
-          so the row reads as one sequence rather than five items adrift. */}
-      <section id="workflow" className="relative overflow-hidden bg-white py-[72px]">
+          so the row reads as one sequence rather than five items adrift.
+          Two across on the phone — five stacked was ~2.5 screens. */}
+      <section id="workflow" className="relative overflow-hidden bg-white py-[48px] sm:py-[72px]">
         <DotField id="dots-flow-l" className="left-[16px] top-[150px] hidden h-[230px] w-[130px] opacity-45 2xl:block" />
         <DotField id="dots-flow-r" className="bottom-[110px] right-[16px] hidden h-[230px] w-[130px] opacity-45 2xl:block" />
         <Orb className="-right-[60px] top-[60px] h-[260px] w-[260px] opacity-60 blur-[90px]" color="#e3ecff" />
@@ -987,34 +1011,34 @@ export default function Home() {
 
         <div className={`${shell} relative`}>
           <div className="flex flex-col items-center text-center">
-            <span className="rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[7px] text-[12.6px] tracking-[1.26px] text-[#5b5bd6]">
+            <span className="rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:py-[7px] sm:text-[12.6px] sm:tracking-[1.26px]">
               THE CRAFTX WORKFLOW
             </span>
-            <h2 className="mt-[18px] text-[38px] font-bold tracking-[-0.76px] text-[#111827]">
+            <h2 className="mt-[14px] text-[28px] font-bold tracking-[-0.56px] text-[#111827] sm:mt-[18px] sm:text-[38px] sm:tracking-[-0.76px]">
               From idea to growth.
             </h2>
-            <p className="mt-[10px] text-[15px] text-[#6b7280]">
+            <p className="mt-[10px] text-[14.5px] text-[#6b7280] sm:text-[15px]">
               A simple, powerful workflow to help you create content that gets results.
             </p>
           </div>
 
-          <div className="relative mt-[44px] rounded-[22px] border border-[#eceef4] bg-[#fafbfd] px-[24px] py-[42px]">
+          <div className="relative mt-[30px] rounded-[22px] border border-[#eceef4] bg-[#fafbfd] px-[14px] py-[28px] sm:mt-[44px] sm:px-[24px] sm:py-[42px]">
             <div
               aria-hidden
               className="absolute left-[12%] right-[12%] top-[77px] hidden h-px bg-[#e2e5ee] lg:block"
             />
 
-            <div className="relative grid grid-cols-1 gap-y-[34px] sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-[8px]">
+            <div className="relative grid grid-cols-2 gap-y-[26px] sm:grid-cols-3 sm:gap-y-[34px] lg:grid-cols-5 lg:gap-x-[8px]">
               {workflow.map((w, i) => (
-                <div key={w.title} className="flex flex-col items-center px-[10px] text-center">
-                  <span className="relative flex h-[70px] w-[70px] items-center justify-center rounded-full border border-[#e6e9f2] bg-white text-[#4b5563] shadow-[0_2px_6px_rgba(17,19,24,0.04)]">
-                    <w.Icon className="h-[30px] w-[30px]" />
-                    <span className="absolute -right-[2px] -top-[2px] flex h-[24px] w-[24px] items-center justify-center rounded-full bg-[#0b1020] text-[12px] font-semibold text-white">
+                <div key={w.title} className="flex flex-col items-center px-[6px] text-center sm:px-[10px]">
+                  <span className="relative flex h-[54px] w-[54px] items-center justify-center rounded-full border border-[#e6e9f2] bg-white text-[#4b5563] shadow-[0_2px_6px_rgba(17,19,24,0.04)] sm:h-[70px] sm:w-[70px]">
+                    <w.Icon className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px]" />
+                    <span className="absolute -right-[2px] -top-[2px] flex h-[21px] w-[21px] items-center justify-center rounded-full bg-[#0b1020] text-[11px] font-semibold text-white sm:h-[24px] sm:w-[24px] sm:text-[12px]">
                       {i + 1}
                     </span>
                   </span>
-                  <h3 className="mt-[16px] text-[19px] text-[#111827]">{w.title}</h3>
-                  <p className="mt-[6px] max-w-[210px] text-[14px] leading-[22px] text-[#6b7280]">
+                  <h3 className="mt-[12px] text-[17px] text-[#111827] sm:mt-[16px] sm:text-[19px]">{w.title}</h3>
+                  <p className="mt-[5px] max-w-[210px] text-[13px] leading-[19px] text-[#6b7280] sm:mt-[6px] sm:text-[14px] sm:leading-[22px]">
                     {w.body}
                   </p>
                 </div>
@@ -1025,7 +1049,7 @@ export default function Home() {
       </section>
 
       {/* ============ TOOLS ============ */}
-      <section id="tools" className="relative overflow-hidden bg-white pb-[72px]">
+      <section id="tools" className="relative overflow-hidden bg-white pb-[48px] sm:pb-[72px]">
         <Orb className="-left-[80px] top-[120px] h-[300px] w-[300px] opacity-60 blur-[95px]" color="#e7dfff" />
         <Orb className="-right-[80px] bottom-[140px] h-[300px] w-[300px] opacity-60 blur-[95px]" color="#dbeaff" />
         <FloatCard
@@ -1046,13 +1070,17 @@ export default function Home() {
         <DecorArt src="phone-chart.png" size={112} className="right-[24px] top-[120px] hidden 2xl:block" />
 
         <div className={`${shell} relative`}>
-          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[6px] text-[12px] tracking-[1.26px] text-[#5b5bd6]">
+          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:text-[12px] sm:tracking-[1.26px]">
             POWERFUL TOOLS
           </span>
 
-          <div className="mt-[22px] flex flex-wrap items-end justify-between gap-[24px]">
-            <div className="min-w-0 flex-1">
-              <h2 className="text-[35px] font-bold leading-[44px] tracking-[-0.7px] text-[#111827]">
+          {/* This row was `flex-wrap` with a `min-w-0 flex-1` heading beside a
+              `shrink-0` button. flex-1 + min-w-0 lets the text column collapse
+              instead of wrapping, so on a phone the copy was squeezed into a
+              3-word-wide ribbon with the button pinned to its right. Stack it. */}
+          <div className="mt-[18px] flex flex-col items-start gap-[20px] sm:mt-[22px] lg:flex-row lg:flex-wrap lg:items-end lg:justify-between lg:gap-[24px]">
+            <div className="w-full min-w-0 lg:flex-1">
+              <h2 className="text-[27px] font-bold leading-[35px] tracking-[-0.54px] text-[#111827] sm:text-[35px] sm:leading-[44px] sm:tracking-[-0.7px]">
                 Everything your content needs. One workspace.
               </h2>
               <p className="mt-[10px] max-w-[560px] text-[15px] leading-[24px] text-[#6b7280]">
@@ -1062,17 +1090,17 @@ export default function Home() {
             </div>
             <Link
               href="/signup"
-              className="mb-[6px] shrink-0 rounded-full bg-[#0b1020] px-[25px] py-[16px] text-[17px] text-white transition hover:bg-[#1b2338]"
+              className="w-full shrink-0 rounded-full bg-[#0b1020] px-[25px] py-[15px] text-center text-[16px] text-white transition hover:bg-[#1b2338] sm:w-auto sm:py-[16px] sm:text-[17px] lg:mb-[6px]"
             >
               Try them free →
             </Link>
           </div>
 
-          <div className="mt-[40px] grid grid-cols-1 gap-[20px] sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-[28px] grid grid-cols-1 gap-[16px] sm:mt-[40px] sm:grid-cols-2 sm:gap-[20px] lg:grid-cols-3">
             {tools.map((tool) => (
               <div
                 key={tool.title}
-                className={`flex flex-col rounded-[18px] border p-[26px] ${
+                className={`flex flex-col rounded-[18px] border p-[20px] sm:p-[26px] ${
                   tool.accent ? "border-transparent text-white" : "border-[#ececf1] bg-[#fafafc]"
                 }`}
                 style={
@@ -1081,11 +1109,11 @@ export default function Home() {
                     : undefined
                 }
               >
-                <span className={`flex h-[46px] w-[46px] items-center justify-center rounded-[13px] ${tool.tint}`}>
-                  <tool.Icon className="h-[24px] w-[24px]" />
+                <span className={`flex h-[42px] w-[42px] items-center justify-center rounded-[13px] sm:h-[46px] sm:w-[46px] ${tool.tint}`}>
+                  <tool.Icon className="h-[22px] w-[22px] sm:h-[24px] sm:w-[24px]" />
                 </span>
 
-                <h3 className={`mt-[20px] text-[19px] ${tool.accent ? "text-white" : "text-[#111827]"}`}>
+                <h3 className={`mt-[16px] text-[18px] sm:mt-[20px] sm:text-[19px] ${tool.accent ? "text-white" : "text-[#111827]"}`}>
                   {tool.title}
                 </h3>
                 <p
@@ -1097,7 +1125,7 @@ export default function Home() {
                 </p>
 
                 <ul
-                  className={`mt-[18px] flex-1 space-y-[11px] border-t pt-[18px] ${
+                  className={`mt-[16px] flex-1 space-y-[10px] border-t pt-[16px] sm:mt-[18px] sm:space-y-[11px] sm:pt-[18px] ${
                     tool.accent ? "border-white/15" : "border-[#e9eaf0]"
                   }`}
                 >
@@ -1120,7 +1148,7 @@ export default function Home() {
 
                 <Link
                   href={tool.href}
-                  className={`mt-[22px] rounded-[12px] py-[12px] text-center text-[14.5px] transition ${
+                  className={`mt-[18px] rounded-[12px] py-[12px] text-center text-[14.5px] transition sm:mt-[22px] ${
                     tool.accent
                       ? "bg-white text-[#111827] hover:bg-white/90"
                       : "border border-[#e5e7eb] bg-white text-[#111827] hover:bg-[#f5f6f9]"
@@ -1135,10 +1163,10 @@ export default function Home() {
       </section>
 
       {/* ============ AI PANEL ============ */}
-      <section className="bg-white pb-[72px]">
+      <section className="bg-white pb-[48px] sm:pb-[72px]">
         <div className={shell}>
           <div
-            className="relative flex flex-col gap-[36px] overflow-hidden rounded-[22px] p-[47px] lg:flex-row lg:items-center"
+            className="relative flex flex-col gap-[28px] overflow-hidden rounded-[22px] p-[24px] sm:gap-[36px] sm:p-[47px] lg:flex-row lg:items-center"
             style={{
               backgroundImage:
                 "linear-gradient(105deg,#0b1020 0%,#12172b 55%,#3a2f7a 78%,#8ec8f0 100%)",
@@ -1151,19 +1179,19 @@ export default function Home() {
             />
 
             <div className="relative flex-1">
-              <h2 className="text-[36px] font-semibold leading-[45px] tracking-[-0.72px] text-white">
+              <h2 className="text-[27px] font-semibold leading-[35px] tracking-[-0.54px] text-white sm:text-[36px] sm:leading-[45px] sm:tracking-[-0.72px]">
                 AI that understands
                 <br />
                 your content.
               </h2>
-              <p className="mt-[22px] max-w-[430px] text-[16px] leading-[28px] text-[#c8ccdb]">
+              <p className="mt-[16px] max-w-[430px] text-[15px] leading-[25px] text-[#c8ccdb] sm:mt-[22px] sm:text-[16px] sm:leading-[28px]">
                 Tell CRAFTX what you create, who you&apos;re trying to reach and
                 where you want to go. Every recommendation becomes more relevant
                 to you.
               </p>
               <Link
                 href="/creator-profile"
-                className="mt-[26px] inline-flex rounded-full bg-white px-[25px] py-[14px] text-[16px] text-[#111827] transition hover:bg-white/90"
+                className="mt-[20px] inline-flex w-full justify-center rounded-full bg-white px-[25px] py-[14px] text-center text-[15px] text-[#111827] transition hover:bg-white/90 sm:mt-[26px] sm:w-auto sm:text-[16px]"
               >
                 Set up your creator profile →
               </Link>
@@ -1176,7 +1204,7 @@ export default function Home() {
                 Built for you.
               </span>
 
-              <div className="rounded-[16px] bg-white p-[22px]">
+              <div className="rounded-[16px] bg-white p-[18px] sm:p-[22px]">
                 <div className="flex items-center justify-between">
                   <p className="text-[13px] text-[#6b7280]">Your Creator Profile</p>
                   <span className="rounded-[6px] bg-[#eef4ff] px-[10px] py-[3px] text-[11px] text-[#3b82f6]">
@@ -1184,7 +1212,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="mt-[18px] grid grid-cols-2 gap-x-[18px] gap-y-[16px]">
+                <div className="mt-[16px] grid grid-cols-2 gap-x-[14px] gap-y-[14px] sm:mt-[18px] sm:gap-x-[18px] sm:gap-y-[16px]">
                   {[
                     ["Niche", "Technology"],
                     ["Platforms", "YouTube, TikTok"],
@@ -1210,7 +1238,7 @@ export default function Home() {
 
       {/* ============ PLAN COMPARISON ============ */}
       {/* The cards say "limited" and "more" — this says how many. */}
-      <section className="relative overflow-hidden bg-white pb-[72px]">
+      <section className="relative overflow-hidden bg-white pb-[48px] sm:pb-[72px]">
         <Orb className="-right-[70px] top-[80px] h-[280px] w-[280px] opacity-55 blur-[90px]" color="#e2dcff" />
         <DotField id="dots-compare" className="left-[16px] top-[200px] hidden h-[200px] w-[120px] opacity-45 2xl:block" />
         <DecorArt src="pie-chart.png" size={126} className="bottom-[120px] left-[14px] hidden 2xl:block" />
@@ -1218,7 +1246,7 @@ export default function Home() {
 
         <div className={`${shell} relative`}>
           <div className="max-w-[640px]">
-            <h2 className="text-[32px] font-bold leading-[42px] tracking-[-0.64px] text-[#111827]">
+            <h2 className="text-[26px] font-bold leading-[34px] tracking-[-0.52px] text-[#111827] sm:text-[32px] sm:leading-[42px] sm:tracking-[-0.64px]">
               What you get on each plan.
             </h2>
             <p className="mt-[10px] text-[15px] leading-[25px] text-[#6b7280]">
@@ -1228,7 +1256,15 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-[32px] overflow-x-auto rounded-[18px] border border-[#e9ebf1]">
+          {/* The table is 720px wide and always was. It scrolls — but with no
+              cue it just looked like the right-hand columns had been chopped
+              off, which reads as a bug rather than an affordance. */}
+          <p className="mt-[24px] flex items-center gap-[8px] text-[13px] text-[#9ca3af] lg:hidden">
+            Swipe the table sideways to compare plans
+            <span aria-hidden>→</span>
+          </p>
+
+          <div className="mt-[12px] overflow-x-auto rounded-[18px] border border-[#e9ebf1] sm:mt-[16px] lg:mt-[32px]">
             <table className="w-full min-w-[720px] border-collapse text-left">
               <thead>
                 <tr className="bg-[#fafbfd]">
@@ -1287,7 +1323,7 @@ export default function Home() {
                   <td className="px-[20px] py-[22px] text-center">
                     <Link
                       href="/signup"
-                      className="inline-flex rounded-full border border-[#e5e7eb] bg-white px-[22px] py-[11px] text-[14.5px] text-[#111827] transition hover:bg-[#f5f6f9]"
+                      className="inline-flex whitespace-nowrap rounded-full border border-[#e5e7eb] bg-white px-[22px] py-[11px] text-[14.5px] text-[#111827] transition hover:bg-[#f5f6f9]"
                     >
                       Get started free
                     </Link>
@@ -1295,7 +1331,7 @@ export default function Home() {
                   <td className="border-x border-[#e9ebf1] bg-white px-[20px] py-[22px] text-center">
                     <Link
                       href="/signup"
-                      className="inline-flex rounded-full bg-[#0b1020] px-[22px] py-[11px] text-[14.5px] text-white transition hover:bg-[#1b2338]"
+                      className="inline-flex whitespace-nowrap rounded-full bg-[#0b1020] px-[22px] py-[11px] text-[14.5px] text-white transition hover:bg-[#1b2338]"
                     >
                       Start creating →
                     </Link>
@@ -1303,7 +1339,7 @@ export default function Home() {
                   <td className="px-[20px] py-[22px] text-center">
                     <Link
                       href="/signup"
-                      className="inline-flex rounded-full border border-[#e5e7eb] bg-white px-[22px] py-[11px] text-[14.5px] text-[#111827] transition hover:bg-[#f5f6f9]"
+                      className="inline-flex whitespace-nowrap rounded-full border border-[#e5e7eb] bg-white px-[22px] py-[11px] text-[14.5px] text-[#111827] transition hover:bg-[#f5f6f9]"
                     >
                       Go Pro →
                     </Link>
@@ -1313,39 +1349,39 @@ export default function Home() {
             </table>
           </div>
 
-          <p className="mt-[14px] text-[13.5px] text-[#9ca3af]">
+          <p className="mt-[14px] text-[13px] text-[#9ca3af] sm:text-[13.5px]">
             Ideas are counted individually — asking for 5 ideas uses 5 of your total.
           </p>
         </div>
       </section>
 
       {/* ============ FAQ ============ */}
-      <section id="faq" className="relative overflow-hidden bg-white pb-[72px]">
+      <section id="faq" className="relative overflow-hidden bg-white pb-[48px] sm:pb-[72px]">
         <Orb className="-left-[70px] top-[60px] h-[270px] w-[270px] opacity-55 blur-[90px]" color="#dceaff" />
         <Waveform className="bottom-[120px] right-[26px] hidden 2xl:flex" />
         <DecorArt src="books.png" size={112} className="bottom-[90px] left-[20px] hidden 2xl:block" opacity={0.9} />
 
         <div className={`${shell} relative`}>
-          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[16px] py-[6px] text-[12px] tracking-[1.26px] text-[#5b5bd6]">
+          <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:text-[12px] sm:tracking-[1.26px]">
             FAQ
           </span>
 
-          <div className="mt-[22px]">
-            <h2 className="text-[38px] font-bold tracking-[-0.76px] text-[#111827]">
+          <div className="mt-[18px] sm:mt-[22px]">
+            <h2 className="text-[28px] font-bold tracking-[-0.56px] text-[#111827] sm:text-[38px] sm:tracking-[-0.76px]">
               Got questions?
             </h2>
-            <p className="mt-[10px] text-[15px] text-[#6b7280]">Here are some quick answers.</p>
+            <p className="mt-[10px] text-[14.5px] text-[#6b7280] sm:text-[15px]">Here are some quick answers.</p>
           </div>
 
-          <div className="mt-[30px] grid grid-cols-1 gap-x-[56px] sm:grid-cols-2">
+          <div className="mt-[24px] grid grid-cols-1 gap-x-[56px] sm:mt-[30px] sm:grid-cols-2">
             {faqRows.flatMap(([a, b]) =>
               [a, b].map((q) => (
-                <details key={q} className="group border-b border-[#eceef2] py-[16px]">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-[16px] text-[16px] text-[#374151] [&::-webkit-details-marker]:hidden">
+                <details key={q} className="group border-b border-[#eceef2] py-[14px] sm:py-[16px]">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-[16px] text-[15px] text-[#374151] [&::-webkit-details-marker]:hidden sm:text-[16px]">
                     {q}
                     <PlusIcon className="h-[18px] w-[18px] shrink-0 text-[#9ca3af] transition-transform duration-200 group-open:rotate-45" />
                   </summary>
-                  <p className="mt-[10px] pr-[34px] text-[14.5px] leading-[24px] text-[#6b7280]">
+                  <p className="mt-[10px] pr-[10px] text-[14px] leading-[23px] text-[#6b7280] sm:pr-[34px] sm:text-[14.5px] sm:leading-[24px]">
                     {faqAnswers[q]}
                   </p>
                 </details>
@@ -1356,10 +1392,10 @@ export default function Home() {
       </section>
 
       {/* ============ CTA ============ */}
-      <section className="bg-white pb-[72px]">
+      <section className="bg-white pb-[48px] sm:pb-[72px]">
         <div className={shell}>
           <div
-            className="relative flex flex-col items-start justify-between gap-[32px] overflow-hidden rounded-[22px] p-[47px] sm:flex-row sm:items-center"
+            className="relative flex flex-col items-stretch justify-between gap-[26px] overflow-hidden rounded-[22px] p-[24px] sm:flex-row sm:items-center sm:gap-[32px] sm:p-[47px]"
             style={{
               backgroundImage:
                 "linear-gradient(100deg,#0b1020 0%,#151a2e 50%,#4a3a86 76%,#9ad0f0 100%)",
@@ -1373,45 +1409,47 @@ export default function Home() {
             <DecorArt src="megaphone.png" size={124} className="-bottom-[18px] right-[300px] hidden xl:block" opacity={0.9} />
 
             <div className="relative">
-              <h2 className="text-[31px] font-bold leading-[40px] tracking-[-0.61px]">
+              <h2 className="text-[25px] font-bold leading-[33px] tracking-[-0.5px] sm:text-[31px] sm:leading-[40px] sm:tracking-[-0.61px]">
                 <span className="text-[#8fa6ff]">Your next great piece of content</span>
                 <br />
                 <span className="text-white">starts with an idea.</span>
               </h2>
-              <p className="mt-[14px] text-[16px] text-[#c8ccdb]">
+              <p className="mt-[12px] text-[15px] leading-[24px] text-[#c8ccdb] sm:mt-[14px] sm:text-[16px]">
                 CRAFTX helps you turn that idea into something worth publishing.
               </p>
             </div>
 
-            <div className="flex shrink-0 flex-col items-center gap-[13px]">
+            <div className="relative flex w-full shrink-0 flex-col items-center gap-[11px] sm:w-auto sm:gap-[13px]">
               <Link
                 href="/signup"
-                className="rounded-full bg-white px-[29px] py-[16px] text-[17px] text-[#111827] transition hover:bg-white/90"
+                className="w-full rounded-full bg-white px-[29px] py-[15px] text-center text-[16px] text-[#111827] transition hover:bg-white/90 sm:w-auto sm:py-[16px] sm:text-[17px]"
               >
                 Start creating free →
               </Link>
-              <span className="text-[13.5px] text-[#c8ccdb]">No credit card required.</span>
+              <span className="text-[13px] text-[#c8ccdb] sm:text-[13.5px]">No credit card required.</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ============ FOOTER ============ */}
-      <footer className="border-t border-[#eceef2] bg-white pb-[40px] pt-[52px]">
+      {/* Extra bottom padding on mobile so the sticky bar below never covers
+          the copyright line. */}
+      <footer className="border-t border-[#eceef2] bg-white pb-[96px] pt-[40px] sm:pt-[52px] md:pb-[40px]">
         <div className={shell}>
-          <div className="grid grid-cols-1 gap-[40px] sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
-            <div>
+          <div className="grid grid-cols-2 gap-[28px] sm:gap-[40px] lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
+            <div className="col-span-2 lg:col-span-1">
               <Image
                 src="/brand/craftx-logo.png"
                 alt="CRAFTX"
                 width={1780}
                 height={356}
-                className="h-[30px] w-auto"
+                className="h-[28px] w-auto sm:h-[30px]"
               />
-              <p className="mt-[16px] max-w-[300px] text-[14px] text-[#6b7280]">
+              <p className="mt-[14px] max-w-[300px] text-[13.5px] text-[#6b7280] sm:mt-[16px] sm:text-[14px]">
                 Creator Research &amp; AI Framework for Growth
               </p>
-              <div className="mt-[22px] flex items-center gap-[16px]">
+              <div className="mt-[18px] flex items-center gap-[16px] sm:mt-[22px]">
                 {socials.map((s) => (
                   <a
                     key={s.name}
@@ -1427,11 +1465,11 @@ export default function Home() {
 
             {footerColumns.map((col) => (
               <div key={col.title}>
-                <p className="text-[16px] font-semibold text-[#111827]">{col.title}</p>
-                <ul className="mt-[16px] space-y-[12px]">
+                <p className="text-[15px] font-semibold text-[#111827] sm:text-[16px]">{col.title}</p>
+                <ul className="mt-[12px] space-y-[10px] sm:mt-[16px] sm:space-y-[12px]">
                   {col.links.map((l) => (
                     <li key={l.label}>
-                      <Link href={l.href} className="text-[15px] text-[#6b7280] transition hover:text-[#111827]">
+                      <Link href={l.href} className="text-[14px] text-[#6b7280] transition hover:text-[#111827] sm:text-[15px]">
                         {l.label}
                       </Link>
                     </li>
@@ -1441,12 +1479,24 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-[52px] flex flex-col gap-[10px] border-t border-[#eceef2] pt-[22px] text-[14px] text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-[36px] flex flex-col gap-[8px] border-t border-[#eceef2] pt-[20px] text-[13px] text-[#9ca3af] sm:mt-[52px] sm:gap-[10px] sm:pt-[22px] sm:text-[14px] sm:flex-row sm:items-center sm:justify-between">
             <span>© 2026 CRAFTX. All rights reserved.</span>
             <span>Create smarter. Grow further.</span>
           </div>
         </div>
       </footer>
+
+      {/* ============ STICKY MOBILE CTA ============ */}
+      {/* On a page this long the primary button appears near the top and then
+          disappears for thousands of pixels. This keeps it in thumb reach. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#e9ebf1] bg-white/95 px-5 py-[12px] backdrop-blur-[6px] md:hidden">
+        <Link
+          href="/signup"
+          className="flex w-full items-center justify-center rounded-full bg-[#0b1020] px-[24px] py-[14px] text-[16px] text-white transition hover:bg-[#1b2338]"
+        >
+          Start creating free →
+        </Link>
+      </div>
     </main>
   );
 }

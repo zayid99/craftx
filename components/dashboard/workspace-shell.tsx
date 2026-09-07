@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+
 import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
@@ -9,6 +10,10 @@ import Topbar, { type Notice } from "@/components/dashboard/topbar";
  * Shared chrome for every signed-in page. Both app/(main)/layout.tsx and
  * app/dashboard/layout.tsx render this so the sidebar and topbar stay
  * identical across the whole workspace.
+ *
+ * Below md the sidebar column is hidden and Topbar renders the same Sidebar
+ * inside a slide-in drawer instead. Don't remove one without the other — the
+ * studios have no other entry point on a phone.
  */
 export default async function WorkspaceShell({
   children,
@@ -93,13 +98,15 @@ export default async function WorkspaceShell({
   return (
     <div className="min-h-screen bg-[var(--background)] text-[#111827]">
       <div className="flex">
-        <div className="hidden md:block">
+        {/* The sticky/height wrapper lives here rather than on the aside, so
+            the same Sidebar can also render inside Topbar's mobile drawer. */}
+        <div className="sticky top-0 hidden h-screen shrink-0 md:block">
           <Sidebar />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar email={user.email ?? "Creator"} plan={plan} notices={notices} />
-          <main className="flex-1 p-6 md:p-8">{children}</main>
+          <main className="min-w-0 flex-1 p-4 sm:p-6 md:p-8">{children}</main>
         </div>
       </div>
     </div>

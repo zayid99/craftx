@@ -71,8 +71,14 @@ export default function LoginPage() {
     }
   }
 
+  /**
+   * 16px on mobile is not a style choice. iOS Safari zooms the viewport
+   * whenever a focused input has a font-size below 16px, and it does not zoom
+   * back out afterwards — the page just stays shifted sideways. Keep the
+   * mobile value at 16px and step down to 14px only from sm: upward.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
 
   return (
     <div
@@ -91,19 +97,21 @@ export default function LoginPage() {
       />
 
       <header className="relative z-10">
-        <nav className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-6 py-[16px]">
-          <Link href="/" className="flex shrink-0 items-center">
+        {/* The logo is 5:1, so h-[48px] renders 240px wide. Together with the
+            sign-up line and the padding that exceeded a 390px viewport. */}
+        <nav className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-[12px] sm:px-6 sm:py-[16px]">
+          <Link href="/" className="flex min-w-0 shrink items-center">
             <Image
               src="/brand/craftx-logo.png"
               alt="CraftX"
               width={1780}
               height={356}
               priority
-              className="h-[48px] w-auto"
+              className="h-[34px] w-auto sm:h-[48px]"
             />
           </Link>
-          <p className="text-[14.5px] text-[#6b7280]">
-            No account yet?{" "}
+          <p className="shrink-0 text-[14px] text-[#6b7280] sm:text-[14.5px]">
+            <span className="hidden sm:inline">No account yet? </span>
             <Link href="/signup" className="font-medium text-[#5b5bd6] hover:underline">
               Sign up
             </Link>
@@ -111,7 +119,7 @@ export default function LoginPage() {
         </nav>
       </header>
 
-      <main className="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-[56px] px-6 pb-[80px] pt-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
+      <main className="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-[56px] px-5 pb-[48px] pt-[16px] sm:px-6 sm:pb-[80px] sm:pt-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
         {/* left — why bother signing in */}
         <div className="hidden lg:block">
           <span className="inline-flex items-center gap-[9px] rounded-full border border-[#e3e5ef] bg-white/70 px-[16px] py-[7px] text-[12.5px] tracking-[1.1px] text-[#6b7280]">
@@ -152,11 +160,11 @@ export default function LoginPage() {
         </div>
 
         {/* right — the form */}
-        <div className="rounded-[22px] border border-[#ececf1] bg-white p-[32px] shadow-[0_20px_60px_rgba(17,19,24,0.07)]">
-          <h2 className="text-[26px] font-bold tracking-[-0.4px] text-[#111827]">Log in</h2>
+        <div className="rounded-[22px] border border-[#ececf1] bg-white p-[22px] shadow-[0_20px_60px_rgba(17,19,24,0.07)] sm:p-[32px]">
+          <h2 className="text-[24px] font-bold tracking-[-0.4px] text-[#111827] sm:text-[26px]">Log in</h2>
           <p className="mt-[6px] text-[15px] text-[#6b7280]">Continue to your workspace.</p>
 
-                    <div className="mt-[26px]">
+          <div className="mt-[22px] sm:mt-[26px]">
             <GoogleButton label="Continue with Google" />
           </div>
 
@@ -170,6 +178,12 @@ export default function LoginPage() {
                 type="email"
                 required
                 autoComplete="email"
+                /* Without these a mobile keyboard capitalises and autocorrects
+                   the address, so "you@example.com" arrives as "You@example.com". */
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
@@ -187,6 +201,9 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoComplete="current-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Your password"
@@ -194,8 +211,9 @@ export default function LoginPage() {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#6b7280] transition hover:text-[#111827]"
+                  className="absolute right-0 top-0 flex h-full items-center px-[14px] text-[13px] font-medium text-[#6b7280] transition hover:text-[#111827]"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -211,7 +229,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#0b1020] px-5 py-3 text-[15px] font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+              className="w-full rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-3"
             >
               {loading ? "Logging in…" : "Log in"}
             </button>
@@ -227,7 +245,7 @@ export default function LoginPage() {
       </main>
 
       <footer className="relative z-10 border-t border-[#eceef2] bg-white/60">
-        <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-[10px] px-6 py-[20px] text-[13.5px] text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-[10px] px-5 py-[18px] text-[13px] text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-[20px] sm:text-[13.5px]">
           <span>© 2026 CraftX. All rights reserved.</span>
           <div className="flex flex-wrap gap-[18px]">
             <Link href="/terms" className="transition hover:text-[#111827]">Terms</Link>
