@@ -49,12 +49,16 @@ const platforms = [
 ];
 
 // Replaces the four blank pastel circles, which said nothing.
-// `short` is the phone label — the full one wraps to three lines in a
-// one-third-width column and reads as a layout bug.
+//
+// One label at every size. This used to carry a second `short` field rendered
+// through a paired <span className="sm:hidden"> / <span className="hidden
+// sm:inline"> — Brave's Shields hid both spans, so the labels vanished
+// entirely. Never use two elements to render one piece of text: anything that
+// hides an element for its own reasons takes the whole thing with it.
 const heroStats = [
-  { value: "5", label: "tools in one workspace", short: "tools in one place" },
-  { value: "7", label: "platforms supported", short: "platforms" },
-  { value: "$0", label: "to start — no card needed", short: "no card needed" },
+  { value: "5", label: "tools in one workspace" },
+  { value: "7", label: "platforms supported" },
+  { value: "$0", label: "to start, no card needed" },
 ];
 
 // Figma node 5:120 — each chip carries its own left indent.
@@ -487,7 +491,7 @@ export default function Home() {
               width={1780}
               height={356}
               priority
-              className="h-[36px] w-auto sm:h-[46px] lg:h-[54px]"
+              className="h-[30px] w-auto sm:h-[46px] lg:h-[54px]"
             />
           </Link>
 
@@ -507,10 +511,9 @@ export default function Home() {
             </Link>
             <Link
               href="/signup"
-              className="whitespace-nowrap rounded-full bg-[#0b1020] px-[16px] py-[10px] text-[14px] text-white transition hover:bg-[#1b2338] sm:px-[23px] sm:py-[13px] sm:text-[16px]"
+              className="whitespace-nowrap rounded-full bg-[#0b1020] px-[14px] py-[10px] text-[13px] text-white transition hover:bg-[#1b2338] sm:px-[23px] sm:py-[13px] sm:text-[16px]"
             >
-              <span className="sm:hidden">Start free →</span>
-              <span className="hidden sm:inline">Get started free →</span>
+              Get started free →
             </Link>
           </div>
         </nav>
@@ -604,9 +607,8 @@ export default function Home() {
                   <p className="text-[22px] font-bold leading-[28px] text-[#111827] sm:text-[26px] sm:leading-[32px]">
                     {s.value}
                   </p>
-                  <p className="mt-[2px] text-[12px] leading-[17px] text-[#6b7280] sm:max-w-[150px] sm:text-[14px] sm:leading-[20px]">
-                    <span className="sm:hidden">{s.short}</span>
-                    <span className="hidden sm:inline">{s.label}</span>
+                  <p className="mt-[2px] text-[12px] leading-[16px] text-[#6b7280] sm:max-w-[150px] sm:text-[14px] sm:leading-[20px]">
+                    {s.label}
                   </p>
                 </div>
               ))}

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/db/prisma";
 import { getLimit, FeatureKey, PlanId } from "./limits";
 
@@ -17,7 +18,20 @@ export interface AccessResult {
   isLifetime?: boolean;
 }
 
-export async function getUserPlan(userId: string): Promise<PlanId> {
+/**
+ * Wrapped in React's cache() so a single request pays for one subscription
+ * lookup no matter how many callers ask.
+ *
+ * WorkspaceShell calls this on every navigation, and then Script Studio, SEO
+ * Studio, the Analyzer and the Planner each call it again for their own `plan`
+ * prop — two identical queries per page load, both crossing to the database
+ * region. cache() collapses them.
+ *
+ * Scope is one request, so a subscription change between requests is picked up
+ * immediately. Within a request the value is deliberately stable: a plan that
+ * changed halfway through rendering would produce an inconsistent page.
+ */
+export const getUserPlan = cache(async (userId: string): Promise<PlanId> => {
   const subscription = await prisma.subscription.findUnique({
     where: { userId },
   });
@@ -43,7 +57,7 @@ export async function getUserPlan(userId: string): Promise<PlanId> {
   }
 
   return subscription.plan as PlanId;
-}
+});
 
 /**
  * Checks whether a user is allowed to consume `requestedQuantity` units of a

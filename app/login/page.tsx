@@ -110,8 +110,7 @@ export default function LoginPage() {
               className="h-[34px] w-auto sm:h-[48px]"
             />
           </Link>
-          <p className="shrink-0 text-[14px] text-[#6b7280] sm:text-[14.5px]">
-            <span className="hidden sm:inline">No account yet? </span>
+          <p className="shrink-0 text-[13px] text-[#6b7280] sm:text-[14.5px]">
             <Link href="/signup" className="font-medium text-[#5b5bd6] hover:underline">
               Sign up
             </Link>

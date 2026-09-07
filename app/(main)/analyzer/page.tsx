@@ -25,6 +25,25 @@ export default async function AnalyzerPage() {
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 50,
+      /**
+       * `transcript` and `suggestedRewrite` are @db.Text and nothing below
+       * reads them. Without this select, fifty full transcripts were pulled
+       * from the database, serialised into the RSC payload, and sent to the
+       * browser to render a title and a score.
+       *
+       * If you ever add a field to the SavedItem mapping below, add it here
+       * too or it will silently arrive undefined.
+       */
+      select: {
+        id: true,
+        title: true,
+        overallScore: true,
+        strengths: true,
+        weaknesses: true,
+        recommendations: true,
+        suggestedNextVideo: true,
+        createdAt: true,
+      },
     }),
   ]);
 

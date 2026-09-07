@@ -186,8 +186,7 @@ export default function SignupPage() {
               className="h-[32px] w-auto sm:h-[44px]"
             />
           </Link>
-          <p className="ml-auto shrink-0 text-[14px] text-[#6b7280] sm:text-[14.5px]">
-            <span className="hidden sm:inline">Already have an account? </span>
+          <p className="ml-auto shrink-0 text-[13px] text-[#6b7280] sm:text-[14.5px]">
             <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
               Log in
             </Link>
