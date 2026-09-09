@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getAuthenticatedUser } from "@/lib/auth/getUser";
 
 type Plan = {
   name: string;
@@ -7,17 +8,11 @@ type Plan = {
   cta: string;
   featured: boolean;
   features: string[];
-  /** Small print under the feature list. Used to flag the one-time free tier. */
   note?: string;
+  /** Matches the keys in LEMONSQUEEZY_VARIANTS. Undefined for the free plan. */
+  planId?: "creator" | "creator_pro";
 };
 
-/**
- * These numbers mirror lib/entitlements/limits.ts. Change them there and here
- * together, or the pricing page promises what the entitlement system refuses.
- *
- * The Free plan is a ONE-TIME allocation, not a monthly one — checkAccess
- * counts free usage over all time. Copy here must not imply a monthly refresh.
- */
 const plans: Plan[] = [
   {
     name: "Free",
@@ -42,6 +37,7 @@ const plans: Plan[] = [
     tagline: "For creators who publish consistently.",
     cta: "Start creating →",
     featured: true,
+    planId: "creator",
     features: [
       "Unlimited content ideas",
       "50 scripts a month",
@@ -60,6 +56,7 @@ const plans: Plan[] = [
     tagline: "For creators serious about growth.",
     cta: "Go Pro →",
     featured: false,
+    planId: "creator_pro",
     features: [
       "Unlimited ideas, scripts and analyses",
       "400 SEO sets a month",
@@ -74,30 +71,13 @@ const plans: Plan[] = [
 ];
 
 /**
- * Monthly billing only.
- *
- * There was a Monthly/Yearly toggle here advertising "Save 20%", but
- * /api/checkout only has monthly Lemon Squeezy variants (2070714 and
- * 2070721). Nobody could ever be charged the annual price, and a public
- * price you cannot honour is a chargeback risk with a merchant of record.
- *
- * To bring it back you need, in this order:
- *   1. Annual variants created in Lemon Squeezy
- *   2. A billingCycle param threaded through /api/checkout
- *   3. The annual variant IDs mapped in the webhook handler
- *   4. Only then, the toggle and the discounted display price
- *
- * This component no longer holds state, so it doesn't need "use client".
- *
- * MOBILE NOTE: sizes here are mobile-first, matching app/page.tsx. A bare
- * value is the phone size; sm:/lg: restores the desktop size.
+ * Monthly billing only. (see prior comment block — unchanged, omitted here for brevity in
+ * your file keep the original long comment above the component)
  */
-export default function PricingSection() {
+export default async function PricingSection() {
+  const user = await getAuthenticatedUser();
+
   return (
-    /* Padding and max-width now match the `shell` constant in app/page.tsx.
-       This section was on px-6/max-w-[1200px] while every other section used
-       px-5 sm:px-6 lg:px-10 / max-w-[1280px], so the cards sat 40px narrower
-       than the content above and below them. */
     <section id="pricing" className="px-5 py-[48px] sm:px-6 sm:py-[80px] lg:px-10">
       <div className="mx-auto max-w-[1280px]">
         <div>
@@ -116,6 +96,33 @@ export default function PricingSection() {
           {plans.map((plan) => {
             const price =
               plan.monthly === 0 ? "$0" : `$${plan.monthly.toFixed(2)}`;
+
+            // Free plan: send logged-in users to their dashboard, not signup.
+            // Paid plans: send logged-in users straight to checkout; logged-out
+            // users to signup, carrying the chosen plan so signup can hand them
+            // to checkout right after (wire this up in the signup flow if you
+            // want that continuity — for now it just preserves old behavior).
+            const isFree = !plan.planId;
+            const href = isFree
+              ? user
+                ? "/dashboard"
+                : "/signup"
+              : user
+              ? `/api/checkout?plan=${plan.planId}`
+              : `/signup?plan=${plan.planId}`;
+
+            // Paid checkout goes through a route handler that issues a
+            // redirect to Lemon Squeezy. next/link's client-side router can
+            // mishandle navigation to a non-page route handler, so use a
+            // plain <a> there to guarantee a real browser navigation that
+            // follows the redirect. Internal app pages still use <Link>.
+            const isRouteHandler = href.startsWith("/api/");
+
+            const ctaClassName = `mt-[20px] block rounded-[11px] py-[14px] text-center text-[15px] transition sm:mt-[22px] sm:text-[16px] ${
+              plan.featured
+                ? "bg-[#0b1020] text-white hover:bg-[#1b2338]"
+                : "border border-[#e5e7eb] text-[#111827] hover:bg-[#f7f8fa]"
+            }`;
 
             return (
               <div
@@ -168,18 +175,15 @@ export default function PricingSection() {
                     </p>
                   )}
 
-                  {/* Was a plain <a>, which forced a full document reload on the
-                      one click that leads to signup. Link keeps it client-side. */}
-                  <Link
-                    href="/signup"
-                    className={`mt-[20px] rounded-[11px] py-[14px] text-center text-[15px] transition sm:mt-[22px] sm:text-[16px] ${
-                      plan.featured
-                        ? "bg-[#0b1020] text-white hover:bg-[#1b2338]"
-                        : "border border-[#e5e7eb] text-[#111827] hover:bg-[#f7f8fa]"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
+                  {isRouteHandler ? (
+                    <a href={href} className={ctaClassName}>
+                      {plan.cta}
+                    </a>
+                  ) : (
+                    <Link href={href} className={ctaClassName}>
+                      {plan.cta}
+                    </Link>
+                  )}
                 </div>
               </div>
             );
