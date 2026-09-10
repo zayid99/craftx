@@ -120,7 +120,7 @@ export default function LoginPage() {
 
       <main className="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-[56px] px-5 pb-[48px] pt-[16px] sm:px-6 sm:pb-[80px] sm:pt-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
         {/* left — why bother signing in */}
-        <div className="hidden lg:block">
+        <div className="block max-lg:hidden">
           <span className="inline-flex items-center gap-[9px] rounded-full border border-[#e3e5ef] bg-white/70 px-[16px] py-[7px] text-[12.5px] tracking-[1.1px] text-[#6b7280]">
             <span className="h-[6px] w-[6px] rounded-full bg-[#7c5cff]" />
             THE CREATOR GROWTH WORKSPACE

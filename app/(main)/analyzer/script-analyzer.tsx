@@ -213,7 +213,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
           </p>
         </div>
 
-        <p className="hidden max-w-[210px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)] lg:block">
+        <p className="block max-lg:hidden max-w-[210px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)]">
           Actionable insights for better content.
         </p>
       </div>

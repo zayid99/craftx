@@ -49,3 +49,19 @@ a {
   background-clip: text;
   color: transparent;
 }
+/* ---------------------------------------------------------------
+   Explicit responsive visibility.
+
+   Tailwind's `hidden md:block` was not resolving in this build — the
+   base `hidden` won at every width, so the sidebar, the signup pitch
+   panel and a dozen other desktop-only elements never appeared. These
+   two classes carry their own media query and never compete with
+   another display utility, so nothing can override them.
+   --------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .cx-desktop-only { display: none !important; }
+}
+
+@media (min-width: 768px) {
+  .cx-mobile-only { display: none !important; }
+}

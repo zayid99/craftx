@@ -1,105 +1,20 @@
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db/prisma";
-import { getAuthenticatedUser } from "@/lib/auth/getUser";
-import { getUserPlan } from "@/lib/entitlements/checkAccess";
-import Sidebar from "@/components/dashboard/Sidebar";
-import Topbar, { type Notice } from "@/components/dashboard/topbar";
+import WorkspaceShell from "@/components/dashboard/workspace-shell";
 
 export const dynamic = "force-dynamic";
 
-export default async function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const user = await getAuthenticatedUser();
-  if (!user) redirect("/login");
-
-  const [profile, plan, ideaCount, scriptCount] = await Promise.all([
-    prisma.creatorProfile.findUnique({ where: { userId: user.id } }),
-    getUserPlan(user.id),
-    prisma.savedIdea.count({ where: { userId: user.id } }),
-    prisma.savedScript.count({ where: { userId: user.id } }),
-  ]);
-
-  /* ---- Notifications derived from real account state ---- */
-  const notices: Notice[] = [];
-
-  if (!profile) {
-    notices.push({
-      id: "no-profile",
-      title: "Set up your creator profile",
-      body: "Every studio uses it to tailor what it generates for you.",
-      href: "/creator-profile",
-      tone: "warn",
-    });
-  } else {
-    const checks = [
-      profile.creatorName,
-      profile.niche,
-      profile.primaryPlatform,
-      profile.contentFormat,
-      profile.audience,
-      profile.targetMarket,
-      profile.experienceLevel,
-      profile.goals,
-      profile.contentStyle,
-      profile.contentPillars.length ? "x" : "",
-    ];
-    const filled = checks.filter(Boolean).length;
-    const pct = Math.round((filled / checks.length) * 100);
-
-    if (pct < 100) {
-      notices.push({
-        id: "profile-incomplete",
-        title: `Your profile is ${pct}% complete`,
-        body: "Filling the rest sharpens every recommendation.",
-        href: "/creator-profile",
-        tone: "info",
-      });
-    }
-  }
-
-  if (ideaCount === 0) {
-    notices.push({
-      id: "no-ideas",
-      title: "You haven't saved any ideas yet",
-      body: "Generate a batch in Idea Studio to get started.",
-      href: "/ideas",
-      tone: "info",
-    });
-  } else if (scriptCount === 0) {
-    notices.push({
-      id: "no-scripts",
-      title: "Turn a saved idea into a script",
-      body: `You have ${ideaCount} saved ${ideaCount === 1 ? "idea" : "ideas"} waiting.`,
-      href: "/scripts",
-      tone: "info",
-    });
-  }
-
-  if (plan === "free") {
-    notices.push({
-      id: "free-plan",
-      title: "You're on the Free plan",
-      body: "Upgrade for higher limits and priority processing.",
-      href: "/dashboard/settings",
-      tone: "info",
-    });
-  }
-
-  return (
-    <div className="min-h-screen bg-[var(--background)] text-[#111827]">
-      <div className="flex min-h-screen">
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar email={user.email ?? "Creator"} plan={plan} notices={notices} />
-          <main className="flex-1 p-6 md:p-8">{children}</main>
-        </div>
-      </div>
-    </div>
-  );
+/**
+ * Chrome for the studios: /ideas, /scripts, /seo, /analyzer, /planner,
+ * /creator-profile and /help.
+ *
+ * This file used to be a full second copy of WorkspaceShell — same auth call,
+ * same four queries, same sidebar and topbar markup. The two drifted, and the
+ * sidebar stayed broken here for days while every fix went into the shell that
+ * only /dashboard rendered.
+ *
+ * There is now exactly one shell. If the workspace chrome needs to change,
+ * change components/dashboard/workspace-shell.tsx and both route groups get
+ * it. Do not reintroduce the markup here.
+ */
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  return <WorkspaceShell>{children}</WorkspaceShell>;
 }

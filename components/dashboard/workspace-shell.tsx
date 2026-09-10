@@ -101,12 +101,13 @@ export default async function WorkspaceShell({
         {/* The sticky/height wrapper lives here rather than on the aside, so
             the same Sidebar can also render inside Topbar's mobile drawer.
 
-            max-md:hidden rather than `hidden md:block`. The second form is
-            "hidden by default, shown at md" — if the md: rule fails to apply
-            for any reason the element stays gone at every width, which is
-            exactly what Brave was doing. This form defaults to visible and
-            only hides below md, so a lost rule fails toward showing. */}
-        <div className="sticky top-0 block h-screen shrink-0 max-md:hidden">
+            cx-desktop-only is plain CSS from globals.css, not a Tailwind
+            utility. Both `hidden md:block` and `block max-md:hidden` failed
+            in this build — the sidebar stayed gone at every width — so this
+            deliberately uses a class that carries its own media query and
+            competes with nothing. Don't "simplify" it back to Tailwind
+            without checking the sidebar still renders on desktop. */}
+        <div className="cx-desktop-only sticky top-0 h-screen shrink-0">
           <Sidebar />
         </div>
 

@@ -304,7 +304,7 @@ export default function ScriptStudio({
           </p>
         </div>
 
-        <p className="hidden max-w-[230px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)] lg:block">
+        <p className="block max-lg:hidden max-w-[230px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)]">
           A better script creates a better video.
         </p>
       </div>

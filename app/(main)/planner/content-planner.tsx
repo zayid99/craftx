@@ -266,7 +266,7 @@ export default function ContentPlanner({
           </p>
         </div>
 
-        <p className="hidden max-w-[210px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)] lg:block">
+        <p className="block max-lg:hidden max-w-[210px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)]">
           Consistency creates growth.
         </p>
       </div>
@@ -565,7 +565,7 @@ export default function ContentPlanner({
                           )}
                         </div>
 
-                        <div className="hidden shrink-0 flex-col gap-1.5 sm:flex">
+                        <div className="flex max-sm:hidden shrink-0 flex-col gap-1.5">
                           <button
                             type="button"
                             onClick={() => setEditingDay(isEditing ? null : d.day)}

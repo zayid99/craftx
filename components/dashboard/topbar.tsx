@@ -135,7 +135,7 @@ export default function Topbar({ email, plan, notices }: Props) {
           </button>
 
           <div className="min-w-0">
-            <p className="hidden text-xs font-medium uppercase tracking-[1px] text-[#9ca3af] md:block">
+            <p className="block max-md:hidden text-xs font-medium uppercase tracking-[1px] text-[#9ca3af]">
               Creator Workspace
             </p>
             <h1 className="truncate text-base font-semibold tracking-tight text-[#111827] md:mt-0.5 md:text-lg">
@@ -224,7 +224,7 @@ export default function Topbar({ email, plan, notices }: Props) {
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0b1020] text-sm font-semibold text-white">
                 {initial}
               </span>
-              <span className="hidden text-left lg:block">
+              <span className="block max-lg:hidden text-left">
                 <span className="block max-w-[150px] truncate text-sm font-medium text-[#111827]">
                   {email}
                 </span>
@@ -232,7 +232,7 @@ export default function Topbar({ email, plan, notices }: Props) {
                   {PLAN_LABELS[plan] ?? "Free plan"}
                 </span>
               </span>
-              <span className="hidden text-[#9ca3af] sm:inline">⌄</span>
+              <span className="inline max-sm:hidden text-[#9ca3af]">⌄</span>
             </button>
 
             {openMenu === "profile" && (

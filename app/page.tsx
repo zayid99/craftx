@@ -537,25 +537,25 @@ export default function Home() {
         />
 
         {/* left gutter */}
-        <DotField id="dots-hero" className="left-[14px] top-[120px] hidden h-[210px] w-[130px] opacity-50 2xl:block" />
+        <DotField id="dots-hero" className="block max-2xl:hidden left-[14px] top-[120px] h-[210px] w-[130px] opacity-50" />
         <Orb className="-left-[80px] top-[46%] h-[300px] w-[300px] opacity-70 blur-[90px]" color="#d9d3ff" />
         <FloatCard
           Icon={LightbulbIcon}
           value="24 ideas"
           label="ready to script"
           tint="bg-[#eef4ff] text-[#3b82f6]"
-          className="bottom-[130px] left-[18px] hidden -rotate-[4deg] 2xl:block"
+          className="block max-2xl:hidden bottom-[130px] left-[18px] -rotate-[4deg]"
         />
 
         {/* right gutter */}
-        <Waveform className="bottom-[90px] right-[26px] hidden 2xl:flex" />
+        <Waveform className="flex max-2xl:hidden bottom-[90px] right-[26px]" />
 
         {/* cut-out art — appears once /public/decor is populated */}
-        <DecorArt src="lightbulb.png" size={120} className="bottom-[250px] left-[22px] hidden -rotate-[6deg] 2xl:block" />
-        <DecorArt src="plant.png" size={110} className="bottom-[40px] left-[26px] hidden 2xl:block" opacity={0.8} />
-        <DecorArt src="play-button.png" size={96} className="right-[30px] top-[110px] hidden 2xl:block" />
-        <DecorArt src="target.png" size={104} className="bottom-[190px] right-[22px] hidden 2xl:block" />
-        <DecorArt src="sparkle.png" size={40} className="left-[150px] top-[80px] hidden 2xl:block" opacity={0.7} />
+        <DecorArt src="lightbulb.png" size={120} className="block max-2xl:hidden bottom-[250px] left-[22px] -rotate-[6deg]" />
+        <DecorArt src="plant.png" size={110} className="block max-2xl:hidden bottom-[40px] left-[26px]" opacity={0.8} />
+        <DecorArt src="play-button.png" size={96} className="block max-2xl:hidden right-[30px] top-[110px]" />
+        <DecorArt src="target.png" size={104} className="block max-2xl:hidden bottom-[190px] right-[22px]" />
+        <DecorArt src="sparkle.png" size={40} className="block max-2xl:hidden left-[150px] top-[80px]" opacity={0.7} />
 
         <div
           className={`${shell} relative grid grid-cols-1 items-center gap-[36px] pb-[44px] pt-[24px] sm:gap-[60px] sm:pb-[64px] sm:pt-[34px] lg:grid-cols-[minmax(0,470px)_minmax(0,1fr)]`}
@@ -621,7 +621,7 @@ export default function Home() {
 
           {/* Right column — dashboard preview */}
           <div className="relative">
-            <span className="mb-[14px] hidden pr-[20px] text-right text-[22px] leading-[29px] text-[#374151] font-[family-name:var(--font-caveat)] lg:block">
+            <span className="block max-lg:hidden mb-[14px] pr-[20px] text-right text-[22px] leading-[29px] text-[#374151] font-[family-name:var(--font-caveat)]">
               Your complete
               <br />
               creator workspace
@@ -650,7 +650,7 @@ export default function Home() {
 
               <div className="flex overflow-hidden rounded-[14px]">
                 {/* app sidebar */}
-                <div className="hidden w-[150px] shrink-0 flex-col justify-between bg-[#161a21] p-[10px] sm:flex">
+                <div className="flex max-sm:hidden w-[150px] shrink-0 flex-col justify-between bg-[#161a21] p-[10px]">
                   <div className="space-y-[2px]">
                     {sidebarNav.map((item) => (
                       <div
@@ -761,8 +761,8 @@ export default function Home() {
       <section className="relative overflow-hidden bg-white pb-[44px] pt-[40px] sm:pb-[64px] sm:pt-[56px]">
         <Orb className="-left-[70px] top-[80px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#dbe4ff" />
         <Orb className="-right-[70px] bottom-[60px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#e5dcff" />
-        <DecorArt src="sparkle.png" size={54} className="left-[40px] top-[70px] hidden 2xl:block" opacity={0.7} />
-        <DecorArt src="chat-bubbles.png" size={92} className="bottom-[80px] right-[34px] hidden 2xl:block" opacity={0.75} />
+        <DecorArt src="sparkle.png" size={54} className="block max-2xl:hidden left-[40px] top-[70px]" opacity={0.7} />
+        <DecorArt src="chat-bubbles.png" size={92} className="block max-2xl:hidden bottom-[80px] right-[34px]" opacity={0.75} />
 
         <div className={`${shell} relative`}>
           <div className="text-center">
@@ -933,16 +933,16 @@ export default function Home() {
       >
         <Orb className="-left-[90px] top-[100px] h-[320px] w-[320px] opacity-70 blur-[90px]" color="#dcd6ff" />
         <Orb className="-right-[90px] bottom-[80px] h-[320px] w-[320px] opacity-70 blur-[90px]" color="#cfe1ff" />
-        <DotField id="dots-frag" className="bottom-[70px] left-[16px] hidden h-[180px] w-[120px] opacity-50 2xl:block" />
+        <DotField id="dots-frag" className="block max-2xl:hidden bottom-[70px] left-[16px] h-[180px] w-[120px] opacity-50" />
         <FloatCard
           Icon={ChartIcon}
           value="+312%"
           label="watch time"
           tint="bg-[#e9f9f0] text-[#10b981]"
-          className="right-[18px] top-[120px] hidden rotate-[5deg] 2xl:block"
+          className="block max-2xl:hidden right-[18px] top-[120px] rotate-[5deg]"
         />
-        <DecorArt src="robot.png" size={130} className="left-[18px] top-[110px] hidden 2xl:block" />
-        <DecorArt src="target.png" size={92} className="bottom-[110px] right-[34px] hidden 2xl:block" opacity={0.8} />
+        <DecorArt src="robot.png" size={130} className="block max-2xl:hidden left-[18px] top-[110px]" />
+        <DecorArt src="target.png" size={92} className="block max-2xl:hidden bottom-[110px] right-[34px]" opacity={0.8} />
 
         <div className={`${shell} relative grid grid-cols-1 gap-[34px] sm:gap-[48px] lg:grid-cols-2 lg:items-start`}>
           <div>
@@ -1009,11 +1009,11 @@ export default function Home() {
           so the row reads as one sequence rather than five items adrift.
           Two across on the phone — five stacked was ~2.5 screens. */}
       <section id="workflow" className="relative overflow-hidden bg-white py-[48px] sm:py-[72px]">
-        <DotField id="dots-flow-l" className="left-[16px] top-[150px] hidden h-[230px] w-[130px] opacity-45 2xl:block" />
-        <DotField id="dots-flow-r" className="bottom-[110px] right-[16px] hidden h-[230px] w-[130px] opacity-45 2xl:block" />
+        <DotField id="dots-flow-l" className="block max-2xl:hidden left-[16px] top-[150px] h-[230px] w-[130px] opacity-45" />
+        <DotField id="dots-flow-r" className="block max-2xl:hidden bottom-[110px] right-[16px] h-[230px] w-[130px] opacity-45" />
         <Orb className="-right-[60px] top-[60px] h-[260px] w-[260px] opacity-60 blur-[90px]" color="#e3ecff" />
-        <DecorArt src="rocket.png" size={132} className="left-[16px] top-[80px] hidden -rotate-[8deg] 2xl:block" />
-        <DecorArt src="bar-chart.png" size={124} className="bottom-[80px] right-[18px] hidden 2xl:block" />
+        <DecorArt src="rocket.png" size={132} className="block max-2xl:hidden left-[16px] top-[80px] -rotate-[8deg]" />
+        <DecorArt src="bar-chart.png" size={124} className="block max-2xl:hidden bottom-[80px] right-[18px]" />
 
         <div className={`${shell} relative`}>
           <div className="flex flex-col items-center text-center">
@@ -1031,7 +1031,7 @@ export default function Home() {
           <div className="relative mt-[30px] rounded-[22px] border border-[#eceef4] bg-[#fafbfd] px-[14px] py-[28px] sm:mt-[44px] sm:px-[24px] sm:py-[42px]">
             <div
               aria-hidden
-              className="absolute left-[12%] right-[12%] top-[77px] hidden h-px bg-[#e2e5ee] lg:block"
+              className="block max-lg:hidden absolute left-[12%] right-[12%] top-[77px] h-px bg-[#e2e5ee]"
             />
 
             <div className="relative grid grid-cols-2 gap-y-[26px] sm:grid-cols-3 sm:gap-y-[34px] lg:grid-cols-5 lg:gap-x-[8px]">
@@ -1063,17 +1063,17 @@ export default function Home() {
           value="Score 92"
           label="latest analysis"
           tint="bg-[#fdeef6] text-[#ec4899]"
-          className="left-[18px] top-[240px] hidden -rotate-[5deg] 2xl:block"
+          className="block max-2xl:hidden left-[18px] top-[240px] -rotate-[5deg]"
         />
         <FloatCard
           Icon={CalendarIcon}
           value="30 days"
           label="planned ahead"
           tint="bg-[#fff2e8] text-[#f97316]"
-          className="bottom-[180px] right-[18px] hidden rotate-[4deg] 2xl:block"
+          className="block max-2xl:hidden bottom-[180px] right-[18px] rotate-[4deg]"
         />
-        <DecorArt src="clapboard.png" size={118} className="bottom-[70px] left-[20px] hidden -rotate-[6deg] 2xl:block" />
-        <DecorArt src="phone-chart.png" size={112} className="right-[24px] top-[120px] hidden 2xl:block" />
+        <DecorArt src="clapboard.png" size={118} className="block max-2xl:hidden bottom-[70px] left-[20px] -rotate-[6deg]" />
+        <DecorArt src="phone-chart.png" size={112} className="block max-2xl:hidden right-[24px] top-[120px]" />
 
         <div className={`${shell} relative`}>
           <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:text-[12px] sm:tracking-[1.26px]">
@@ -1204,7 +1204,7 @@ export default function Home() {
             </div>
 
             <div className="relative shrink-0 lg:w-[420px]">
-              <span className="mb-[12px] hidden text-right text-[21px] leading-[27px] text-white/75 font-[family-name:var(--font-caveat)] lg:block">
+              <span className="block max-lg:hidden mb-[12px] text-right text-[21px] leading-[27px] text-white/75 font-[family-name:var(--font-caveat)]">
                 Personalised.
                 <br />
                 Built for you.
@@ -1246,9 +1246,9 @@ export default function Home() {
       {/* The cards say "limited" and "more" — this says how many. */}
       <section className="relative overflow-hidden bg-white pb-[48px] sm:pb-[72px]">
         <Orb className="-right-[70px] top-[80px] h-[280px] w-[280px] opacity-55 blur-[90px]" color="#e2dcff" />
-        <DotField id="dots-compare" className="left-[16px] top-[200px] hidden h-[200px] w-[120px] opacity-45 2xl:block" />
-        <DecorArt src="pie-chart.png" size={126} className="bottom-[120px] left-[14px] hidden 2xl:block" />
-        <DecorArt src="cube.png" size={86} className="right-[26px] top-[220px] hidden 2xl:block" opacity={0.85} />
+        <DotField id="dots-compare" className="block max-2xl:hidden left-[16px] top-[200px] h-[200px] w-[120px] opacity-45" />
+        <DecorArt src="pie-chart.png" size={126} className="block max-2xl:hidden bottom-[120px] left-[14px]" />
+        <DecorArt src="cube.png" size={86} className="block max-2xl:hidden right-[26px] top-[220px]" opacity={0.85} />
 
         <div className={`${shell} relative`}>
           <div className="max-w-[640px]">
@@ -1364,8 +1364,8 @@ export default function Home() {
       {/* ============ FAQ ============ */}
       <section id="faq" className="relative overflow-hidden bg-white pb-[48px] sm:pb-[72px]">
         <Orb className="-left-[70px] top-[60px] h-[270px] w-[270px] opacity-55 blur-[90px]" color="#dceaff" />
-        <Waveform className="bottom-[120px] right-[26px] hidden 2xl:flex" />
-        <DecorArt src="books.png" size={112} className="bottom-[90px] left-[20px] hidden 2xl:block" opacity={0.9} />
+        <Waveform className="flex max-2xl:hidden bottom-[120px] right-[26px]" />
+        <DecorArt src="books.png" size={112} className="block max-2xl:hidden bottom-[90px] left-[20px]" opacity={0.9} />
 
         <div className={`${shell} relative`}>
           <span className="inline-flex rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[14px] py-[6px] text-[11px] tracking-[1.1px] text-[#5b5bd6] sm:px-[16px] sm:text-[12px] sm:tracking-[1.26px]">
@@ -1412,7 +1412,7 @@ export default function Home() {
               color="#ffffff"
               className="left-[24px] top-[20px] h-[130px] w-[190px] opacity-[0.08]"
             />
-            <DecorArt src="megaphone.png" size={124} className="-bottom-[18px] right-[300px] hidden xl:block" opacity={0.9} />
+            <DecorArt src="megaphone.png" size={124} className="block max-xl:hidden -bottom-[18px] right-[300px]" opacity={0.9} />
 
             <div className="relative">
               <h2 className="text-[25px] font-bold leading-[33px] tracking-[-0.5px] sm:text-[31px] sm:leading-[40px] sm:tracking-[-0.61px]">

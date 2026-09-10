@@ -117,7 +117,7 @@ export default function SignupPage() {
     <div className="min-h-screen lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,600px)]">
       {/* ============ left: the pitch ============ */}
       <aside
-        className="relative hidden overflow-hidden p-[52px] lg:flex lg:flex-col lg:justify-center"
+        className="flex max-lg:hidden relative overflow-hidden p-[52px] lg:flex-col lg:justify-center"
         style={{
           backgroundImage:
             "linear-gradient(150deg,#0b1020 0%,#141a33 45%,#2c2464 78%,#4a3a86 100%)",

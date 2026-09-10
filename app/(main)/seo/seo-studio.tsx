@@ -295,7 +295,7 @@ export default function SEOStudio({
           </p>
         </div>
 
-        <p className="hidden max-w-[220px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)] lg:block">
+        <p className="block max-lg:hidden max-w-[220px] text-right text-[19px] leading-[26px] text-[#6b7280] font-[family-name:var(--font-caveat)]">
           Better SEO = more views, more growth.
         </p>
       </div>
