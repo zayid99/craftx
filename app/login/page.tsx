@@ -99,7 +99,7 @@ export default function LoginPage() {
       <header className="relative z-10">
         {/* The logo is 5:1, so h-[48px] renders 240px wide. Together with the
             sign-up line and the padding that exceeded a 390px viewport. */}
-        <nav className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-[12px] sm:px-6 sm:py-[16px]">
+        <nav className="mx-auto flex w-full max-w-[1180px] items-center px-5 py-[12px] sm:px-6 sm:py-[16px]">
           <Link href="/" className="flex min-w-0 shrink items-center">
             <Image
               src="/brand/craftx-logo.png"
@@ -110,11 +110,6 @@ export default function LoginPage() {
               className="h-[34px] w-auto sm:h-[48px]"
             />
           </Link>
-          <p className="shrink-0 text-[13px] text-[#6b7280] sm:text-[14.5px]">
-            <Link href="/signup" className="font-medium text-[#5b5bd6] hover:underline">
-              Sign up
-            </Link>
-          </p>
         </nav>
       </header>
 

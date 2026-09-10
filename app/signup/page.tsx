@@ -186,11 +186,6 @@ export default function SignupPage() {
               className="h-[32px] w-auto sm:h-[44px]"
             />
           </Link>
-          <p className="ml-auto shrink-0 text-[13px] text-[#6b7280] sm:text-[14.5px]">
-            <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
-              Log in
-            </Link>
-          </p>
         </header>
 
         <div className="flex flex-1 items-center justify-center px-5 py-[24px] sm:px-6 sm:py-[32px] lg:px-[52px]">
@@ -339,6 +334,16 @@ export default function SignupPage() {
                     Privacy Policy
                   </Link>
                   .
+                </p>
+
+                {/* Sits under the form, where someone who has just realised
+                    they already have an account will actually look. It used to
+                    float alone in the top-right corner. */}
+                <p className="mt-[20px] border-t border-[#f1f2f6] pt-[18px] text-center text-[14.5px] text-[#6b7280]">
+                  Already have an account?{" "}
+                  <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
+                    Log in
+                  </Link>
                 </p>
 
                 <div className="mt-[22px] flex items-start gap-[12px] rounded-[14px] border border-[#e9ebf3] bg-[#fafbfd] p-[14px] sm:p-[16px]">

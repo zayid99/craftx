@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import CancelSubscriptionButton from "@/components/dashboard/cancel-subscription-button";
 import { UserIcon, SettingsIcon, SearchIcon } from "@/components/marketing/landing-icons";
+import UpgradeDialog from "@/components/dashboard/upgrade-dialog";
 
 export interface ProfileDefaults {
   creatorName: string;
@@ -36,7 +37,7 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_PERKS: Record<string, string[]> = {
-    // Mirrors lib/entitlements/limits.ts. There is no "basic" tier — free users
+  // Mirrors lib/entitlements/limits.ts. There is no "basic" tier — free users
   // get every studio, just a smaller one-time allocation.
   free: [
     "All five studios included",
@@ -126,6 +127,8 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
   const plan = subscription?.plan ?? "free";
   const planLabel = PLAN_LABELS[plan] ?? plan;
   const isPaid = plan !== "free";
+  /** Creator users can still move up to Pro, so the trigger isn't free-only. */
+  const canUpgrade = plan !== "creator_pro";
 
   async function handleSaveDefaults() {
     if (!defaults) {
@@ -234,33 +237,40 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
     router.refresh();
   }
 
-  const card = "rounded-2xl border border-[#ececf1] bg-white p-6";
+  const card = "rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-6";
+  /**
+   * 16px on mobile. iOS Safari zooms the viewport when a focused input is
+   * under 16px and never zooms back out — and the password fields below are
+   * the worst possible place for that to happen.
+   */
   const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#c9c6f6]";
+    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
   const label = "mb-1.5 block text-sm font-medium text-[#374151]";
+  const primaryBtn =
+    "rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-2.5";
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-6">
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-[-0.5px] text-[#111827] md:text-4xl">
+        <h2 className="text-2xl font-bold tracking-[-0.5px] text-[#111827] sm:text-3xl md:text-4xl">
           Settings
         </h2>
-        <p className="mt-2 text-[#6b7280]">
+        <p className="mt-2 text-[15px] text-[#6b7280] sm:text-base">
           Manage your account, plan and workspace defaults.
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
         {/* ============ main ============ */}
         <div className="space-y-4">
-          {/* tabs */}
-          <div className="flex flex-wrap gap-1 border-b border-[#ececf1]">
+          {/* tabs — one scrolling line on a phone rather than wrapping to two rows */}
+          <div className="-mx-4 flex gap-1 overflow-x-auto border-b border-[#ececf1] px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
             {TABS.map((t) => (
               <button
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
-                className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition ${
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition sm:px-4 ${
                   tab === t.key
                     ? "border-[#6856fd] text-[#111827]"
                     : "border-transparent text-[#6b7280] hover:text-[#111827]"
@@ -275,22 +285,22 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
           {/* ACCOUNT */}
           {tab === "account" && (
             <div className={card}>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">Account</h3>
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">Account</h3>
               <p className="mt-1 text-sm text-[#6b7280]">Your sign-in details.</p>
 
               <dl className="mt-5 divide-y divide-[#f1f2f6]">
-                <div className="flex items-center justify-between py-3.5">
-                  <dt className="text-sm text-[#6b7280]">Email</dt>
-                  <dd className="text-sm font-medium text-[#111827]">{email || "—"}</dd>
+                <div className="flex items-center justify-between gap-3 py-3.5">
+                  <dt className="shrink-0 text-sm text-[#6b7280]">Email</dt>
+                  <dd className="truncate text-sm font-medium text-[#111827]">{email || "—"}</dd>
                 </div>
-                <div className="flex items-center justify-between py-3.5">
-                  <dt className="text-sm text-[#6b7280]">Member since</dt>
+                <div className="flex items-center justify-between gap-3 py-3.5">
+                  <dt className="shrink-0 text-sm text-[#6b7280]">Member since</dt>
                   <dd className="text-sm font-medium text-[#111827]">
                     {formatDate(memberSince) ?? "—"}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between py-3.5">
-                  <dt className="text-sm text-[#6b7280]">Creator profile</dt>
+                <div className="flex items-center justify-between gap-3 py-3.5">
+                  <dt className="shrink-0 text-sm text-[#6b7280]">Creator profile</dt>
                   <dd className="text-sm font-medium text-[#111827]">
                     {defaults ? (
                       <Link href="/creator-profile" className="text-[#5b5bd6] hover:underline">
@@ -309,7 +319,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-xl border border-[#e5e7eb] px-5 py-2.5 text-sm font-medium text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                  className="w-full rounded-xl border border-[#e5e7eb] px-5 py-3 text-sm font-medium text-[#b91c1c] transition hover:bg-[#fef2f2] sm:w-auto sm:py-2.5"
                 >
                   Log out
                 </button>
@@ -317,10 +327,10 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
 
               {/* Deleting is irreversible, so it asks for the account email
                   rather than a yes/no a stray click could get through. */}
-              <div className="mt-6 rounded-xl border border-[#fecaca] bg-[#fffbfb] p-5">
+              <div className="mt-6 rounded-xl border border-[#fecaca] bg-[#fffbfb] p-4 sm:p-5">
                 <p className="text-sm font-semibold text-[#b91c1c]">Delete account</p>
                 <p className="mt-1.5 text-sm leading-6 text-[#6b7280]">
-                                   Permanently removes your profile, saved ideas, scripts, SEO sets, content plans
+                  Permanently removes your profile, saved ideas, scripts, SEO sets, content plans
                   and analyses. This cannot be undone.
                 </p>
 
@@ -334,23 +344,27 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                   <button
                     type="button"
                     onClick={() => setDeleteOpen(true)}
-                    className="mt-4 rounded-xl border border-[#fecaca] bg-white px-5 py-2.5 text-sm font-medium text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                    className="mt-4 w-full rounded-xl border border-[#fecaca] bg-white px-5 py-3 text-sm font-medium text-[#b91c1c] transition hover:bg-[#fef2f2] sm:w-auto sm:py-2.5"
                   >
                     Delete my account
                   </button>
                 ) : (
                   <div className="mt-4 space-y-3">
                     <label htmlFor="confirmEmail" className="block text-sm font-medium text-[#374151]">
-                      Type <span className="font-semibold text-[#111827]">{email}</span> to confirm
+                      Type <span className="break-all font-semibold text-[#111827]">{email}</span> to confirm
                     </label>
                     <input
                       id="confirmEmail"
                       type="email"
                       autoComplete="off"
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       value={confirmEmail}
                       onChange={(e) => setConfirmEmail(e.target.value)}
                       placeholder="your email address"
-                      className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#fecaca] sm:max-w-sm"
+                      className={`${field} sm:max-w-sm`}
                     />
 
                     {deleteErr && (
@@ -359,12 +373,12 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                       </p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                       <button
                         type="button"
                         onClick={handleDeleteAccount}
                         disabled={deleting || !confirmEmail}
-                        className="rounded-xl bg-[#b91c1c] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#991b1b] disabled:opacity-50"
+                        className="rounded-xl bg-[#b91c1c] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#991b1b] disabled:opacity-50 sm:py-2.5"
                       >
                         {deleting ? "Deleting…" : "Permanently delete"}
                       </button>
@@ -376,7 +390,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                           setDeleteErr(null);
                         }}
                         disabled={deleting}
-                        className="text-sm text-[#6b7280] transition hover:text-[#111827]"
+                        className="py-2 text-sm text-[#6b7280] transition hover:text-[#111827] sm:py-0"
                       >
                         Never mind
                       </button>
@@ -390,7 +404,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
           {/* BILLING */}
           {tab === "billing" && (
             <div className={card}>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                 Plan &amp; billing
               </h3>
               <p className="mt-1 text-sm text-[#6b7280]">
@@ -401,7 +415,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 <div className="mt-5 h-28 animate-pulse rounded-xl bg-[#f4f5f8]" />
               ) : (
                 <>
-                  <div className="mt-5 rounded-xl border border-[#ececf1] p-5">
+                  <div className="mt-5 rounded-xl border border-[#ececf1] p-4 sm:p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <p className="text-xl font-bold text-[#111827]">{planLabel}</p>
@@ -416,13 +430,15 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                         </span>
                       </div>
 
-                      {!isPaid && (
-                        <Link
-                          href="/#pricing"
-                          className="rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
-                        >
-                          Upgrade →
-                        </Link>
+                      {/* Was a Link to /#pricing, which dropped a signed-in
+                          customer onto the marketing page and then off-site.
+                          The dialog keeps plan choice here in the app. */}
+                      {canUpgrade && (
+                        <UpgradeDialog
+                          currentPlan={plan as "free" | "creator" | "creator_pro"}
+                          triggerLabel={plan === "free" ? "Upgrade →" : "Go Creator Pro →"}
+                          triggerClassName="w-full rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:w-auto sm:py-2.5"
+                        />
                       )}
                     </div>
 
@@ -462,7 +478,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
           {/* DEFAULTS */}
           {tab === "defaults" && (
             <div className={card}>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">
                 Workspace defaults
               </h3>
               <p className="mt-1 text-sm text-[#6b7280]">
@@ -476,7 +492,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                   </p>
                   <Link
                     href="/creator-profile"
-                    className="mt-4 inline-flex rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338]"
+                    className="mt-4 inline-flex rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
                   >
                     Set up profile →
                   </Link>
@@ -528,12 +544,12 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                     </div>
                   </div>
 
-                  <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#f1f2f6] pt-5">
+                  <div className="mt-5 flex flex-col items-stretch gap-3 border-t border-[#f1f2f6] pt-5 sm:flex-row sm:flex-wrap sm:items-center">
                     <button
                       type="button"
                       onClick={handleSaveDefaults}
                       disabled={savingDefaults}
-                      className="rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                      className={primaryBtn}
                     >
                       {savingDefaults ? "Saving…" : "Save defaults"}
                     </button>
@@ -547,7 +563,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
           {/* SECURITY */}
           {tab === "security" && (
             <div className={card}>
-              <h3 className="text-lg font-semibold tracking-tight text-[#111827]">Security</h3>
+              <h3 className="text-base font-semibold tracking-tight text-[#111827] sm:text-lg">Security</h3>
               <p className="mt-1 text-sm text-[#6b7280]">Change the password you sign in with.</p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -557,6 +573,9 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                     id="pw"
                     type="password"
                     autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 8 characters"
@@ -569,6 +588,9 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                     id="pw2"
                     type="password"
                     autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter it"
@@ -583,12 +605,12 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 </p>
               )}
 
-              <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#f1f2f6] pt-5">
+              <div className="mt-5 flex flex-col items-stretch gap-3 border-t border-[#f1f2f6] pt-5 sm:flex-row sm:flex-wrap sm:items-center">
                 <button
                   type="button"
                   onClick={handleChangePassword}
                   disabled={savingPassword || !password || !confirmPassword}
-                  className="rounded-xl bg-[#0b1020] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50"
+                  className={primaryBtn}
                 >
                   {savingPassword ? "Updating…" : "Update password"}
                 </button>
@@ -599,12 +621,12 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
         </div>
 
         {/* ============ right rail ============ */}
-        <aside className="space-y-6">
+        <aside className="space-y-4 sm:space-y-6">
           <div className={card}>
             <p className="text-sm font-semibold text-[#111827]">Account overview</p>
 
             <div className="mt-4 flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0b1020] text-lg font-semibold text-white">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0b1020] text-lg font-semibold text-white">
                 {(defaults?.creatorName?.[0] ?? email?.[0] ?? "C").toUpperCase()}
               </span>
               <div className="min-w-0">
@@ -623,7 +645,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
 
             <Link
               href="/creator-profile"
-              className="mt-4 flex w-full items-center justify-center rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa]"
+              className="mt-4 flex w-full items-center justify-center rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] sm:py-2.5"
             >
               View profile
             </Link>
@@ -657,13 +679,23 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                   ))}
                 </ul>
 
-                <button
-                  type="button"
-                  onClick={() => setTab("billing")}
-                  className="mt-4 flex w-full items-center justify-center rounded-xl border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa]"
-                >
-                  Manage plan
-                </button>
+                {/* Free users get the plan picker straight from the rail; paid
+                    users get the management view, where cancelling lives. */}
+                {plan === "free" ? (
+                  <UpgradeDialog
+                    currentPlan="free"
+                    triggerLabel="See plans →"
+                    triggerClassName="mt-4 flex w-full items-center justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setTab("billing")}
+                    className="mt-4 flex w-full items-center justify-center rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] sm:py-2.5"
+                  >
+                    Manage plan
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -673,24 +705,24 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
             <div className="mt-4 space-y-2">
               <Link
                 href="/help"
-                className="flex items-center justify-between rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
-                <span>
+                <span className="min-w-0">
                   <span className="block font-medium text-[#111827]">Help centre</span>
                   <span className="block text-xs text-[#9ca3af]">Answers to common questions</span>
                 </span>
-                <span className="text-[#9ca3af]">→</span>
+                <span className="shrink-0 text-[#9ca3af]">→</span>
               </Link>
 
               <a
                 href="mailto:craftxofficialbd@gmail.com"
-                className="flex items-center justify-between rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
-                <span>
+                <span className="min-w-0">
                   <span className="block font-medium text-[#111827]">Contact support</span>
                   <span className="block text-xs text-[#9ca3af]">We usually reply within a day</span>
                 </span>
-                <span className="text-[#9ca3af]">→</span>
+                <span className="shrink-0 text-[#9ca3af]">→</span>
               </a>
             </div>
           </div>
@@ -706,7 +738,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="flex items-center justify-between rounded-lg px-2 py-2 text-sm text-[#6b7280] transition hover:bg-[#fafafc] hover:text-[#111827]"
+                  className="flex items-center justify-between rounded-lg px-2 py-2.5 text-sm text-[#6b7280] transition hover:bg-[#fafafc] hover:text-[#111827] sm:py-2"
                 >
                   {l.label}
                   <span className="text-[#c3c7d0]">→</span>
