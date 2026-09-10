@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ForgotPasswordPage() {
+const field =
+  "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
+
+/**
+ * Everything that reads the query string lives here, not in the page.
+ *
+ * useSearchParams() opts a route out of static prerendering, and Next 15 fails
+ * the build outright unless the component calling it sits inside a Suspense
+ * boundary. Keeping it in a leaf component means the page shell around it
+ * still renders statically.
+ */
+function ForgotPasswordCard() {
   const params = useSearchParams();
   const linkError = params.get("error");
 
@@ -44,9 +55,121 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  const field =
-    "w-full rounded-xl border border-[#e5e7eb] bg-white px-3.5 py-3 text-[16px] outline-none transition focus:border-[#c9c6f6] sm:py-2.5 sm:text-sm";
+  if (sent) {
+    return (
+      <>
+        <span className="flex h-[48px] w-[48px] items-center justify-center rounded-[14px] bg-[#e9f9f0] text-[20px] text-[#059669]">
+          ✓
+        </span>
+        <h1 className="mt-[18px] text-[22px] font-bold tracking-[-0.4px] text-[#111827] sm:text-[24px]">
+          Check your inbox
+        </h1>
+        <p className="mt-[10px] text-[15px] leading-[25px] text-[#6b7280]">
+          If an account exists for{" "}
+          <span className="break-all font-medium text-[#111827]">{email}</span>, we&apos;ve sent a
+          link to reset your password. It expires in an hour.
+        </p>
+        <p className="mt-[14px] text-[13.5px] leading-[21px] text-[#9ca3af]">
+          Nothing after a few minutes? Check your spam folder, and make sure you used the address
+          you signed up with.
+        </p>
 
+        <Link
+          href="/login"
+          className="mt-[22px] inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] sm:py-3"
+        >
+          Back to login
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSent(false);
+            setError(null);
+          }}
+          className="mt-[12px] w-full py-2 text-center text-[14px] text-[#6b7280] transition hover:text-[#111827]"
+        >
+          Use a different email
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h1 className="text-[22px] font-bold tracking-[-0.4px] text-[#111827] sm:text-[24px]">
+        Reset your password
+      </h1>
+      <p className="mt-[6px] text-[15px] leading-[25px] text-[#6b7280]">
+        Enter the email you signed up with and we&apos;ll send you a link.
+      </p>
+
+      {linkError && (
+        <p className="mt-[18px] rounded-xl border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#c2410c]">
+          {linkError === "expired"
+            ? "That reset link has expired or was already used. Request a new one below."
+            : "That link wasn't valid. Request a new one below."}
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-[22px] space-y-[16px]">
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#374151]">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className={field}
+          />
+        </div>
+
+        {error && (
+          <p className="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#b91c1c]">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading || !email.trim()}
+          className="w-full rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-3"
+        >
+          {loading ? "Sending…" : "Send reset link"}
+        </button>
+      </form>
+
+      <p className="mt-[20px] border-t border-[#f1f2f6] pt-[18px] text-center text-[14.5px] text-[#6b7280]">
+        Remembered it?{" "}
+        <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
+          Back to login
+        </Link>
+      </p>
+    </>
+  );
+}
+
+/** Shown for the instant before the card hydrates. */
+function CardSkeleton() {
+  return (
+    <div className="space-y-3">
+      <div className="h-6 w-[60%] animate-pulse rounded bg-[#f1f2f6]" />
+      <div className="h-4 w-[85%] animate-pulse rounded bg-[#f4f5f8]" />
+      <div className="h-[46px] w-full animate-pulse rounded-xl bg-[#fafafc]" />
+    </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
   return (
     <div
       className="relative flex min-h-screen flex-col overflow-hidden"
@@ -75,103 +198,9 @@ export default function ForgotPasswordPage() {
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-5 py-[32px] sm:px-6">
         <div className="w-full max-w-[440px] rounded-[22px] border border-[#ececf1] bg-white p-[22px] shadow-[0_20px_60px_rgba(17,19,24,0.07)] sm:p-[32px]">
-          {sent ? (
-            <>
-              <span className="flex h-[48px] w-[48px] items-center justify-center rounded-[14px] bg-[#e9f9f0] text-[20px] text-[#059669]">
-                ✓
-              </span>
-              <h1 className="mt-[18px] text-[22px] font-bold tracking-[-0.4px] text-[#111827] sm:text-[24px]">
-                Check your inbox
-              </h1>
-              <p className="mt-[10px] text-[15px] leading-[25px] text-[#6b7280]">
-                If an account exists for{" "}
-                <span className="break-all font-medium text-[#111827]">{email}</span>, we&apos;ve
-                sent a link to reset your password. It expires in an hour.
-              </p>
-              <p className="mt-[14px] text-[13.5px] leading-[21px] text-[#9ca3af]">
-                Nothing after a few minutes? Check your spam folder, and make sure you used the
-                address you signed up with.
-              </p>
-
-              <Link
-                href="/login"
-                className="mt-[22px] inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] sm:py-3"
-              >
-                Back to login
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setSent(false);
-                  setError(null);
-                }}
-                className="mt-[12px] w-full py-2 text-center text-[14px] text-[#6b7280] transition hover:text-[#111827]"
-              >
-                Use a different email
-              </button>
-            </>
-          ) : (
-            <>
-              <h1 className="text-[22px] font-bold tracking-[-0.4px] text-[#111827] sm:text-[24px]">
-                Reset your password
-              </h1>
-              <p className="mt-[6px] text-[15px] leading-[25px] text-[#6b7280]">
-                Enter the email you signed up with and we&apos;ll send you a link.
-              </p>
-
-              {linkError && (
-                <p className="mt-[18px] rounded-xl border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#c2410c]">
-                  {linkError === "expired"
-                    ? "That reset link has expired or was already used. Request a new one below."
-                    : "That link wasn't valid. Request a new one below."}
-                </p>
-              )}
-
-              <form onSubmit={handleSubmit} className="mt-[22px] space-y-[16px]">
-                <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#374151]">
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className={field}
-                  />
-                </div>
-
-                {error && (
-                  <p className="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#b91c1c]">
-                    {error}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !email.trim()}
-                  className="w-full rounded-xl bg-[#0b1020] px-5 py-3.5 text-[15px] font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-3"
-                >
-                  {loading ? "Sending…" : "Send reset link"}
-                </button>
-              </form>
-
-              <p className="mt-[20px] border-t border-[#f1f2f6] pt-[18px] text-center text-[14.5px] text-[#6b7280]">
-                Remembered it?{" "}
-                <Link href="/login" className="font-medium text-[#5b5bd6] hover:underline">
-                  Back to login
-                </Link>
-              </p>
-            </>
-          )}
+          <Suspense fallback={<CardSkeleton />}>
+            <ForgotPasswordCard />
+          </Suspense>
         </div>
       </main>
 
