@@ -3,9 +3,10 @@ import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import {
   configureLemonSqueezy,
+  isBillingInterval,
+  isPlanId,
   LEMONSQUEEZY_STORE_ID,
   LEMONSQUEEZY_VARIANTS,
-  PlanId,
 } from "@/lib/payments/lemonsqueezy";
 
 export async function GET(request: NextRequest) {
@@ -20,18 +21,34 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const plan = searchParams.get("plan") as PlanId | null;
+    const plan = searchParams.get("plan");
+    const intervalParam = searchParams.get("interval");
 
-    if (!plan || !(plan in LEMONSQUEEZY_VARIANTS)) {
+    if (!isPlanId(plan)) {
       return NextResponse.json(
         { error: "Invalid or missing plan. Use 'creator' or 'creator_pro'." },
         { status: 400 }
       );
     }
 
-    configureLemonSqueezy();
+    // Default to monthly so existing links without an interval keep working.
+    const interval = isBillingInterval(intervalParam)
+      ? intervalParam
+      : "monthly";
 
-    const variantId = LEMONSQUEEZY_VARIANTS[plan];
+    const variantId = LEMONSQUEEZY_VARIANTS[plan][interval];
+
+    if (!variantId) {
+      console.error(
+        `[Checkout] No variant configured for plan=${plan} interval=${interval}`
+      );
+      return NextResponse.json(
+        { error: "That billing option isn't available right now." },
+        { status: 500 }
+      );
+    }
+
+    configureLemonSqueezy();
 
     const checkout = await createCheckout(
       LEMONSQUEEZY_STORE_ID,
@@ -42,6 +59,7 @@ export async function GET(request: NextRequest) {
           custom: {
             user_id: user.id,
             plan,
+            interval,
           },
         },
         productOptions: {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/db/prisma";
+import { planFromVariantId } from "@/lib/payments/lemonsqueezy";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     const digest = Buffer.from(hmac.update(rawBody).digest("hex"), "utf8");
     const signatureBuffer = Buffer.from(signature, "utf8");
 
-       if (
+    if (
       digest.length !== signatureBuffer.length ||
       !crypto.timingSafeEqual(digest, signatureBuffer)
     ) {
@@ -59,7 +60,24 @@ export async function POST(request: NextRequest) {
         }
 
         const status = mapLemonSqueezyStatus(attributes.status);
-        const plan = planFromCustomData ?? inferPlanFromVariant(attributes.variant_id);
+
+        // Resolve the plan from the variant ID first — it always reflects the
+        // subscription as it stands right now. custom_data is only set when the
+        // checkout is first created, so it goes stale if the customer switches
+        // plans or billing intervals through the Lemon Squeezy portal.
+        const planFromVariant = planFromVariantId(attributes.variant_id);
+
+        let plan: string;
+        if (planFromVariant !== "free") {
+          plan = planFromVariant;
+        } else {
+          console.warn(
+            `[Webhook] Unrecognised variant_id ${attributes.variant_id} — ` +
+              `falling back to custom_data plan "${planFromCustomData ?? "none"}". ` +
+              `Check LEMONSQUEEZY_VARIANT_* env vars are set for every variant.`
+          );
+          plan = planFromCustomData ?? "free";
+        }
 
         await prisma.subscription.upsert({
           where: { userId },
@@ -102,11 +120,14 @@ export async function POST(request: NextRequest) {
       }
 
       case "subscription_payment_success": {
-        // Renewal confirmed — refresh renewsAt if present
+        // Renewal confirmed — mark active and push the renewal date forward.
         await prisma.subscription.updateMany({
           where: { lemonSqueezySubscriptionId: subscriptionId },
           data: {
             status: "active",
+            ...(attributes.renews_at
+              ? { renewsAt: new Date(attributes.renews_at) }
+              : {}),
           },
         });
         break;
@@ -147,11 +168,4 @@ function mapLemonSqueezyStatus(status: string): string {
     "on_trial",
   ];
   return validStatuses.includes(status) ? status : "active";
-}
-
-function inferPlanFromVariant(variantId: number | string): string {
-  const id = String(variantId);
-  if (id === process.env.LEMONSQUEEZY_VARIANT_CREATOR) return "creator";
-  if (id === process.env.LEMONSQUEEZY_VARIANT_CREATOR_PRO) return "creator_pro";
-  return "free";
 }
