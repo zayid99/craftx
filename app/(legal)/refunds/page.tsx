@@ -17,9 +17,9 @@ export default function RefundsPage() {
       <p className="mt-[10px] text-[14.5px] text-[#9ca3af]">Last updated {LEGAL_UPDATED}</p>
 
       <Callout>
-        <strong>7-day guarantee.</strong> If your first payment on a plan does not work out, email us
-        within 7 days and we will refund it in full. After that, cancel any time and you will not be
-        charged again.
+        <strong>Money-back guarantee.</strong> If your first payment on a plan does not work out,
+        email us and we will refund it in full — within 7 days for a monthly plan, or within 14 days
+        for a yearly plan. After that, cancel any time and you will not be charged again.
       </Callout>
 
       <Section title="Try before you pay">
@@ -32,8 +32,9 @@ export default function RefundsPage() {
 
       <Section title="Your first payment">
         <P>
-          We refund the first payment on any paid plan in full if you ask within 7 days of that
-          charge. You do not need to give a reason.
+          We refund the first payment on any paid plan in full if you ask within the guarantee
+          window: 7 days from the charge on a monthly plan, or 14 days on a yearly plan. You do not
+          need to give a reason.
         </P>
         <P>
           This applies once per account. It covers your first upgrade to Creator or Creator Pro, not
@@ -43,13 +44,19 @@ export default function RefundsPage() {
 
       <Section title="Renewals">
         <P>
-          Monthly renewals are not refundable, because you can cancel at any point before one
+          Renewals are not automatically refundable, because you can cancel at any point before one
           happens. Cancelling from Settings stops future billing immediately and keeps your paid
           access until the end of the period you have already paid for.
         </P>
         <P>
+          We make one exception for yearly plans. If a yearly renewal is charged and you contact us
+          within 14 days, and you have not used any of your allowance in the new period, we will
+          cancel and refund it. A year is long enough to forget a subscription and we would rather
+          give the money back than keep it from someone who does not want another year.
+        </P>
+        <P>
           We do not give partial or pro-rata refunds for unused time in a period that has already
-          started.
+          started, except where stated above.
         </P>
       </Section>
 
@@ -65,7 +72,7 @@ export default function RefundsPage() {
 
       <Section title="When we may decline">
         <P>
-          The 7-day guarantee is meant to cover &ldquo;this is not for me&rdquo;, not a free month of
+          The guarantee is meant to cover &ldquo;this is not for me&rdquo;, not a free month of
           output. Generating content costs us money per request, so we may decline a refund where:
         </P>
         <UL>

@@ -97,7 +97,8 @@ export default function TermsPage() {
           each calendar month and do not roll over.
         </P>
         <UL>
-          <LI>Paid plans bill monthly in advance through Lemon Squeezy.</LI>
+          <LI>Paid plans are available with monthly or yearly billing, charged in advance through Lemon Squeezy. You choose the billing period at checkout.</LI>
+          <LI>Yearly plans are charged once for the whole year. Your usage allowances are still monthly and still reset on the first day of each calendar month — a yearly plan does not give you twelve months of allowance up front.</LI>
           <LI>You can cancel at any time from Settings; your plan stays active until the end of the period you have paid for, then drops to Free.</LI>
           <LI>We may change prices with at least 30 days&apos; notice by email. Existing subscriptions keep their current price until the next renewal after that notice.</LI>
           <LI>Refunds are covered by our <Link href="/refunds" className="text-[#5b5bd6] underline underline-offset-2">Refund Policy</Link>.</LI>

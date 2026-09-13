@@ -14,12 +14,20 @@ const faqs: [string, string][] = [
     "Yes. The free plan includes all five tools with a one-time allocation of generations, so you can try the whole workflow before deciding to pay. It doesn't reset each month — paid plans do.",
   ],
   [
+    "How much does CraftX cost?",
+    "There are three plans. Free costs nothing. Creator is $9.99 a month or $99 a year. Creator Pro is $19.99 a month or $199 a year. Paying yearly works out to two months free.",
+  ],
+  [
+    "Do you offer annual billing?",
+    "Yes. Both paid plans can be billed yearly instead of monthly — $99 a year for Creator and $199 a year for Creator Pro, charged once for the whole year. Usage allowances are still monthly and reset on the first day of each calendar month, so a yearly plan does not give you twelve months of allowance up front.",
+  ],
+  [
     "What's included in the Creator plan?",
-    "Unlimited ideas, 50 scripts, 150 SEO sets, 30 content plans and 20 script analyses a month, plus priority processing.",
+    "Unlimited ideas, 50 scripts, 150 SEO sets, 30 content plans and 20 script analyses a month, plus priority processing. It costs $9.99 a month or $99 a year.",
   ],
   [
     "What's included in Creator Pro?",
-    "Unlimited ideas, scripts and analyses, plus 400 SEO sets and 100 content plans a month, advanced growth insights and premium support.",
+    "Unlimited ideas, scripts and analyses, plus 400 SEO sets and 100 content plans a month, advanced growth insights and premium support. It costs $19.99 a month or $199 a year.",
   ],
   [
     "Do I need AI experience?",
@@ -92,17 +100,66 @@ const schema = {
         },
         {
           "@type": "Offer",
-          name: "Creator",
+          name: "Creator (monthly)",
           price: "9.99",
           priceCurrency: "USD",
-          description: "Monthly plan for creators who publish consistently.",
+          description:
+            "Billed monthly. For creators who publish consistently.",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "9.99",
+            priceCurrency: "USD",
+            billingDuration: 1,
+            billingIncrement: 1,
+            unitCode: "MON",
+          },
         },
         {
           "@type": "Offer",
-          name: "Creator Pro",
+          name: "Creator (yearly)",
+          price: "99.00",
+          priceCurrency: "USD",
+          description:
+            "Billed once a year — two months free compared with monthly billing.",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "99.00",
+            priceCurrency: "USD",
+            billingDuration: 12,
+            billingIncrement: 1,
+            unitCode: "MON",
+          },
+        },
+        {
+          "@type": "Offer",
+          name: "Creator Pro (monthly)",
           price: "19.99",
           priceCurrency: "USD",
-          description: "Monthly plan for creators serious about growth.",
+          description: "Billed monthly. For creators serious about growth.",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "19.99",
+            priceCurrency: "USD",
+            billingDuration: 1,
+            billingIncrement: 1,
+            unitCode: "MON",
+          },
+        },
+        {
+          "@type": "Offer",
+          name: "Creator Pro (yearly)",
+          price: "199.00",
+          priceCurrency: "USD",
+          description:
+            "Billed once a year — two months free compared with monthly billing.",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "199.00",
+            priceCurrency: "USD",
+            billingDuration: 12,
+            billingIncrement: 1,
+            unitCode: "MON",
+          },
         },
       ],
       publisher: { "@id": `${BASE_URL}/#organization` },
