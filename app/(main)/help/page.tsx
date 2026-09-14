@@ -27,7 +27,7 @@ const FAQS = [
   },
 ];
 
-const SUPPORT_EMAIL = "craftxofficialbd@gmail.com";
+const SUPPORT_EMAIL = "support@craftxapp.com";
 
 export default function HelpPage() {
   return (

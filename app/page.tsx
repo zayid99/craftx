@@ -187,14 +187,14 @@ const models: {
   solo: number;
   logo: string;
 }[] = [
-  { name: "DeepSeek V4 Flash", provider: "DeepSeek", strength: "Fast drafting across every studio", status: "live", solo: 20, logo: "deepseek.png" },
-  { name: "Claude Sonnet 4.6", provider: "Anthropic", strength: "Nuanced coaching and long-form reasoning", status: "soon", solo: 20, logo: "anthropic.png" },
-  { name: "Claude Fable 5", provider: "Anthropic", strength: "Deepest reasoning for hard creative problems", status: "soon", solo: 20, logo: "anthropic.png" },
+  { name: "DeepSeek V4 Flash", provider: "DeepSeek", strength: "Fast drafting across every studio", status: "live", solo: 0, logo: "deepseek.png" },
+  { name: "Claude Fable 5.1", provider: "Anthropic", strength: "Nuanced coaching and long-form reasoning", status: "soon", solo: 20, logo: "anthropic.png" },
+  { name: "Claude Opus 5", provider: "Anthropic", strength: "Deepest reasoning for hard creative problems", status: "soon", solo: 0, logo: "anthropic.png" },
   { name: "GPT-5.6 Sol", provider: "OpenAI", strength: "Broad general knowledge and structure", status: "soon", solo: 20, logo: "openai.png" },
   { name: "Gemini 3.8 Flash", provider: "Google", strength: "High-volume generation at speed", status: "soon", solo: 20, logo: "google.png" },
-  { name: "Kimi K3", provider: "Moonshot AI", strength: "Long context for full transcripts", status: "soon", solo: 20, logo: "moonshot.png" },
-  { name: "Grok 4.6", provider: "xAI", strength: "Current events and trend awareness", status: "soon", solo: 20, logo: "xai.png" },
-  { name: "Qwen 3 Max", provider: "Alibaba", strength: "Strong multilingual output", status: "soon", solo: 20, logo: "" },
+  { name: "Kimi K3", provider: "Moonshot AI", strength: "Long context for full transcripts", status: "soon", solo: 0, logo: "moonshot.png" },
+  { name: "Grok 4.6", provider: "xAI", strength: "Current events and trend awareness", status: "soon", solo: 30, logo: "xai.png" },
+  { name: "Qwen 3 Max", provider: "Alibaba", strength: "Strong multilingual output", status: "soon", solo: 0, logo: "" },
 ];
 
 /** The four claims that sit under the logo grid. */
@@ -464,18 +464,18 @@ const footerColumns = [
     { label: "Refund Policy", href: "/refunds" },
   ]},
   { title: "Company", links: [
-    { label: "Contact", href: "mailto:craftxofficialbd@gmail.com" },
+    { label: "Contact", href: "mailto:support@craftxapp.com" },
     { label: "Log in", href: "/login" },
     { label: "Get started", href: "/signup" },
   ]},
 ];
 
 const socials = [
-  { name: "YouTube", Icon: YoutubeIcon, href: "https://youtube.com" },
-  { name: "TikTok", Icon: TiktokIcon, href: "https://tiktok.com" },
-  { name: "Instagram", Icon: InstagramIcon, href: "https://instagram.com" },
-  { name: "X", Icon: XIcon, href: "https://x.com" },
-  { name: "LinkedIn", Icon: LinkedinIcon, href: "https://linkedin.com" },
+  { name: "YouTube", Icon: YoutubeIcon, href: "https://youtube.com/@officialcraftx" },
+  { name: "TikTok", Icon: TiktokIcon, href: "https://www.tiktok.com/@official_craftx" },
+  { name: "Instagram", Icon: InstagramIcon, href: "https://www.instagram.com/craftxofficial" },
+  { name: "Facebook", Icon: FacebookIcon, href: "https://www.facebook.com/share/18d4hgTDUB/" },
+  { name: "LinkedIn", Icon: LinkedinIcon, href: "https://www.linkedin.com/in/md-zayid-hasan92" },
 ];
 
 export default function Home() {

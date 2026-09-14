@@ -59,7 +59,7 @@ const schema = {
       "@id": `${BASE_URL}/#organization`,
       name: "CraftX",
       url: BASE_URL,
-      email: "craftxofficialbd@gmail.com",
+      email: "support@craftxapp.com",
       description:
         "CraftX is an AI-powered creator workspace for researching ideas, building content, optimizing uploads, and understanding what drives growth.",
     },

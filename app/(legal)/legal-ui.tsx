@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /** Shared building blocks so all three legal pages read identically. */
 
-export const LEGAL_CONTACT = "craftxofficialbd@gmail.com";
+export const LEGAL_CONTACT = "support@craftxapp.com";
 export const LEGAL_UPDATED = "5 September 2026";
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {

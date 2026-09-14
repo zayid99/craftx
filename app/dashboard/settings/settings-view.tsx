@@ -715,7 +715,7 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
               </Link>
 
               <a
-                href="mailto:craftxofficialbd@gmail.com"
+                href="mailto:support@craftxapp.com"
                 className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
               >
                 <span className="min-w-0">
