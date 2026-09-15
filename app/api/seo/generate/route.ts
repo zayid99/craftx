@@ -6,6 +6,14 @@ import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
 import { checkSpendCap } from "@/lib/usage/spendCap";
 
+function stripFences(text: string): string {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
@@ -94,25 +102,26 @@ Generate optimized SEO content following the JSON schema.`;
       maxTokens: 1536,
     });
 
-    await trackUsage({
-      userId: user.id,
-      feature: "seo",
-      provider: result.provider,
-      model: result.model,
-      inputTokens: result.inputTokens ?? 0,
-      outputTokens: result.outputTokens ?? 0,
-    });
+    // The provider call succeeded, so these tokens were really spent and must
+    // be recorded either way — checkSpendCap reads these rows. Failure paths
+    // record the cost with quantity: 0 so the user keeps their allowance.
+    const trackFailed = () =>
+      trackUsage({
+        userId: user.id,
+        feature: "seo",
+        provider: result.provider,
+        model: result.model,
+        inputTokens: result.inputTokens ?? 0,
+        outputTokens: result.outputTokens ?? 0,
+        quantity: 0,
+      });
 
     let parsed;
     try {
-      const cleaned = result.text
-        .trim()
-        .replace(/^```json\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/```\s*$/i, "");
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(stripFences(result.text));
     } catch {
       console.error("Failed to parse AI response as JSON:", result.text);
+      await trackFailed();
       return NextResponse.json(
         { error: "AI returned an unexpected format. Please try again." },
         { status: 502 }
@@ -125,11 +134,22 @@ Generate optimized SEO content following the JSON schema.`;
       !Array.isArray(parsed.keywords) ||
       !Array.isArray(parsed.hashtags)
     ) {
+      console.error("AI response missing required SEO fields");
+      await trackFailed();
       return NextResponse.json(
         { error: "AI response missing required SEO fields." },
         { status: 502 }
       );
     }
+
+    await trackUsage({
+      userId: user.id,
+      feature: "seo",
+      provider: result.provider,
+      model: result.model,
+      inputTokens: result.inputTokens ?? 0,
+      outputTokens: result.outputTokens ?? 0,
+    });
 
     return NextResponse.json({
       titles: parsed.titles,

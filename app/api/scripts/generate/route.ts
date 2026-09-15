@@ -6,6 +6,14 @@ import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
 import { checkSpendCap } from "@/lib/usage/spendCap";
 
+function stripFences(text: string): string {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
@@ -102,25 +110,29 @@ Write a complete script following the JSON schema.`;
       maxTokens: 2048,
     });
 
-    await trackUsage({
-      userId: user.id,
-      feature: "scripts",
-      provider: result.provider,
-      model: result.model,
-      inputTokens: result.inputTokens ?? 0,
-      outputTokens: result.outputTokens ?? 0,
-    });
+    // The provider call succeeded, so these tokens were really spent and must
+    // be recorded either way — checkSpendCap reads these rows. Failure paths
+    // record the cost with quantity: 0 so the user keeps their allowance.
+    //
+    // trackUsage used to sit directly below this call, above the parse. A
+    // malformed AI response then burned a script and returned an error.
+    const trackFailed = () =>
+      trackUsage({
+        userId: user.id,
+        feature: "scripts",
+        provider: result.provider,
+        model: result.model,
+        inputTokens: result.inputTokens ?? 0,
+        outputTokens: result.outputTokens ?? 0,
+        quantity: 0,
+      });
 
     let parsed;
     try {
-      const cleaned = result.text
-        .trim()
-        .replace(/^```json\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/```\s*$/i, "");
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(stripFences(result.text));
     } catch {
       console.error("Failed to parse AI response as JSON:", result.text);
+      await trackFailed();
       return NextResponse.json(
         { error: "AI returned an unexpected format. Please try again." },
         { status: 502 }
@@ -133,11 +145,22 @@ Write a complete script following the JSON schema.`;
       typeof parsed.script.body !== "string" ||
       !Array.isArray(parsed.altEndings)
     ) {
+      console.error("AI response missing required script fields");
+      await trackFailed();
       return NextResponse.json(
         { error: "AI response missing required script fields." },
         { status: 502 }
       );
     }
+
+    await trackUsage({
+      userId: user.id,
+      feature: "scripts",
+      provider: result.provider,
+      model: result.model,
+      inputTokens: result.inputTokens ?? 0,
+      outputTokens: result.outputTokens ?? 0,
+    });
 
     return NextResponse.json({
       hooks: parsed.hooks,

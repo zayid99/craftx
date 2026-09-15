@@ -6,6 +6,14 @@ import { checkAccess } from "@/lib/entitlements/checkAccess";
 import { checkRateLimit } from "@/lib/rate-limit/limiter";
 import { checkSpendCap } from "@/lib/usage/spendCap";
 
+function stripFences(text: string): string {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
@@ -114,6 +122,40 @@ Generate the content plan following the JSON schema.`;
         maxTokens: 4096,
       });
 
+      // The provider call succeeded, so these tokens were really spent and
+      // must be recorded either way — checkSpendCap reads these rows. Failure
+      // paths record the cost with quantity: 0 so the user keeps their plan.
+      const trackFailed = () =>
+        trackUsage({
+          userId: user.id,
+          feature: "planner",
+          provider: result.provider,
+          model: result.model,
+          inputTokens: result.inputTokens ?? 0,
+          outputTokens: result.outputTokens ?? 0,
+          quantity: 0,
+        });
+
+      try {
+        parsed = JSON.parse(stripFences(result.text));
+      } catch {
+        console.error("Failed to parse AI response as JSON:", result.text);
+        await trackFailed();
+        return NextResponse.json(
+          { error: "AI returned an unexpected format. Please try again." },
+          { status: 502 }
+        );
+      }
+
+      if (!Array.isArray(parsed.days) || !Array.isArray(parsed.pillars)) {
+        console.error("AI response missing required plan fields");
+        await trackFailed();
+        return NextResponse.json(
+          { error: "AI response missing required plan fields." },
+          { status: 502 }
+        );
+      }
+
       await trackUsage({
         userId: user.id,
         feature: "planner",
@@ -122,28 +164,6 @@ Generate the content plan following the JSON schema.`;
         inputTokens: result.inputTokens ?? 0,
         outputTokens: result.outputTokens ?? 0,
       });
-
-      try {
-        const cleaned = result.text
-          .trim()
-          .replace(/^```json\s*/i, "")
-          .replace(/^```\s*/i, "")
-          .replace(/```\s*$/i, "");
-        parsed = JSON.parse(cleaned);
-      } catch {
-        console.error("Failed to parse AI response as JSON:", result.text);
-        return NextResponse.json(
-          { error: "AI returned an unexpected format. Please try again." },
-          { status: 502 }
-        );
-      }
-
-      if (!Array.isArray(parsed.days) || !Array.isArray(parsed.pillars)) {
-        return NextResponse.json(
-          { error: "AI response missing required plan fields." },
-          { status: 502 }
-        );
-      }
     } else {
       parsed = {
         pillars: pillars ?? [],

@@ -7,6 +7,19 @@ import { checkRateLimit } from "@/lib/rate-limit/limiter";
 import { logger, createRequestId } from "@/lib/logging/logger";
 import { checkSpendCap } from "@/lib/usage/spendCap";
 
+/**
+ * Models wrap JSON in ```json fences routinely, whatever the system prompt
+ * says. Stripping them before parsing removes the single most common cause of
+ * "AI returned an unexpected format".
+ */
+function stripFences(text: string): string {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "");
+}
+
 export async function POST(req: NextRequest) {
   const requestId = createRequestId();
   const route = "ideas/generate";
@@ -85,9 +98,23 @@ Generate exactly ${requestedCount} distinct video ideas.`;
       maxTokens: 1024,
     });
 
+    // The provider call succeeded, so these tokens were really spent and must
+    // be recorded either way — checkSpendCap reads these rows. Failure paths
+    // record the cost with quantity: 0 so the user keeps their allowance.
+    const trackFailed = () =>
+      trackUsage({
+        userId: user.id,
+        feature: "ideas",
+        provider: result.provider,
+        model: result.model,
+        inputTokens: result.inputTokens ?? 0,
+        outputTokens: result.outputTokens ?? 0,
+        quantity: 0,
+      });
+
     let parsed;
     try {
-      parsed = JSON.parse(result.text);
+      parsed = JSON.parse(stripFences(result.text));
     } catch (err) {
       logger.error("Failed to parse AI response as JSON", {
         requestId,
@@ -96,15 +123,7 @@ Generate exactly ${requestedCount} distinct video ideas.`;
         error: err,
         rawResponse: result.text.slice(0, 500),
       });
-      await trackUsage({
-        userId: user.id,
-        feature: "ideas",
-        provider: result.provider,
-        model: result.model,
-        inputTokens: result.inputTokens ?? 0,
-        outputTokens: result.outputTokens ?? 0,
-        quantity: 0,
-      });
+      await trackFailed();
       return NextResponse.json(
         { error: "AI returned an unexpected format. Please try again.", requestId },
         { status: 502 }
@@ -113,15 +132,7 @@ Generate exactly ${requestedCount} distinct video ideas.`;
 
     if (!Array.isArray(parsed.ideas)) {
       logger.error("AI response missing ideas array", { requestId, route, userId: user.id });
-      await trackUsage({
-        userId: user.id,
-        feature: "ideas",
-        provider: result.provider,
-        model: result.model,
-        inputTokens: result.inputTokens ?? 0,
-        outputTokens: result.outputTokens ?? 0,
-        quantity: 0,
-      });
+      await trackFailed();
       return NextResponse.json(
         { error: "AI response missing ideas array.", requestId },
         { status: 502 }
