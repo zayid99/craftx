@@ -106,17 +106,34 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
       );
     }
 
-    await trackUsage({
-      userId: user.id,
-      feature: "analyzer",
-      provider: "deepseek",
-      model: MODEL,
-      inputTokens: response.usage?.input_tokens ?? 0,
-      outputTokens: response.usage?.output_tokens ?? 0,
-    });
+    /**
+     * The provider call succeeded, so the tokens below were really spent and
+     * must be recorded either way — checkSpendCap reads these rows.
+     *
+     * But the user only loses an allowance if they actually receive a usable
+     * analysis. Every failure path past this point records the real token cost
+     * with quantity: 0, so it counts against spend but not against the user.
+     *
+     * Order matters here: trackUsage used to sit directly below the provider
+     * call, above the three validation checks. A malformed AI response then
+     * burned a generation and returned an error, which is how a user with 4
+     * analyses left could drop to 2 without ever seeing output.
+     */
+    const trackFailed = () =>
+      trackUsage({
+        userId: user.id,
+        feature: "analyzer",
+        provider: "deepseek",
+        model: MODEL,
+        inputTokens: response.usage?.input_tokens ?? 0,
+        outputTokens: response.usage?.output_tokens ?? 0,
+        quantity: 0,
+      });
 
     const textBlock = response.content.find((block) => block.type === "text");
     if (!textBlock || textBlock.type !== "text") {
+      console.error("[Analyzer] Provider returned no text block");
+      await trackFailed();
       return NextResponse.json(
         { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
@@ -129,6 +146,11 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
     try {
       parsed = JSON.parse(cleaned);
     } catch {
+      console.error(
+        "[Analyzer] Failed to parse AI response as JSON:",
+        cleaned.slice(0, 500)
+      );
+      await trackFailed();
       return NextResponse.json(
         { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
@@ -141,11 +163,23 @@ Safety rule: if the transcript relates to finance, investing, trading, health, m
       !Array.isArray(parsed.weaknesses) ||
       !Array.isArray(parsed.recommendations)
     ) {
+      console.error("[Analyzer] AI response has unexpected shape");
+      await trackFailed();
       return NextResponse.json(
         { error: "CraftX is temporarily busy. Please try again in a moment." },
         { status: 502 }
       );
     }
+
+    // Validated output — now the user has genuinely consumed a generation.
+    await trackUsage({
+      userId: user.id,
+      feature: "analyzer",
+      provider: "deepseek",
+      model: MODEL,
+      inputTokens: response.usage?.input_tokens ?? 0,
+      outputTokens: response.usage?.output_tokens ?? 0,
+    });
 
     return NextResponse.json({ result: parsed });
   } catch (err) {
