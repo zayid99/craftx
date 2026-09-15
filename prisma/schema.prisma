@@ -155,3 +155,18 @@ model Subscription {
 
   @@index([userId])
 }
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  userEmail String?  // snapshot at submit time, so you can reply without a lookup
+  type      String   // "bug" | "feature" | "complaint" | "other"
+  message   String   @db.Text
+  pageUrl   String?  // page the user was on when they opened the form
+  userAgent String?  // browser/device, for reproducing bugs
+  status    String   @default("new") // "new" | "reviewed" | "resolved"
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([status, createdAt])
+}

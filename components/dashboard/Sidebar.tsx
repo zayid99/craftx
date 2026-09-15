@@ -15,6 +15,7 @@ import {
   SettingsIcon,
   PlusIcon,
 } from "@/components/marketing/landing-icons";
+import FeedbackModal from "@/components/dashboard/feedback-modal";
 
 type PlanId = "free" | "creator" | "creator_pro";
 
@@ -35,6 +36,23 @@ function CrownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
       <path d="M3 8.5 6.5 12 12 5l5.5 7L21 8.5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" />
+    </svg>
+  );
+}
+
+function FeedbackIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />
+      <path d="M8 9h8M8 13h5" />
     </svg>
   );
 }
@@ -69,6 +87,7 @@ const accountNav = [
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const [plan, setPlan] = useState<PlanId | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,7 +158,21 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-[1.2px] text-[#9ca3af]">
           Account
         </p>
-        <div className="space-y-1">{accountNav.map(renderLink)}</div>
+        <div className="space-y-1">
+          {accountNav.map(renderLink)}
+
+          {/* Not a link: opens a modal. Deliberately does NOT call onNavigate —
+              closing the mobile drawer would unmount this Sidebar, and the
+              modal (whose open state lives here) would vanish with it. */}
+          <button
+            type="button"
+            onClick={() => setFeedbackOpen(true)}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#6b7280] transition hover:bg-[#f4f5f8] hover:text-[#111827]"
+          >
+            <FeedbackIcon className="h-[18px] w-[18px] shrink-0" />
+            <span className="truncate">Send feedback</span>
+          </button>
+        </div>
       </nav>
 
       {/* plan card */}
@@ -185,6 +218,8 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <div className="h-[186px] animate-pulse rounded-2xl bg-[#f4f5f8]" />
         )}
       </div>
+
+      {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} />}
     </aside>
   );
 }
