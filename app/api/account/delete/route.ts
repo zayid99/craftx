@@ -14,6 +14,10 @@ export const dynamic = "force-dynamic";
  * cleared explicitly. If a new model with a userId is added to the schema, it
  * MUST be added here too, or its rows are orphaned after deletion and the
  * privacy policy's deletion promise stops being true.
+ *
+ * Feedback is the one exception: the message is kept so product feedback isn't
+ * lost, but everything that identifies the person (userId, email snapshot,
+ * browser string) is removed.
  */
 export async function POST(request: Request) {
   try {
@@ -64,12 +68,17 @@ export async function POST(request: Request) {
     // user can sign in and retry; the reverse order would strand their rows.
     await prisma.$transaction([
       prisma.savedIdea.deleteMany({ where: { userId: user.id } }),
+      prisma.dailyIdeaSet.deleteMany({ where: { userId: user.id } }),
       prisma.savedScript.deleteMany({ where: { userId: user.id } }),
       prisma.savedSEO.deleteMany({ where: { userId: user.id } }),
       prisma.savedContentPlan.deleteMany({ where: { userId: user.id } }),
       prisma.videoAnalysis.deleteMany({ where: { userId: user.id } }),
       prisma.coachMessage.deleteMany({ where: { userId: user.id } }),
       prisma.usageEvent.deleteMany({ where: { userId: user.id } }),
+      prisma.feedback.updateMany({
+        where: { userId: user.id },
+        data: { userId: "deleted-user", userEmail: null, userAgent: null },
+      }),
       prisma.creatorProfile.deleteMany({ where: { userId: user.id } }),
       prisma.subscription.deleteMany({ where: { userId: user.id } }),
     ]);

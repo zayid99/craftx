@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
+import { readParam, type SearchParams } from "@/lib/search-params";
 import type { SavedItem } from "@/components/dashboard/saved-list";
 import ScriptAnalyzer from "./script-analyzer";
 
@@ -15,9 +16,18 @@ function listToText(value: unknown, max = 4): string {
   return items.map((t) => `• ${t}`).join("\n") + extra;
 }
 
-export default async function AnalyzerPage() {
+export default async function AnalyzerPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
+
+  // /analyzer?from=script — the script itself arrives via a tab-scoped
+  // handoff (lib/handoff.ts), because it's too long for the URL.
+  const sp = await searchParams;
+  const fromScript = readParam(sp, "from", 20) === "script";
 
   const [plan, saved] = await Promise.all([
     getUserPlan(user.id),
@@ -71,6 +81,11 @@ export default async function AnalyzerPage() {
     .reverse();
 
   return (
-    <ScriptAnalyzer savedItems={savedItems} previousScores={previousScores} plan={plan} />
+    <ScriptAnalyzer
+      savedItems={savedItems}
+      previousScores={previousScores}
+      plan={plan}
+      fromScript={fromScript}
+    />
   );
 }

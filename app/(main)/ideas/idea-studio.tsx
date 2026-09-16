@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import UpgradePrompt from "@/components/dashboard/upgrade-prompt";
 import UsageMeter from "@/components/dashboard/usage-meter";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import { LightbulbIcon } from "@/components/marketing/landing-icons";
+import { studioHref } from "@/lib/search-params";
 
 interface Idea {
   title: string;
@@ -350,7 +352,7 @@ export default function IdeaStudio({
                     </div>
                   </div>
 
-                  <div className="mt-5 flex items-center gap-2 border-t border-[#f1f2f6] pt-4">
+                  <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#f1f2f6] pt-4">
                     <button
                       type="button"
                       onClick={() => handleSave(idea, i)}
@@ -371,6 +373,14 @@ export default function IdeaStudio({
                     >
                       {copiedIndex === i ? "Copied ✓" : "Copy"}
                     </button>
+
+                    {/* Opens Script Studio with this idea filled in. */}
+                    <Link
+                      href={studioHref("/scripts", { topic: idea.title, platform, audience })}
+                      className="ml-auto rounded-lg px-2 py-2.5 text-xs font-medium text-[#6856fd] hover:underline sm:py-2"
+                    >
+                      Write script →
+                    </Link>
                   </div>
                 </div>
               );

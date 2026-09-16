@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UpgradePrompt from "@/components/dashboard/upgrade-prompt";
 import UsageMeter from "@/components/dashboard/usage-meter";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import { PlayCircleIcon } from "@/components/marketing/landing-icons";
+import { studioHref } from "@/lib/search-params";
+import { takeAnalyzerHandoff } from "@/lib/handoff";
 
 type AnalysisResult = {
   overallScore: number;
@@ -24,6 +27,8 @@ interface UpgradeInfo {
 }
 
 type TabKey = "overview" | "strengths" | "improve" | "rewrite" | "next";
+
+type NextTarget = "seo" | "planner";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
@@ -47,11 +52,22 @@ interface Props {
   savedItems: SavedItem[];
   previousScores: { score: number; createdAt: string }[];
   plan: string;
+  /** Opened from Script Studio — pick up the script it handed over. */
+  fromScript?: boolean;
 }
 
-export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Props) {
+export default function ScriptAnalyzer({
+  savedItems,
+  previousScores,
+  plan,
+  fromScript = false,
+}: Props) {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [transcript, setTranscript] = useState("");
+  /** Carried from Script Studio so SEO/planner links keep the platform. */
+  const [platform, setPlatform] = useState("");
+  const [imported, setImported] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,11 +75,40 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
   const [upgradeInfo, setUpgradeInfo] = useState<UpgradeInfo | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  /** True once the current result is saved, so next steps don't save it twice. */
+  const [justSaved, setJustSaved] = useState(false);
+  const [goingNext, setGoingNext] = useState<NextTarget | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [tab, setTab] = useState<TabKey>("overview");
 
   /** Bumped after any analyze attempt that touched the quota. */
   const [usageRefresh, setUsageRefresh] = useState(0);
+
+  /**
+   * Pick up the script handed over by Script Studio. sessionStorage doesn't
+   * exist during the server render, so this runs after mount; state is set in
+   * a microtask, never synchronously in the effect. In dev (StrictMode) the
+   * first run is cancelled before its microtask fires, so the handoff is read
+   * exactly once.
+   */
+  useEffect(() => {
+    if (!fromScript) return;
+    let cancelled = false;
+
+    Promise.resolve().then(() => {
+      if (cancelled) return;
+      const handoff = takeAnalyzerHandoff();
+      if (!handoff) return;
+      setTitle(handoff.title);
+      setTranscript(handoff.transcript);
+      setPlatform(handoff.platform);
+      setImported(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fromScript]);
 
   /* ---- Transcript stats, computed locally ---- */
   const transcriptStats = useMemo(() => {
@@ -105,6 +150,7 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
     setUpgradeInfo(null);
     setResult(null);
     setSavedMessage(null);
+    setJustSaved(false);
 
     if (transcript.trim().length < 50) {
       setError("Please provide a transcript of at least 50 characters.");
@@ -145,8 +191,9 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
     }
   }
 
-  async function handleSave() {
-    if (!result) return;
+  /** Returns true when the analysis is saved. */
+  async function handleSave(): Promise<boolean> {
+    if (!result) return false;
     setSaving(true);
     setSavedMessage(null);
 
@@ -168,15 +215,32 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
 
       if (!res.ok) {
         setSavedMessage("Failed to save. Please try again.");
-        return;
+        return false;
       }
 
       setSavedMessage("Saved — it appears below after you refresh.");
+      setJustSaved(true);
+      return true;
     } catch {
       setSavedMessage("Failed to save. Please try again.");
+      return false;
     } finally {
       setSaving(false);
     }
+  }
+
+  /** Same rule as Script Studio: save once, then move on with the topic. */
+  async function goNext(target: NextTarget) {
+    if (!result || goingNext) return;
+    setGoingNext(target);
+
+    const saved = justSaved || (await handleSave());
+    if (!saved) {
+      setGoingNext(null);
+      return;
+    }
+
+    router.push(studioHref(target === "seo" ? "/seo" : "/planner", { topic: title, platform }));
   }
 
   /**
@@ -221,6 +285,14 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
       <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* ============ main ============ */}
         <div className="space-y-4">
+          {imported && !result && (
+            <div className="rounded-xl border border-[#dfe3f5] bg-[#f4f6ff] px-4 py-3 text-sm leading-6 text-[#374151]">
+              Your script from Script Studio is ready below. Hit{" "}
+              <span className="font-semibold text-[#111827]">Analyze script</span> when you&apos;re
+              ready — it uses one analysis from your allowance.
+            </div>
+          )}
+
           {/* input card */}
           <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-6">
             <div>
@@ -475,7 +547,10 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                     </p>
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                       <Link
-                        href="/scripts"
+                        href={studioHref("/scripts", {
+                          topic: result.suggestedNextVideo?.slice(0, 200),
+                          platform,
+                        })}
                         className="rounded-xl bg-[#0b1020] px-4 py-3 text-center text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
                       >
                         Write this script →
@@ -494,11 +569,30 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
                   <button
                     type="button"
                     onClick={handleSave}
-                    disabled={saving}
+                    disabled={saving || justSaved}
                     className="rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] disabled:opacity-50 sm:py-2.5"
                   >
-                    {saving ? "Saving…" : "Save analysis"}
+                    {saving ? "Saving…" : justSaved ? "Saved ✓" : "Save analysis"}
                   </button>
+
+                  {/* Next steps — available straight away; they save first if needed. */}
+                  <button
+                    type="button"
+                    onClick={() => goNext("seo")}
+                    disabled={goingNext !== null || saving}
+                    className="rounded-xl bg-[#eef0fb] px-5 py-3 text-sm font-medium text-[#5b5bd6] transition hover:bg-[#e3e6fa] disabled:opacity-60 sm:py-2.5"
+                  >
+                    {goingNext === "seo" ? "Opening…" : "Optimize for search →"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => goNext("planner")}
+                    disabled={goingNext !== null || saving}
+                    className="rounded-xl border border-[#e5e7eb] px-5 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-60 sm:py-2.5"
+                  >
+                    {goingNext === "planner" ? "Opening…" : "Schedule it →"}
+                  </button>
+
                   {savedMessage && <span className="text-sm text-[#6b7280]">{savedMessage}</span>}
                 </div>
               </div>
@@ -626,10 +720,10 @@ export default function ScriptAnalyzer({ savedItems, previousScores, plan }: Pro
             >
               <p className="text-sm font-semibold">Analyze more scripts</p>
               <p className="mt-2 text-sm leading-6 text-[#c8ccdb]">
-                Upgrade for more analyses each month and priority processing.
+                Creator includes 20 script analyses a month, refreshed on the 1st.
               </p>
               <Link
-                href="/dashboard/settings"
+                href="/dashboard/settings?tab=billing"
                 className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →

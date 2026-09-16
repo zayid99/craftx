@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
+import { readParam, type SearchParams } from "@/lib/search-params";
 import type { SavedItem } from "@/components/dashboard/saved-list";
 import ScriptStudio, { type IdeaOption } from "./script-studio";
 
@@ -36,9 +37,19 @@ function scriptToText(value: unknown): string {
   return "—";
 }
 
-export default async function ScriptStudioPage() {
+export default async function ScriptStudioPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
+
+  // Arriving from Today's ideas or Idea Studio: /scripts?topic=...&platform=...&audience=...
+  const sp = await searchParams;
+  const initialTopic = readParam(sp, "topic", 200);
+  const initialPlatform = readParam(sp, "platform", 50);
+  const initialAudience = readParam(sp, "audience", 200);
 
   const [profile, plan, saved, ideas] = await Promise.all([
     prisma.creatorProfile.findUnique({ where: { userId: user.id } }),
@@ -85,6 +96,9 @@ export default async function ScriptStudioPage() {
       plan={plan}
       defaultAudience={profile?.audience ?? ""}
       defaultPlatform={profile?.primaryPlatform ?? ""}
+      initialTopic={initialTopic}
+      initialPlatform={initialPlatform}
+      initialAudience={initialAudience}
     />
   );
 }

@@ -6,6 +6,7 @@ import UpgradePrompt from "@/components/dashboard/upgrade-prompt";
 import UsageMeter from "@/components/dashboard/usage-meter";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import { SearchIcon } from "@/components/marketing/landing-icons";
+import { studioHref } from "@/lib/search-params";
 
 type Title = { text: string; angle: string };
 
@@ -129,6 +130,9 @@ interface Props {
   plan: string;
   defaultAudience: string;
   defaultPlatform: string;
+  /** Pre-fill from the URL when arriving from Script Studio. */
+  initialTopic?: string;
+  initialPlatform?: string;
 }
 
 export default function SEOStudio({
@@ -137,10 +141,16 @@ export default function SEOStudio({
   plan,
   defaultAudience,
   defaultPlatform,
+  initialTopic = "",
+  initialPlatform = "",
 }: Props) {
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(initialTopic.slice(0, TOPIC_LIMIT));
   const [platform, setPlatform] = useState(
-    PLATFORMS.some((p) => p.value === defaultPlatform) ? defaultPlatform : "YouTube Shorts"
+    PLATFORMS.some((p) => p.value === initialPlatform)
+      ? initialPlatform
+      : PLATFORMS.some((p) => p.value === defaultPlatform)
+        ? defaultPlatform
+        : "YouTube Shorts"
   );
   const [contentDescription, setContentDescription] = useState("");
   const [targetAudience, setTargetAudience] = useState(defaultAudience);
@@ -154,6 +164,7 @@ export default function SEOStudio({
   const [generatedTopic, setGeneratedTopic] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [tab, setTab] = useState<TabKey>("overview");
 
@@ -167,6 +178,9 @@ export default function SEOStudio({
   const scoreLabel =
     score >= 85 ? "Excellent" : score >= 65 ? "Good" : score >= 40 ? "Needs work" : "Weak";
   const scoreColor = score >= 85 ? "#10b981" : score >= 65 ? "#3b82f6" : score >= 40 ? "#f97316" : "#ef4444";
+
+  /** Where this video goes next — carries the topic into the planner. */
+  const plannerHref = studioHref("/planner", { topic: generatedTopic, platform });
 
   async function copy(key: string, text: string) {
     try {
@@ -189,6 +203,7 @@ export default function SEOStudio({
     setUpgradeInfo(null);
     setResult(null);
     setSavedMessage(null);
+    setJustSaved(false);
 
     try {
       const res = await fetch("/api/seo/generate", {
@@ -251,6 +266,7 @@ export default function SEOStudio({
       }
 
       setSavedMessage("Saved — it appears in the list below after you refresh.");
+      setJustSaved(true);
     } catch {
       setSavedMessage("Failed to save. Please try again.");
     } finally {
@@ -353,9 +369,16 @@ export default function SEOStudio({
                   placeholder="e.g. Why people stop watching videos after 3 seconds"
                   className={field}
                 />
-                <p className="mt-1 text-right text-xs text-[#9ca3af]">
-                  {topic.length}/{TOPIC_LIMIT}
-                </p>
+                <div className="mt-1 flex items-start justify-between gap-3">
+                  <p className="text-xs text-[#6856fd]">
+                    {initialTopic && !result && topic === initialTopic.slice(0, TOPIC_LIMIT)
+                      ? "Filled in from your script."
+                      : ""}
+                  </p>
+                  <p className="shrink-0 text-xs text-[#9ca3af]">
+                    {topic.length}/{TOPIC_LIMIT}
+                  </p>
+                </div>
               </div>
 
               <div>
@@ -726,6 +749,14 @@ export default function SEOStudio({
                   >
                     {saving ? "Saving…" : "Save SEO set"}
                   </button>
+                  {justSaved && (
+                    <Link
+                      href={plannerHref}
+                      className="rounded-xl bg-[#eef0fb] px-5 py-3 text-center text-sm font-medium text-[#5b5bd6] transition hover:bg-[#e3e6fa] sm:py-2.5"
+                    >
+                      Add to your content plan →
+                    </Link>
+                  )}
                   {savedMessage && <span className="text-sm text-[#6b7280]">{savedMessage}</span>}
                 </div>
               </div>
@@ -809,10 +840,10 @@ export default function SEOStudio({
             >
               <p className="text-sm font-semibold">Want higher limits?</p>
               <p className="mt-2 text-sm leading-6 text-[#c8ccdb]">
-                Upgrade for more generations each month and priority processing.
+                Creator includes 150 SEO sets a month, refreshed on the 1st.
               </p>
               <Link
-                href="/dashboard/settings"
+                href="/dashboard/settings?tab=billing"
                 className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →

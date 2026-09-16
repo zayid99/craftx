@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UpgradePrompt from "@/components/dashboard/upgrade-prompt";
 import UsageMeter from "@/components/dashboard/usage-meter";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import { FileTextIcon } from "@/components/marketing/landing-icons";
+import { studioHref } from "@/lib/search-params";
+import { writeAnalyzerHandoff } from "@/lib/handoff";
 
 type Hook = { text: string; style: string };
 
@@ -44,6 +47,15 @@ const WORDS_PER_MINUTE = 150;
 const TOPIC_LIMIT = 200;
 
 type TabKey = "script" | "hooks" | "endings" | "notes";
+
+type NextTarget = "analyzer" | "seo" | "planner";
+
+/** Recommended order after a script: check it, make it findable, schedule it. */
+const NEXT_STEPS: { key: NextTarget; title: string; sub: string }[] = [
+  { key: "analyzer", title: "Analyze this script", sub: "Score it and get fixes before you film" },
+  { key: "seo", title: "Optimize for search", sub: "Titles, keywords and hashtags for it" },
+  { key: "planner", title: "Schedule it", sub: "Build a plan that includes this video" },
+];
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "script", label: "Script" },
@@ -89,6 +101,10 @@ interface Props {
   plan: string;
   defaultAudience: string;
   defaultPlatform: string;
+  /** Pre-fill from the URL when arriving from Today's ideas or Idea Studio. */
+  initialTopic?: string;
+  initialPlatform?: string;
+  initialAudience?: string;
 }
 
 export default function ScriptStudio({
@@ -97,15 +113,23 @@ export default function ScriptStudio({
   plan,
   defaultAudience,
   defaultPlatform,
+  initialTopic = "",
+  initialPlatform = "",
+  initialAudience = "",
 }: Props) {
-  const [topic, setTopic] = useState("");
+  const router = useRouter();
+  const [topic, setTopic] = useState(initialTopic.slice(0, TOPIC_LIMIT));
   const [platform, setPlatform] = useState(
-    PLATFORMS.includes(defaultPlatform) ? defaultPlatform : "TikTok"
+    PLATFORMS.includes(initialPlatform)
+      ? initialPlatform
+      : PLATFORMS.includes(defaultPlatform)
+        ? defaultPlatform
+        : "TikTok"
   );
   const [format, setFormat] = useState("short-form");
   const [duration, setDuration] = useState("");
   const [tone, setTone] = useState("");
-  const [audience, setAudience] = useState(defaultAudience);
+  const [audience, setAudience] = useState(initialAudience || defaultAudience);
   const [hookStyle, setHookStyle] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -115,6 +139,9 @@ export default function ScriptStudio({
   const [generatedTopic, setGeneratedTopic] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  /** True once the current result is saved, so next steps don't save it twice. */
+  const [justSaved, setJustSaved] = useState(false);
+  const [goingNext, setGoingNext] = useState<NextTarget | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [tab, setTab] = useState<TabKey>("script");
 
@@ -123,6 +150,12 @@ export default function ScriptStudio({
    * meter refetches without a page reload.
    */
   const [usageRefresh, setUsageRefresh] = useState(0);
+
+  /* ---- Where this script goes next — carries the topic along ---- */
+  const seoHref = result ? studioHref("/seo", { topic: generatedTopic, platform }) : "/seo";
+  const plannerHref = result
+    ? studioHref("/planner", { topic: generatedTopic, platform })
+    : "/planner";
 
   /* ---- Real stats, computed from the generated script ---- */
   const stats = useMemo(() => {
@@ -190,6 +223,7 @@ export default function ScriptStudio({
     setUpgradeInfo(null);
     setResult(null);
     setSavedMessage(null);
+    setJustSaved(false);
 
     try {
       const res = await fetch("/api/scripts/generate", {
@@ -228,8 +262,9 @@ export default function ScriptStudio({
     }
   }
 
-  async function handleSave() {
-    if (!result) return;
+  /** Returns true when the script is saved. */
+  async function handleSave(): Promise<boolean> {
+    if (!result) return false;
     setSaving(true);
     setSavedMessage(null);
 
@@ -254,14 +289,46 @@ export default function ScriptStudio({
 
       if (!res.ok) {
         setSavedMessage("Failed to save. Please try again.");
-        return;
+        return false;
       }
 
       setSavedMessage("Saved — it appears below after you refresh.");
+      setJustSaved(true);
+      return true;
     } catch {
       setSavedMessage("Failed to save. Please try again.");
+      return false;
     } finally {
       setSaving(false);
+    }
+  }
+
+  /**
+   * Every next step saves the script first (once), so moving on can never
+   * lose it. The Analyzer gets the full script through a tab-scoped handoff;
+   * SEO and the planner only need the topic, which fits in the URL.
+   */
+  async function goNext(target: NextTarget) {
+    if (!result || goingNext) return;
+    setGoingNext(target);
+
+    const saved = justSaved || (await handleSave());
+    if (!saved) {
+      setGoingNext(null);
+      return;
+    }
+
+    if (target === "analyzer") {
+      writeAnalyzerHandoff({
+        title: generatedTopic,
+        transcript: [result.script.intro, result.script.body, result.script.cta]
+          .filter(Boolean)
+          .join("\n\n"),
+        platform,
+      });
+      router.push("/analyzer?from=script");
+    } else {
+      router.push(target === "seo" ? seoHref : plannerHref);
     }
   }
 
@@ -388,9 +455,16 @@ export default function ScriptStudio({
                 placeholder="e.g. Why people stop watching videos after 3 seconds and how to fix it"
                 className="w-full resize-none rounded-xl border border-[#e5e7eb] bg-[#fafafc] px-3.5 py-3 text-[16px] leading-6 outline-none transition placeholder:text-[#9ca3af] focus:border-[#c9c6f6] focus:bg-white sm:py-2.5 sm:text-sm"
               />
-              <p className="mt-1 text-right text-xs text-[#9ca3af]">
-                {topic.length}/{TOPIC_LIMIT}
-              </p>
+              <div className="mt-1 flex items-start justify-between gap-3">
+                <p className="text-xs text-[#6856fd]">
+                  {initialTopic && !result && topic === initialTopic.slice(0, TOPIC_LIMIT)
+                    ? "Filled in from your idea — pick your settings, then generate."
+                    : ""}
+                </p>
+                <p className="shrink-0 text-xs text-[#9ca3af]">
+                  {topic.length}/{TOPIC_LIMIT}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -613,6 +687,46 @@ export default function ScriptStudio({
 
         {/* ============ right rail ============ */}
         <aside className="space-y-4 sm:space-y-6">
+          {/* Shown as soon as there's a script — no save required first. */}
+          {result && (
+            <div className="rounded-2xl border border-[#dfe3f5] bg-white p-4 sm:p-5">
+              <p className="text-sm font-semibold text-[#111827]">Next steps</p>
+              <p className="mt-1 text-xs text-[#9ca3af]">
+                {justSaved ? "Your script is saved." : "Your script is saved automatically when you continue."}
+              </p>
+
+              <div className="mt-4 space-y-2">
+                {NEXT_STEPS.map((step, i) => {
+                  const primary = i === 0;
+                  const busy = goingNext === step.key;
+                  return (
+                    <button
+                      key={step.key}
+                      type="button"
+                      onClick={() => goNext(step.key)}
+                      disabled={goingNext !== null || saving}
+                      className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm transition disabled:opacity-60 ${
+                        primary
+                          ? "bg-[#0b1020] text-white hover:bg-[#1b2338]"
+                          : "border border-[#ececf1] hover:bg-[#fafafc]"
+                      }`}
+                    >
+                      <span className="min-w-0">
+                        <span className={`block font-medium ${primary ? "text-white" : "text-[#111827]"}`}>
+                          {busy ? (justSaved ? "Opening…" : "Saving…") : step.title}
+                        </span>
+                        <span className={`block text-xs ${primary ? "text-white/60" : "text-[#9ca3af]"}`}>
+                          {step.sub}
+                        </span>
+                      </span>
+                      <span className={`shrink-0 ${primary ? "text-white" : "text-[#9ca3af]"}`}>→</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
             <p className="text-sm font-semibold text-[#111827]">Script stats</p>
 
@@ -683,33 +797,6 @@ export default function ScriptStudio({
             {savedMessage && <p className="mt-3 text-xs text-[#6b7280]">{savedMessage}</p>}
           </div>
 
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
-            <p className="text-sm font-semibold text-[#111827]">Next steps</p>
-            <div className="mt-4 space-y-2">
-              <Link
-                href="/seo"
-                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
-              >
-                <span className="min-w-0">
-                  <span className="block font-medium text-[#111827]">Optimize for search</span>
-                  <span className="block text-xs text-[#9ca3af]">Titles, keywords, hashtags</span>
-                </span>
-                <span className="shrink-0 text-[#9ca3af]">→</span>
-              </Link>
-
-              <Link
-                href="/planner"
-                className="flex items-center justify-between gap-3 rounded-xl border border-[#ececf1] px-4 py-3 text-sm transition hover:bg-[#fafafc]"
-              >
-                <span className="min-w-0">
-                  <span className="block font-medium text-[#111827]">Schedule it</span>
-                  <span className="block text-xs text-[#9ca3af]">Add to your content plan</span>
-                </span>
-                <span className="shrink-0 text-[#9ca3af]">→</span>
-              </Link>
-            </div>
-          </div>
-
           {plan === "free" && (
             <div
               className="rounded-2xl p-4 text-white sm:p-5"
@@ -717,10 +804,10 @@ export default function ScriptStudio({
             >
               <p className="text-sm font-semibold">Want higher limits?</p>
               <p className="mt-2 text-sm leading-6 text-[#c8ccdb]">
-                Upgrade for more scripts each month and priority processing.
+                Creator includes 50 scripts a month, refreshed on the 1st.
               </p>
               <Link
-                href="/dashboard/settings"
+                href="/dashboard/settings?tab=billing"
                 className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →

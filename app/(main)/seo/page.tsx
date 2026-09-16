@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
+import { readParam, type SearchParams } from "@/lib/search-params";
 import type { SavedItem } from "@/components/dashboard/saved-list";
 import SEOStudio, { type ScriptOption } from "./seo-studio";
 
@@ -26,9 +27,18 @@ function titlesToText(value: unknown): string {
     .join("\n");
 }
 
-export default async function SEOStudioPage() {
+export default async function SEOStudioPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
+
+  // Arriving from Script Studio: /seo?topic=...&platform=...
+  const sp = await searchParams;
+  const initialTopic = readParam(sp, "topic", 100);
+  const initialPlatform = readParam(sp, "platform", 50);
 
   const [profile, plan, saved, scripts] = await Promise.all([
     prisma.creatorProfile.findUnique({ where: { userId: user.id } }),
@@ -75,6 +85,8 @@ export default async function SEOStudioPage() {
       plan={plan}
       defaultAudience={profile?.audience ?? ""}
       defaultPlatform={profile?.primaryPlatform ?? ""}
+      initialTopic={initialTopic}
+      initialPlatform={initialPlatform}
     />
   );
 }

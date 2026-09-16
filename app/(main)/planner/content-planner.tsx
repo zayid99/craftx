@@ -6,6 +6,7 @@ import UpgradePrompt from "@/components/dashboard/upgrade-prompt";
 import UsageMeter from "@/components/dashboard/usage-meter";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import { CalendarIcon, LightbulbIcon } from "@/components/marketing/landing-icons";
+import { studioHref } from "@/lib/search-params";
 
 type PlanDay = {
   day: number;
@@ -61,6 +62,9 @@ interface Props {
   defaultNiche: string;
   defaultPlatform: string;
   defaultGoals: string;
+  /** A video to build the plan around, when arriving from Script or SEO Studio. */
+  initialTopic?: string;
+  initialPlatform?: string;
 }
 
 export default function ContentPlanner({
@@ -70,12 +74,24 @@ export default function ContentPlanner({
   defaultNiche,
   defaultPlatform,
   defaultGoals,
+  initialTopic = "",
+  initialPlatform = "",
 }: Props) {
   const [niche, setNiche] = useState(defaultNiche);
   const [platform, setPlatform] = useState(
-    PLATFORMS.includes(defaultPlatform) ? defaultPlatform : "YouTube Shorts"
+    PLATFORMS.includes(initialPlatform)
+      ? initialPlatform
+      : PLATFORMS.includes(defaultPlatform)
+        ? defaultPlatform
+        : "YouTube Shorts"
   );
-  const [goals, setGoals] = useState(defaultGoals);
+  // The planner API has no "fixed topic" field, so an incoming video is added
+  // to the goals — visible and editable, and the plan is built around it.
+  const [goals, setGoals] = useState(
+    initialTopic
+      ? `${defaultGoals ? `${defaultGoals}. ` : ""}Include a video on: ${initialTopic}`
+      : defaultGoals
+  );
   const [durationDays, setDurationDays] = useState(7);
   const [autoFill, setAutoFill] = useState(true);
   const [postingFrequency, setPostingFrequency] = useState("");
@@ -274,6 +290,13 @@ export default function ContentPlanner({
       <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* ============ main ============ */}
         <div className="space-y-4">
+          {initialTopic && !result && (
+            <div className="rounded-xl border border-[#dfe3f5] bg-[#f4f6ff] px-4 py-3 text-sm leading-6 text-[#374151]">
+              Planning around <span className="font-semibold text-[#111827]">{initialTopic}</span>.
+              It&apos;s in your goals below so the plan includes it — edit it if you like.
+            </div>
+          )}
+
           {/* setup form */}
           <div className="rounded-2xl border border-[#ececf1] bg-white">
             <button
@@ -733,18 +756,24 @@ export default function ContentPlanner({
                 Save ideas in Idea Studio and they&apos;ll show up here.
               </p>
             ) : (
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 space-y-1">
                 {ideaOptions.slice(0, 5).map((i) => (
-                  <li key={i.id} className="flex items-start gap-2.5">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#eef4ff] text-[#3b82f6]">
-                      <LightbulbIcon className="h-3.5 w-3.5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block break-words text-xs leading-5 text-[#374151]">{i.title}</span>
-                      <span className="block text-[11px] text-[#9ca3af]">
-                        {i.platform ? `Best for ${i.platform}` : i.niche}
+                  <li key={i.id}>
+                    {/* Each saved idea opens Script Studio with its topic filled in. */}
+                    <Link
+                      href={studioHref("/scripts", { topic: i.title, platform: i.platform })}
+                      className="flex items-start gap-2.5 rounded-lg p-1.5 transition hover:bg-[#fafafc]"
+                    >
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#eef4ff] text-[#3b82f6]">
+                        <LightbulbIcon className="h-3.5 w-3.5" />
                       </span>
-                    </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block break-words text-xs leading-5 text-[#374151]">{i.title}</span>
+                        <span className="block text-[11px] text-[#9ca3af]">
+                          {i.platform ? `Best for ${i.platform}` : i.niche} · Write script →
+                        </span>
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -756,12 +785,12 @@ export default function ContentPlanner({
               className="rounded-2xl p-4 text-white sm:p-5"
               style={{ backgroundImage: "linear-gradient(140deg,#0b1020 0%,#151a2e 55%,#3a2f7a 100%)" }}
             >
-              <p className="text-sm font-semibold">Plan further ahead</p>
+              <p className="text-sm font-semibold">Plan more often</p>
               <p className="mt-2 text-sm leading-6 text-[#c8ccdb]">
-                Upgrade for more content plans each month and extended planning.
+                Creator includes 30 content plans a month, refreshed on the 1st.
               </p>
               <Link
-                href="/dashboard/settings"
+                href="/dashboard/settings?tab=billing"
                 className="mt-4 inline-flex w-full justify-center rounded-xl bg-white px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-white/90 sm:py-2.5"
               >
                 Upgrade now →
