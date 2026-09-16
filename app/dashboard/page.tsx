@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
+import UsageSummary from "@/components/dashboard/usage-summary";
 import {
   LightbulbIcon,
   FileTextIcon,
@@ -333,6 +334,9 @@ export default async function DashboardPage() {
               {nextStep.cta} →
             </Link>
           </div>
+
+          {/* allowance across every studio — same data as the in-studio meters */}
+          <UsageSummary />
 
           {/* quick actions */}
           <div>
