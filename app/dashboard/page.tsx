@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "@/lib/auth/getUser";
 import { getUserPlan } from "@/lib/entitlements/checkAccess";
 import SavedList, { type SavedItem } from "@/components/dashboard/saved-list";
 import UsageSummary from "@/components/dashboard/usage-summary";
+import TodayIdeas from "@/components/dashboard/today-ideas";
 import {
   LightbulbIcon,
   FileTextIcon,
@@ -287,6 +288,10 @@ export default async function DashboardPage() {
             </p>
           </div>
 
+          {/* today's ideas — the daily reason to open CraftX. Hidden until a
+              profile exists; the next-step banner handles that case. */}
+          {profile && <TodayIdeas />}
+
           {/* stats — two across on the phone, three on tablets, five on wide
               screens. One column meant ~560px of scroll for a few numbers. */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-5">
@@ -380,8 +385,8 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-[#6b7280]">
-                  Upgrade to Creator for higher usage limits and an allowance
-                  that refreshes every month.
+                  Upgrade to Creator for unlimited ideas, 50 scripts a month and
+                  an allowance that refreshes on the 1st.
                 </p>
                 {/* Plain <a>, not <Link>: Link prefetches, and prefetching the
                     checkout route could start a checkout session on page load. */}

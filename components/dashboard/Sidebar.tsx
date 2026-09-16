@@ -21,7 +21,8 @@ type PlanId = "free" | "creator" | "creator_pro";
 
 /**
  * Sidebar plan card copy. Every line here is a promise to the user, so only
- * list things the product actually does today (see lib/entitlements).
+ * list things the product actually does today. The numbers mirror
+ * lib/entitlements/limits.ts — change them together.
  * Creator Pro gets a compact card with no perks — they already bought it.
  *
  * Creator users go to Settings, not to /api/checkout: a second checkout for
@@ -31,14 +32,14 @@ const UPGRADE_CARD = {
   free: {
     eyebrow: "Upgrade to",
     title: "Creator",
-    perks: ["Higher usage limits", "Allowance refreshes monthly"],
+    perks: ["Unlimited ideas", "50 scripts & 150 SEO sets/mo", "Refreshes on the 1st"],
     cta: "Upgrade now",
     href: "/api/checkout?plan=creator",
   },
   creator: {
     eyebrow: "You're on",
     title: "Creator",
-    perks: ["Need more? Creator Pro has higher limits"],
+    perks: ["Need more? Pro has unlimited scripts & analyses"],
     cta: "Manage plan",
     href: "/dashboard/settings",
   },

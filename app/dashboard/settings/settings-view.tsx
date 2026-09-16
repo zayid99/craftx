@@ -38,22 +38,24 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_PERKS: Record<string, string[]> = {
-  // Must stay true to lib/entitlements/limits.ts and checkAccess.ts. There is
-  // no "basic" tier — free users get every studio, just a smaller one-time
-  // allocation. Paid allowances reset on the 1st.
+  // The numbers mirror lib/entitlements/limits.ts — change them together.
+  // There is no "basic" tier — free users get every studio, just a smaller
+  // one-time allocation. Paid allowances reset on the 1st (checkAccess.ts).
   free: [
     "All five studios included",
-    "A one-time set of free generations",
+    "One-time: 10 ideas, 5 scripts, 15 SEO sets",
+    "One-time: 5 content plans, 3 script analyses",
     "Creator profile context",
   ],
   creator: [
-    "All five studios included",
-    "Monthly allowance that refreshes on the 1st",
-    "Creator profile context",
+    "Unlimited ideas",
+    "50 scripts & 150 SEO sets a month",
+    "30 content plans & 20 script analyses a month",
+    "Allowance refreshes on the 1st",
   ],
   creator_pro: [
-    "Everything in Creator",
-    "Higher monthly limits than Creator",
+    "Unlimited ideas, scripts & script analyses",
+    "400 SEO sets & 100 content plans a month",
     "Allowance refreshes on the 1st",
   ],
 };
@@ -499,8 +501,9 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                     <div className="mt-5 rounded-xl border border-[#ececf1] bg-[#fafafc] p-4 sm:p-5">
                       <p className="text-sm font-semibold text-[#111827]">Need more room?</p>
                       <p className="mt-1 text-sm leading-6 text-[#6b7280]">
-                        Creator Pro has higher monthly limits. Your current subscription
-                        switches over — no second plan, no new checkout.
+                        Creator Pro gives you unlimited scripts and script analyses, plus
+                        400 SEO sets and 100 content plans a month. Your current
+                        subscription switches over — no second plan, no new checkout.
                       </p>
                       <div className="mt-4">
                         <UpgradeToProButton onUpgraded={handleUpgraded} />
