@@ -10,6 +10,7 @@ type PlanId = "free" | "creator" | "creator_pro";
 type FeatureKey =
   | "ideas"
   | "scripts"
+  | "hooks"
   | "seo"
   | "planner"
   | "analyzer";
@@ -56,6 +57,7 @@ const PLAN_LABELS: Record<PlanId, string> = {
 const FEATURE_NOUNS: Record<FeatureKey, [string, string]> = {
   ideas: ["idea", "ideas"],
   scripts: ["script", "scripts"],
+  hooks: ["hook set", "hook sets"],
   seo: ["SEO set", "SEO sets"],
   planner: ["plan", "plans"],
   analyzer: ["analysis", "analyses"],
@@ -225,7 +227,7 @@ export default function UsageMeter({
 
         {(isEmpty || isLow) && data.plan !== "creator_pro" && (
           <Link
-            href="/dashboard/settings"
+            href="/dashboard/settings?tab=billing"
             className="text-xs font-medium text-violet-600 underline-offset-2 hover:underline"
           >
             Upgrade plan

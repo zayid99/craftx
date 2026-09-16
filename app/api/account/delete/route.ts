@@ -70,6 +70,7 @@ export async function POST(request: Request) {
       prisma.savedIdea.deleteMany({ where: { userId: user.id } }),
       prisma.dailyIdeaSet.deleteMany({ where: { userId: user.id } }),
       prisma.savedScript.deleteMany({ where: { userId: user.id } }),
+      prisma.savedHookSet.deleteMany({ where: { userId: user.id } }),
       prisma.savedSEO.deleteMany({ where: { userId: user.id } }),
       prisma.savedContentPlan.deleteMany({ where: { userId: user.id } }),
       prisma.videoAnalysis.deleteMany({ where: { userId: user.id } }),

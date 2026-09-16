@@ -58,6 +58,23 @@ model DailyIdeaSet {
   @@index([userId])
 }
 
+// Hooks & Titles studio — one generated set (10 hooks + 10 titles) per row.
+// Starred items are stored as indexes into the hooks/titles arrays.
+model SavedHookSet {
+  id            String   @id @default(cuid())
+  userId        String
+  topic         String
+  platform      String
+  audience      String?
+  hooks         Json     // [{ text, style, delivery }]
+  titles        Json     // [{ text, angle }]
+  starredHooks  Int[]    @default([])
+  starredTitles Int[]    @default([])
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+}
+
 model SavedScript {
   id            String   @id @default(cuid())
   userId        String
@@ -137,7 +154,7 @@ model CoachMessage {
 model UsageEvent {
   id               String   @id @default(cuid())
   userId           String
-  feature          String   // "ideas" | "scripts" | "seo" | "planner" | "analyzer" | "coach"
+  feature          String   // "ideas" | "scripts" | "hooks" | "seo" | "planner" | "analyzer" | "coach"
   provider         String   // "claude"
   model            String   // "claude-sonnet-4-6"
   quantity         Int      @default(1) // number of items this call produced (e.g. ideas count); defaults to 1 for features with no natural batch size

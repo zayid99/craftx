@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 const FEATURES: FeatureKey[] = [
   "ideas",
   "scripts",
+  "hooks",
   "seo",
   "planner",
   "analyzer",
