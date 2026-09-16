@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
+import { prisma } from "@/lib/db/prisma";
 import {
   configureLemonSqueezy,
   isBillingInterval,
@@ -17,6 +18,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "You must be logged in to upgrade." },
         { status: 401 }
+      );
+    }
+
+    // Guard against a SECOND subscription. Any upgrade link (UpgradePrompt,
+    // UpgradeDialog, old bookmarks) can land here, and a new checkout for
+    // someone who already pays would bill them for two plans at once.
+    // Existing subscribers are sent to Plan & billing, where Creator → Pro
+    // switches the subscription they already have (/api/subscription/change-plan).
+    // Only expired subscriptions, or cancelled ones past their end date, may
+    // start a fresh checkout.
+    const existing = await prisma.subscription.findUnique({
+      where: { userId: user.id },
+    });
+
+    const hasLiveSubscription =
+      existing !== null &&
+      existing.plan !== "free" &&
+      existing.status !== "expired" &&
+      !(
+        existing.status === "cancelled" &&
+        (existing.endsAt === null || existing.endsAt.getTime() <= Date.now())
+      );
+
+    if (hasLiveSubscription) {
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?tab=billing`
       );
     }
 

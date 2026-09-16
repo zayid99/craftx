@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import CancelSubscriptionButton from "@/components/dashboard/cancel-subscription-button";
 import { UserIcon, SettingsIcon, SearchIcon } from "@/components/marketing/landing-icons";
 import UpgradeDialog from "@/components/dashboard/upgrade-dialog";
+import UpgradeToProButton from "@/components/dashboard/upgrade-to-pro-button";
 
 export interface ProfileDefaults {
   creatorName: string;
@@ -37,15 +38,24 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_PERKS: Record<string, string[]> = {
-  // Mirrors lib/entitlements/limits.ts. There is no "basic" tier — free users
-  // get every studio, just a smaller one-time allocation.
+  // Must stay true to lib/entitlements/limits.ts and checkAccess.ts. There is
+  // no "basic" tier — free users get every studio, just a smaller one-time
+  // allocation. Paid allowances reset on the 1st.
   free: [
     "All five studios included",
     "A one-time set of free generations",
     "Creator profile context",
   ],
-  creator: ["Unlimited ideas", "Full studio access", "Priority processing"],
-  creator_pro: ["Higher usage limits", "Advanced insights", "Priority support"],
+  creator: [
+    "All five studios included",
+    "Monthly allowance that refreshes on the 1st",
+    "Creator profile context",
+  ],
+  creator_pro: [
+    "Everything in Creator",
+    "Higher monthly limits than Creator",
+    "Allowance refreshes on the 1st",
+  ],
 };
 
 const PLATFORMS = ["YouTube", "YouTube Shorts", "TikTok", "Instagram Reels", "LinkedIn"];
@@ -74,10 +84,16 @@ interface Props {
 
 export default function SettingsView({ email, memberSince, defaults }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<TabKey>("account");
+  const searchParams = useSearchParams();
+  // ?tab=billing lets the checkout guard (and any other link) open a tab directly.
+  const [tab, setTab] = useState<TabKey>(() => {
+    const requested = searchParams.get("tab");
+    return TABS.some((t) => t.key === requested) ? (requested as TabKey) : "account";
+  });
 
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loadingSub, setLoadingSub] = useState(true);
+  const [upgradeMsg, setUpgradeMsg] = useState<string | null>(null);
 
   const [contentFormat, setContentFormat] = useState(defaults?.contentFormat ?? "");
   const [primaryPlatform, setPrimaryPlatform] = useState(defaults?.primaryPlatform ?? "");
@@ -127,8 +143,16 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
   const plan = subscription?.plan ?? "free";
   const planLabel = PLAN_LABELS[plan] ?? plan;
   const isPaid = plan !== "free";
-  /** Creator users can still move up to Pro, so the trigger isn't free-only. */
-  const canUpgrade = plan !== "creator_pro";
+
+  /**
+   * Creator → Pro changes the existing subscription in place (see
+   * /api/subscription/change-plan). The upgrade block unmounts once the plan
+   * reloads as creator_pro, so the confirmation message lives here instead.
+   */
+  function handleUpgraded() {
+    setUpgradeMsg("You're now on Creator Pro. Your new limits are active.");
+    loadSubscription();
+  }
 
   async function handleSaveDefaults() {
     if (!defaults) {
@@ -415,6 +439,12 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                 <div className="mt-5 h-28 animate-pulse rounded-xl bg-[#f4f5f8]" />
               ) : (
                 <>
+                  {upgradeMsg && plan === "creator_pro" && (
+                    <p className="mt-5 rounded-xl border border-[#d1fae5] bg-[#ecfdf5] px-4 py-3 text-sm text-[#065f46]">
+                      {upgradeMsg}
+                    </p>
+                  )}
+
                   <div className="mt-5 rounded-xl border border-[#ececf1] p-4 sm:p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -430,13 +460,13 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                         </span>
                       </div>
 
-                      {/* Was a Link to /#pricing, which dropped a signed-in
-                          customer onto the marketing page and then off-site.
-                          The dialog keeps plan choice here in the app. */}
-                      {canUpgrade && (
+                      {/* Free users pick a plan in the dialog (new checkout).
+                          Creator users upgrade below instead — a checkout would
+                          create a second subscription. */}
+                      {plan === "free" && (
                         <UpgradeDialog
-                          currentPlan={plan as "free" | "creator" | "creator_pro"}
-                          triggerLabel={plan === "free" ? "Upgrade →" : "Go Creator Pro →"}
+                          currentPlan="free"
+                          triggerLabel="Upgrade →"
                           triggerClassName="w-full rounded-xl bg-[#0b1020] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:w-auto sm:py-2.5"
                         />
                       )}
@@ -464,6 +494,19 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                       </p>
                     )}
                   </div>
+
+                  {plan === "creator" && !subscription?.isCancelling && (
+                    <div className="mt-5 rounded-xl border border-[#ececf1] bg-[#fafafc] p-4 sm:p-5">
+                      <p className="text-sm font-semibold text-[#111827]">Need more room?</p>
+                      <p className="mt-1 text-sm leading-6 text-[#6b7280]">
+                        Creator Pro has higher monthly limits. Your current subscription
+                        switches over — no second plan, no new checkout.
+                      </p>
+                      <div className="mt-4">
+                        <UpgradeToProButton onUpgraded={handleUpgraded} />
+                      </div>
+                    </div>
+                  )}
 
                   {isPaid && !subscription?.isCancelling && (
                     <div className="mt-5 border-t border-[#f1f2f6] pt-5">
