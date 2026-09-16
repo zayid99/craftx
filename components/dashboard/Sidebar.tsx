@@ -19,17 +19,33 @@ import FeedbackModal from "@/components/dashboard/feedback-modal";
 
 type PlanId = "free" | "creator" | "creator_pro";
 
-const PLAN_LABELS: Record<PlanId, string> = {
-  free: "Free plan",
-  creator: "Creator",
-  creator_pro: "Creator Pro",
-};
+/**
+ * Sidebar plan card copy. Every line here is a promise to the user, so only
+ * list things the product actually does today (see lib/entitlements).
+ * Creator Pro gets a compact card with no perks — they already bought it.
+ *
+ * Creator users go to Settings, not to /api/checkout: a second checkout for
+ * someone who already has a subscription would bill them twice.
+ */
+const UPGRADE_CARD = {
+  free: {
+    eyebrow: "Upgrade to",
+    title: "Creator",
+    perks: ["Higher usage limits", "Allowance refreshes monthly"],
+    cta: "Upgrade now",
+    href: "/api/checkout?plan=creator",
+  },
+  creator: {
+    eyebrow: "You're on",
+    title: "Creator",
+    perks: ["Need more? Creator Pro has higher limits"],
+    cta: "Manage plan",
+    href: "/dashboard/settings",
+  },
+} as const;
 
-/** Shown on the sidebar plan card — copy only, no entitlement logic here. */
-const PLAN_PERKS: Record<PlanId, string[]> = {
-  free: ["Higher usage limits", "Advanced insights", "Priority support"],
-  creator: ["Full studio access", "More projects", "Priority processing"],
-  creator_pro: ["Unlimited projects", "Advanced insights", "Priority support"],
+const CARD_BG = {
+  backgroundImage: "linear-gradient(150deg,#0b1020 0%,#191f38 55%,#3a2f7a 100%)",
 };
 
 function CrownIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -132,6 +148,9 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
+  const ctaClass =
+    "mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90";
+
   return (
     /* h-full, not h-screen: inside the drawer the parent already sets the
        height, and h-screen there overflows past the bottom of the viewport
@@ -177,27 +196,43 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* plan card */}
       <div className="shrink-0 p-3">
-        {plan ? (
+        {plan === null ? (
+          <div className="h-[72px] animate-pulse rounded-2xl bg-[#f4f5f8]" />
+        ) : plan === "creator_pro" ? (
+          /* Compact: top plan, nothing to sell. */
           <div
-            className="rounded-2xl p-4 text-white"
-            style={{
-              backgroundImage: "linear-gradient(150deg,#0b1020 0%,#191f38 55%,#3a2f7a 100%)",
-            }}
+            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-white"
+            style={CARD_BG}
           >
+            <CrownIcon className="h-[18px] w-[18px] shrink-0 text-[#f5b544]" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] leading-4 text-white/50">You&apos;re on</p>
+              <p className="truncate text-[15px] font-semibold leading-5">Creator Pro</p>
+            </div>
+            <Link
+              href="/dashboard/settings"
+              onClick={onNavigate}
+              className="shrink-0 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-medium transition hover:bg-white/20"
+            >
+              Manage
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-2xl p-4 text-white" style={CARD_BG}>
             <div className="flex items-center gap-2">
               <CrownIcon className="h-[18px] w-[18px] text-[#f5b544]" />
               <div className="min-w-0">
                 <p className="text-[11px] leading-4 text-white/50">
-                  {plan === "free" ? "Upgrade to" : "You're on"}
+                  {UPGRADE_CARD[plan].eyebrow}
                 </p>
                 <p className="truncate text-[15px] font-semibold leading-5">
-                  {plan === "free" ? "Creator Pro" : PLAN_LABELS[plan]}
+                  {UPGRADE_CARD[plan].title}
                 </p>
               </div>
             </div>
 
             <ul className="mt-3.5 space-y-1.5">
-              {PLAN_PERKS[plan].map((perk) => (
+              {UPGRADE_CARD[plan].perks.map((perk) => (
                 <li key={perk} className="flex items-center gap-2 text-xs text-[#c8ccdb]">
                   <span className="text-[#5eead4]">✓</span>
                   {perk}
@@ -205,17 +240,20 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               ))}
             </ul>
 
-            <Link
-              href="/dashboard/settings"
-              onClick={onNavigate}
-              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-white/90"
-            >
-              {plan === "free" ? "Upgrade now" : "Manage plan"}
-              <span aria-hidden>→</span>
-            </Link>
+            {plan === "free" ? (
+              /* Plain <a>, not <Link>: Link prefetches, and prefetching the
+                 checkout route could start a checkout session on page load. */
+              <a href={UPGRADE_CARD.free.href} onClick={onNavigate} className={ctaClass}>
+                {UPGRADE_CARD.free.cta}
+                <span aria-hidden>→</span>
+              </a>
+            ) : (
+              <Link href={UPGRADE_CARD.creator.href} onClick={onNavigate} className={ctaClass}>
+                {UPGRADE_CARD.creator.cta}
+                <span aria-hidden>→</span>
+              </Link>
+            )}
           </div>
-        ) : (
-          <div className="h-[186px] animate-pulse rounded-2xl bg-[#f4f5f8]" />
         )}
       </div>
 
