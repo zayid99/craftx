@@ -14,12 +14,6 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const PLAN_LABEL: Record<string, string> = {
-  free: "Free plan",
-  creator: "Creator",
-  creator_pro: "Creator Pro",
-};
-
 // "Get coaching" removed pre-launch — Creator Coach ran on Claude Sonnet and
 // accounted for ~95% of projected API cost. Add it back here (with UserIcon
 // re-imported and the grid returned to lg:grid-cols-6) when the Coach returns.
@@ -100,10 +94,14 @@ export default async function DashboardPage() {
     prisma.videoAnalysis.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
   ]);
 
+  // The old "Your library" rail card is merged in here, so SEO sets now have a
+  // card too. Order and colors follow the sidebar and quick actions:
+  // ideas → scripts → SEO → analyzer → planner.
   const stats = [
     { label: "Ideas", value: ideaCount, hint: "saved", href: "/ideas", Icon: LightbulbIcon, tint: "bg-[#eef4ff]", icon: "text-[#3b82f6]" },
     { label: "Scripts", value: scriptCount, hint: "saved", href: "/scripts", Icon: FileTextIcon, tint: "bg-[#f3eeff]", icon: "text-[#8b5cf6]" },
-    { label: "Scripts analyzed", value: analysisCount, hint: "", href: "/analyzer", Icon: PlayCircleIcon, tint: "bg-[#e9f9f0]", icon: "text-[#10b981]" },
+    { label: "SEO sets", value: seoCount, hint: "saved", href: "/seo", Icon: SearchIcon, tint: "bg-[#e9f9f0]", icon: "text-[#10b981]" },
+    { label: "Scripts analyzed", value: analysisCount, hint: "", href: "/analyzer", Icon: PlayCircleIcon, tint: "bg-[#fdeef6]", icon: "text-[#ec4899]" },
     { label: "Content plans", value: planCount, hint: "saved", href: "/planner", Icon: CalendarIcon, tint: "bg-[#fff2e8]", icon: "text-[#f97316]" },
   ];
 
@@ -118,6 +116,16 @@ export default async function DashboardPage() {
   ];
   const completed = profileChecks.filter((c) => c.done).length;
   const completion = Math.round((completed / profileChecks.length) * 100);
+
+  /* ---- Right rail visibility ----
+     The checklist only earns its space while the profile is incomplete (a
+     finished profile is still editable from the sidebar). Plan management
+     lives in the sidebar card, so the rail only repeats the upgrade card for
+     free users on phones/tablets, where the sidebar is hidden in the drawer.
+     When the profile is complete the main column takes the full width on
+     desktop instead of leaving an empty 320px column. */
+  const profileIncomplete = completion < 100;
+  const showRail = profileIncomplete || plan === "free";
 
   /* ---- Recommended next step, derived from real state ---- */
   const nextStep = !profile
@@ -260,7 +268,11 @@ export default async function DashboardPage() {
           the library out as a sibling keeps the rail beside the top content on
           desktop and directly after it on every narrower screen. It also gives
           the filterable library the full width, which suits it better. */}
-      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div
+        className={`grid gap-4 sm:gap-6 ${
+          profileIncomplete ? "xl:grid-cols-[minmax(0,1fr)_320px]" : ""
+        }`}
+      >
         {/* ---------------- main column ---------------- */}
         <div className="space-y-4 sm:space-y-6">
           {/* greeting */}
@@ -274,9 +286,9 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          {/* stats — two across on the phone. One column meant ~560px of
-              scroll for four numbers. */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          {/* stats — two across on the phone, three on tablets, five on wide
+              screens. One column meant ~560px of scroll for a few numbers. */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-5">
             {stats.map((s) => (
               <Link
                 key={s.label}
@@ -350,112 +362,83 @@ export default async function DashboardPage() {
         </div>
 
         {/* ---------------- right rail ---------------- */}
-        <aside className="space-y-4 sm:space-y-6">
-          {/* plan */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-[#6b7280]">Your plan</p>
-              <span className="shrink-0 rounded-full bg-[#eef0fb] px-2.5 py-1 text-xs font-medium text-[#6856fd]">
-                {PLAN_LABEL[plan] ?? "Free plan"}
-              </span>
-            </div>
-
-            {plan === "free" ? (
-              <>
+        {showRail && (
+          /* flex + gap rather than space-y: gap ignores the md:hidden upgrade
+             card, so the profile card never gets a stray top margin. */
+          <aside className="flex flex-col gap-4 sm:gap-6">
+            {/* upgrade — free users, below md only (the sidebar card covers md+) */}
+            {plan === "free" && (
+              <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5 md:hidden">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-[#6b7280]">Your plan</p>
+                  <span className="shrink-0 rounded-full bg-[#eef0fb] px-2.5 py-1 text-xs font-medium text-[#6856fd]">
+                    Free plan
+                  </span>
+                </div>
                 <p className="mt-3 text-sm leading-6 text-[#6b7280]">
-                  Upgrade for higher limits, priority processing and advanced
-                  insights.
+                  Upgrade to Creator for higher usage limits and an allowance
+                  that refreshes every month.
                 </p>
-                <Link
-                  href="/dashboard/settings"
+                {/* Plain <a>, not <Link>: Link prefetches, and prefetching the
+                    checkout route could start a checkout session on page load. */}
+                <a
+                  href="/api/checkout?plan=creator"
                   className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
                 >
                   Upgrade now →
-                </Link>
-              </>
-            ) : (
-              <>
-                <p className="mt-3 text-sm leading-6 text-[#6b7280]">
-                  You have full access to your plan&apos;s tools and limits.
-                </p>
-                <Link
-                  href="/dashboard/settings"
-                  className="mt-4 inline-flex w-full justify-center rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-medium text-[#111827] transition hover:bg-[#f7f8fa] sm:py-2.5"
-                >
-                  Manage subscription
-                </Link>
-              </>
+                </a>
+              </div>
             )}
-          </div>
 
-          {/* profile completion */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-[#111827]">
-                Complete your creator profile
-              </p>
-              <span className="shrink-0 text-sm font-semibold text-[#111827]">{completion}%</span>
-            </div>
+            {/* profile completion — only until the profile is finished */}
+            {profileIncomplete && (
+              <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-[#111827]">
+                    Complete your creator profile
+                  </p>
+                  <span className="shrink-0 text-sm font-semibold text-[#111827]">{completion}%</span>
+                </div>
 
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f1f2f6]">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${completion}%`,
-                  backgroundImage: "linear-gradient(90deg,#6856fd,#3d98fb)",
-                }}
-              />
-            </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#f1f2f6]">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${completion}%`,
+                      backgroundImage: "linear-gradient(90deg,#6856fd,#3d98fb)",
+                    }}
+                  />
+                </div>
 
-            {/* Two across below sm: six single-file rows is a lot of height for
-                a checklist that's mostly ticks. */}
-            <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-1 sm:space-y-0">
-              {profileChecks.map((c) => (
-                <li key={c.label} className="flex items-center gap-2.5 text-sm">
-                  <span
-                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
-                      c.done ? "bg-[#6856fd] text-white" : "border border-[#d8d9e4] text-transparent"
-                    }`}
-                  >
-                    ✓
-                  </span>
-                  <span className={`truncate ${c.done ? "text-[#374151]" : "text-[#9ca3af]"}`}>
-                    {c.label}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                {/* Two across below sm: six single-file rows is a lot of height for
+                    a checklist that's mostly ticks. */}
+                <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-1 sm:space-y-0">
+                  {profileChecks.map((c) => (
+                    <li key={c.label} className="flex items-center gap-2.5 text-sm">
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
+                          c.done ? "bg-[#6856fd] text-white" : "border border-[#d8d9e4] text-transparent"
+                        }`}
+                      >
+                        ✓
+                      </span>
+                      <span className={`truncate ${c.done ? "text-[#374151]" : "text-[#9ca3af]"}`}>
+                        {c.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-            <Link
-              href="/creator-profile"
-              className="mt-5 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
-            >
-              {completion === 100 ? "Edit profile" : "Continue setup"} →
-            </Link>
-          </div>
-
-          {/* library summary */}
-          <div className="rounded-2xl border border-[#ececf1] bg-white p-4 sm:p-5">
-            <p className="text-sm font-semibold text-[#111827]">Your library</p>
-            <ul className="mt-4 space-y-3">
-              {[
-                { label: "Saved ideas", value: ideaCount, dot: "bg-[#3b82f6]" },
-                { label: "Saved scripts", value: scriptCount, dot: "bg-[#8b5cf6]" },
-                { label: "Saved SEO sets", value: seoCount, dot: "bg-[#10b981]" },
-                { label: "Content plans", value: planCount, dot: "bg-[#f97316]" },
-                { label: "Script analyses", value: analysisCount, dot: "bg-[#ec4899]" },
-              ].map((row) => (
-                <li key={row.label} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex min-w-0 items-center gap-2.5 text-[#6b7280]">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`} />
-                    <span className="truncate">{row.label}</span>
-                  </span>
-                  <span className="shrink-0 font-semibold text-[#111827]">{row.value}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
+                <Link
+                  href="/creator-profile"
+                  className="mt-5 inline-flex w-full justify-center rounded-xl bg-[#0b1020] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1b2338] sm:py-2.5"
+                >
+                  Continue setup →
+                </Link>
+              </div>
+            )}
+          </aside>
+        )}
       </div>
 
       {/* saved work — the library, full width below both columns */}
