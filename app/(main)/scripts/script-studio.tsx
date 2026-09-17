@@ -48,11 +48,12 @@ const TOPIC_LIMIT = 200;
 
 type TabKey = "script" | "hooks" | "endings" | "notes";
 
-type NextTarget = "analyzer" | "seo" | "planner";
+type NextTarget = "analyzer" | "hooks" | "seo" | "planner";
 
 /** Recommended order after a script: check it, make it findable, schedule it. */
 const NEXT_STEPS: { key: NextTarget; title: string; sub: string }[] = [
   { key: "analyzer", title: "Analyze this script", sub: "Score it and get fixes before you film" },
+  { key: "hooks", title: "Sharpen hooks & titles", sub: "10 openers and 10 titles for this video" },
   { key: "seo", title: "Optimize for search", sub: "Titles, keywords and hashtags for it" },
   { key: "planner", title: "Schedule it", sub: "Build a plan that includes this video" },
 ];
@@ -105,6 +106,7 @@ interface Props {
   initialTopic?: string;
   initialPlatform?: string;
   initialAudience?: string;
+  initialHookStyle?: string;
 }
 
 export default function ScriptStudio({
@@ -116,6 +118,7 @@ export default function ScriptStudio({
   initialTopic = "",
   initialPlatform = "",
   initialAudience = "",
+  initialHookStyle = "",
 }: Props) {
   const router = useRouter();
   const [topic, setTopic] = useState(initialTopic.slice(0, TOPIC_LIMIT));
@@ -130,7 +133,7 @@ export default function ScriptStudio({
   const [duration, setDuration] = useState("");
   const [tone, setTone] = useState("");
   const [audience, setAudience] = useState(initialAudience || defaultAudience);
-  const [hookStyle, setHookStyle] = useState("");
+  const [hookStyle, setHookStyle] = useState(initialHookStyle);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -327,6 +330,8 @@ export default function ScriptStudio({
         platform,
       });
       router.push("/analyzer?from=script");
+    } else if (target === "hooks") {
+      router.push(studioHref("/hooks", { topic: generatedTopic, platform }));
     } else {
       router.push(target === "seo" ? seoHref : plannerHref);
     }

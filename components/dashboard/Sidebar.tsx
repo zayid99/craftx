@@ -16,8 +16,11 @@ import {
   PlusIcon,
 } from "@/components/marketing/landing-icons";
 import FeedbackModal from "@/components/dashboard/feedback-modal";
+import { HookIcon } from "@/components/dashboard/hook-icon";
 
 type PlanId = "free" | "creator" | "creator_pro";
+
+type NavIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 /**
  * Sidebar plan card copy. Every line here is a promise to the user, so only
@@ -32,14 +35,14 @@ const UPGRADE_CARD = {
   free: {
     eyebrow: "Upgrade to",
     title: "Creator",
-    perks: ["Unlimited ideas", "50 scripts & 150 SEO sets/mo", "Refreshes on the 1st"],
+    perks: ["Unlimited ideas", "50 scripts & 10 hook sets/mo", "Refreshes on the 1st"],
     cta: "Upgrade now",
     href: "/api/checkout?plan=creator",
   },
   creator: {
     eyebrow: "You're on",
     title: "Creator",
-    perks: ["Need more? Pro has unlimited scripts & analyses"],
+    perks: ["Pro: unlimited hooks & titles, scripts & analyses"],
     cta: "Manage plan",
     href: "/dashboard/settings",
   },
@@ -77,16 +80,17 @@ function FeedbackIcon(props: React.SVGProps<SVGSVGElement>) {
 // Creator Coach removed pre-launch — it ran on Claude Sonnet and accounted for
 // ~95% of projected API cost. The route and page still exist but are gated by
 // COACH_ENABLED; re-add the nav entry here when the Coach comes back.
-const mainNav = [
+const mainNav: { name: string; href: string; Icon: NavIcon }[] = [
   { name: "Home", href: "/dashboard", Icon: HomeIcon },
   { name: "Idea Studio", href: "/ideas", Icon: LightbulbIcon },
   { name: "Script Studio", href: "/scripts", Icon: FileTextIcon },
+  { name: "Hooks & Titles", href: "/hooks", Icon: HookIcon },
   { name: "SEO Studio", href: "/seo", Icon: SearchIcon },
   { name: "Script Analyzer", href: "/analyzer", Icon: PlayCircleIcon },
   { name: "Content Planner", href: "/planner", Icon: CalendarIcon },
 ];
 
-const accountNav = [
+const accountNav: { name: string; href: string; Icon: NavIcon }[] = [
   { name: "Creator Profile", href: "/creator-profile", Icon: UserIcon },
   { name: "Settings", href: "/dashboard/settings", Icon: SettingsIcon },
   { name: "Help & Support", href: "/help", Icon: PlusIcon },
@@ -128,7 +132,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
-  function renderLink(item: { name: string; href: string; Icon: typeof HomeIcon }) {
+  function renderLink(item: { name: string; href: string; Icon: NavIcon }) {
     const active = isActive(item.href);
 
     return (

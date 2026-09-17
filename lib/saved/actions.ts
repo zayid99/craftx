@@ -4,11 +4,12 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth/getUser";
 
-export type SavedKind = "idea" | "script" | "seo" | "plan" | "analysis";
+export type SavedKind = "idea" | "script" | "hooks" | "seo" | "plan" | "analysis";
 
 const STUDIO_PATH: Record<SavedKind, string> = {
   idea: "/ideas",
   script: "/scripts",
+  hooks: "/hooks",
   seo: "/seo",
   plan: "/planner",
   analysis: "/analyzer",
@@ -34,6 +35,9 @@ export async function deleteSavedItem(kind: SavedKind, id: string) {
         break;
       case "script":
         await prisma.savedScript.deleteMany({ where: { id, userId: user.id } });
+        break;
+      case "hooks":
+        await prisma.savedHookSet.deleteMany({ where: { id, userId: user.id } });
         break;
       case "seo":
         await prisma.savedSEO.deleteMany({ where: { id, userId: user.id } });

@@ -10,10 +10,11 @@ import {
   CalendarIcon,
 } from "@/components/marketing/landing-icons";
 import { USAGE_UPDATED_EVENT } from "@/components/dashboard/usage-meter";
+import { HookIcon } from "@/components/dashboard/hook-icon";
 
 type PlanId = "free" | "creator" | "creator_pro";
 
-type FeatureKey = "ideas" | "scripts" | "seo" | "planner" | "analyzer";
+type FeatureKey = "ideas" | "scripts" | "hooks" | "seo" | "planner" | "analyzer";
 
 interface FeatureUsage {
   feature: FeatureKey;
@@ -40,12 +41,13 @@ const ROWS: {
   feature: FeatureKey;
   label: string;
   href: string;
-  Icon: typeof LightbulbIcon;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   icon: string;
   bar: string;
 }[] = [
   { feature: "ideas", label: "Ideas", href: "/ideas", Icon: LightbulbIcon, icon: "text-[#3b82f6]", bar: "bg-[#3b82f6]" },
   { feature: "scripts", label: "Scripts", href: "/scripts", Icon: FileTextIcon, icon: "text-[#8b5cf6]", bar: "bg-[#8b5cf6]" },
+  { feature: "hooks", label: "Hook sets", href: "/hooks", Icon: HookIcon, icon: "text-[#14b8a6]", bar: "bg-[#14b8a6]" },
   { feature: "seo", label: "SEO sets", href: "/seo", Icon: SearchIcon, icon: "text-[#10b981]", bar: "bg-[#10b981]" },
   { feature: "analyzer", label: "Analyses", href: "/analyzer", Icon: PlayCircleIcon, icon: "text-[#ec4899]", bar: "bg-[#ec4899]" },
   { feature: "planner", label: "Plans", href: "/planner", Icon: CalendarIcon, icon: "text-[#f97316]", bar: "bg-[#f97316]" },
@@ -147,7 +149,7 @@ export default function UsageSummary() {
         ) : null}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
         {rows.map((r) => {
           const u = data.features[r.feature];
           const state = usageState(u);

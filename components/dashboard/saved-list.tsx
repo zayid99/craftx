@@ -21,6 +21,7 @@ export interface SavedItem {
 const KIND_META: Record<SavedKind, { label: string; dot: string; chip: string }> = {
   idea: { label: "Idea", dot: "bg-[#3b82f6]", chip: "bg-[#eef4ff] text-[#2563eb]" },
   script: { label: "Script", dot: "bg-[#8b5cf6]", chip: "bg-[#f3eeff] text-[#7c3aed]" },
+  hooks: { label: "Hooks", dot: "bg-[#14b8a6]", chip: "bg-[#e6faf7] text-[#0d9488]" },
   seo: { label: "SEO", dot: "bg-[#10b981]", chip: "bg-[#e9f9f0] text-[#059669]" },
   plan: { label: "Plan", dot: "bg-[#f97316]", chip: "bg-[#fff2e8] text-[#ea580c]" },
   analysis: { label: "Analysis", dot: "bg-[#ec4899]", chip: "bg-[#fdeef6] text-[#db2777]" },
@@ -30,6 +31,7 @@ const FILTERS: { key: SavedKind | "all"; label: string }[] = [
   { key: "all", label: "All" },
   { key: "idea", label: "Ideas" },
   { key: "script", label: "Scripts" },
+  { key: "hooks", label: "Hooks" },
   { key: "seo", label: "SEO" },
   { key: "plan", label: "Plans" },
   { key: "analysis", label: "Analyses" },

@@ -13,6 +13,7 @@ const TITLE_MATCHERS: [string, string][] = [
   ["/creator-profile", "Creator Profile"],
   ["/ideas", "Idea Studio"],
   ["/scripts", "Script Studio"],
+  ["/hooks", "Hooks & Titles"],
   ["/seo", "SEO Studio"],
   ["/planner", "Content Planner"],
   ["/analyzer", "Script Analyzer"],

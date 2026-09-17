@@ -42,18 +42,19 @@ const PLAN_PERKS: Record<string, string[]> = {
   // There is no "basic" tier — free users get every studio, just a smaller
   // one-time allocation. Paid allowances reset on the 1st (checkAccess.ts).
   free: [
-    "All five studios included",
-    "One-time: 10 ideas, 5 scripts, 15 SEO sets",
-    "One-time: 5 content plans, 3 script analyses",
+    "Every studio included",
+    "One-time: 10 ideas, 5 scripts, 3 hook & title sets",
+    "One-time: 15 SEO sets, 5 content plans, 3 script analyses",
     "Creator profile context",
   ],
   creator: [
     "Unlimited ideas",
-    "50 scripts & 150 SEO sets a month",
-    "30 content plans & 20 script analyses a month",
+    "50 scripts & 10 hook & title sets a month",
+    "150 SEO sets, 30 content plans & 20 script analyses a month",
     "Allowance refreshes on the 1st",
   ],
   creator_pro: [
+    "Unlimited hooks & titles",
     "Unlimited ideas, scripts & script analyses",
     "400 SEO sets & 100 content plans a month",
     "Allowance refreshes on the 1st",
@@ -501,8 +502,8 @@ export default function SettingsView({ email, memberSince, defaults }: Props) {
                     <div className="mt-5 rounded-xl border border-[#ececf1] bg-[#fafafc] p-4 sm:p-5">
                       <p className="text-sm font-semibold text-[#111827]">Need more room?</p>
                       <p className="mt-1 text-sm leading-6 text-[#6b7280]">
-                        Creator Pro gives you unlimited scripts and script analyses, plus
-                        400 SEO sets and 100 content plans a month. Your current
+                        Creator Pro gives you unlimited hooks &amp; titles, scripts and script
+                        analyses, plus 400 SEO sets and 100 content plans a month. Your current
                         subscription switches over — no second plan, no new checkout.
                       </p>
                       <div className="mt-4">

@@ -45,11 +45,14 @@ export default async function ScriptStudioPage({
   const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
 
-  // Arriving from Today's ideas or Idea Studio: /scripts?topic=...&platform=...&audience=...
+  // Arriving from Today's ideas, Idea Studio or Hooks & Titles:
+  // /scripts?topic=...&platform=...&audience=...&hookStyle=...
   const sp = await searchParams;
   const initialTopic = readParam(sp, "topic", 200);
   const initialPlatform = readParam(sp, "platform", 50);
   const initialAudience = readParam(sp, "audience", 200);
+  // From Hooks & Titles: the style of the hook the creator picked.
+  const initialHookStyle = readParam(sp, "hookStyle", 30);
 
   const [profile, plan, saved, ideas] = await Promise.all([
     prisma.creatorProfile.findUnique({ where: { userId: user.id } }),
@@ -99,6 +102,7 @@ export default async function ScriptStudioPage({
       initialTopic={initialTopic}
       initialPlatform={initialPlatform}
       initialAudience={initialAudience}
+      initialHookStyle={initialHookStyle}
     />
   );
 }

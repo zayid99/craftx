@@ -13,15 +13,17 @@ import {
   PlayCircleIcon,
   CalendarIcon,
 } from "@/components/marketing/landing-icons";
+import { HookIcon } from "@/components/dashboard/hook-icon";
 
 export const dynamic = "force-dynamic";
 
 // "Get coaching" removed pre-launch — Creator Coach ran on Claude Sonnet and
 // accounted for ~95% of projected API cost. Add it back here (with UserIcon
-// re-imported and the grid returned to lg:grid-cols-6) when the Coach returns.
+// re-imported and the grid widened) when the Coach returns.
 const quickActions = [
   { label: "Generate ideas", href: "/ideas", Icon: LightbulbIcon, tint: "bg-[#eef4ff] text-[#3b82f6]" },
   { label: "Write a script", href: "/scripts", Icon: FileTextIcon, tint: "bg-[#f3eeff] text-[#8b5cf6]" },
+  { label: "Write hooks", href: "/hooks", Icon: HookIcon, tint: "bg-[#e6faf7] text-[#14b8a6]" },
   { label: "Optimize SEO", href: "/seo", Icon: SearchIcon, tint: "bg-[#e9f9f0] text-[#10b981]" },
   { label: "Analyze a script", href: "/analyzer", Icon: PlayCircleIcon, tint: "bg-[#fdeef6] text-[#ec4899]" },
   { label: "Plan content", href: "/planner", Icon: CalendarIcon, tint: "bg-[#fff2e8] text-[#f97316]" },
@@ -55,6 +57,22 @@ function jsonPreview(value: unknown, max = 3): string {
   return String(value);
 }
 
+/** Hook sets store hooks/titles as Json; show starred ones first, else the top 3. */
+function hookLines(value: unknown, starred: number[], prefixKey?: string): string {
+  if (!Array.isArray(value) || value.length === 0) return "—";
+  const indexes = starred.length ? starred : [0, 1, 2];
+  const lines = indexes
+    .map((i) => value[i])
+    .filter((v): v is Record<string, unknown> => Boolean(v) && typeof v === "object")
+    .map((o) => {
+      const text = typeof o.text === "string" ? o.text : "";
+      const prefix = prefixKey && typeof o[prefixKey] === "string" ? `[${o[prefixKey]}] ` : "";
+      return text ? `${prefix}${text}` : "";
+    })
+    .filter(Boolean);
+  return lines.length ? lines.join("\n") : "—";
+}
+
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -76,8 +94,10 @@ export default async function DashboardPage() {
     analysisCount,
     planCount,
     seoCount,
+    hookSetCount,
     recentIdeas,
     recentScripts,
+    recentHookSets,
     recentSeo,
     recentPlans,
     recentAnalyses,
@@ -89,8 +109,10 @@ export default async function DashboardPage() {
     prisma.videoAnalysis.count({ where: { userId } }),
     prisma.savedContentPlan.count({ where: { userId } }),
     prisma.savedSEO.count({ where: { userId } }),
+    prisma.savedHookSet.count({ where: { userId } }),
     prisma.savedIdea.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.savedScript.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
+    prisma.savedHookSet.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.savedSEO.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.savedContentPlan.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.videoAnalysis.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 12 }),
@@ -98,10 +120,11 @@ export default async function DashboardPage() {
 
   // The old "Your library" rail card is merged in here, so SEO sets now have a
   // card too. Order and colors follow the sidebar and quick actions:
-  // ideas → scripts → SEO → analyzer → planner.
+  // ideas → scripts → hooks → SEO → analyzer → planner.
   const stats = [
     { label: "Ideas", value: ideaCount, hint: "saved", href: "/ideas", Icon: LightbulbIcon, tint: "bg-[#eef4ff]", icon: "text-[#3b82f6]" },
     { label: "Scripts", value: scriptCount, hint: "saved", href: "/scripts", Icon: FileTextIcon, tint: "bg-[#f3eeff]", icon: "text-[#8b5cf6]" },
+    { label: "Hook sets", value: hookSetCount, hint: "saved", href: "/hooks", Icon: HookIcon, tint: "bg-[#e6faf7]", icon: "text-[#14b8a6]" },
     { label: "SEO sets", value: seoCount, hint: "saved", href: "/seo", Icon: SearchIcon, tint: "bg-[#e9f9f0]", icon: "text-[#10b981]" },
     { label: "Scripts analyzed", value: analysisCount, hint: "", href: "/analyzer", Icon: PlayCircleIcon, tint: "bg-[#fdeef6]", icon: "text-[#ec4899]" },
     { label: "Content plans", value: planCount, hint: "saved", href: "/planner", Icon: CalendarIcon, tint: "bg-[#fff2e8]", icon: "text-[#f97316]" },
@@ -153,6 +176,14 @@ export default async function DashboardPage() {
         body: recentIdeas[0] ? `"${recentIdeas[0].title}"` : "Give one of your saved ideas a real structure.",
         cta: "Open Script Studio",
         href: "/scripts",
+      }
+    : hookSetCount === 0
+    ? {
+        eyebrow: "Recommended next step",
+        title: "Sharpen your hook",
+        body: "Get 10 opening lines and 10 titles for your next video, then star the best.",
+        cta: "Open Hooks & Titles",
+        href: "/hooks",
       }
     : seoCount === 0
     ? {
@@ -207,6 +238,28 @@ export default async function DashboardPage() {
         ...(s.platformNotes ? [{ label: "Platform notes", value: s.platformNotes }] : []),
       ],
     })),
+    ...recentHookSets.map((h): SavedItem => {
+      const starredCount = h.starredHooks.length + h.starredTitles.length;
+      return {
+        id: h.id,
+        kind: "hooks",
+        title: h.topic,
+        subtitle: h.platform,
+        tags: starredCount ? [`${starredCount} starred`] : [],
+        createdAt: h.createdAt.toISOString(),
+        href: "/hooks",
+        preview: [
+          {
+            label: h.starredHooks.length ? "Starred hooks" : "Hooks",
+            value: hookLines(h.hooks, h.starredHooks, "style"),
+          },
+          {
+            label: h.starredTitles.length ? "Starred titles" : "Titles",
+            value: hookLines(h.titles, h.starredTitles),
+          },
+        ],
+      };
+    }),
     ...recentSeo.map((s): SavedItem => ({
       id: s.id,
       kind: "seo",
@@ -292,9 +345,9 @@ export default async function DashboardPage() {
               profile exists; the next-step banner handles that case. */}
           {profile && <TodayIdeas />}
 
-          {/* stats — two across on the phone, three on tablets, five on wide
+          {/* stats — two across on the phone, three on tablets, six on wide
               screens. One column meant ~560px of scroll for a few numbers. */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
             {stats.map((s) => (
               <Link
                 key={s.label}
@@ -351,7 +404,7 @@ export default async function DashboardPage() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {quickActions.map((a) => (
                 <Link
                   key={a.href}
@@ -456,7 +509,7 @@ export default async function DashboardPage() {
         showFilters
         description="Everything you've saved across CraftX, newest first."
         emptyTitle="You haven't saved anything yet."
-        emptyBody="Generate ideas, scripts, SEO, plans or analyses and hit save — they all collect here."
+        emptyBody="Generate ideas, scripts, hooks, SEO, plans or analyses and hit save — they all collect here."
         emptyCta={{ label: "Generate your first idea", href: "/ideas" }}
       />
     </div>
