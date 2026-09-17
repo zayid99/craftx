@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${caveat.variable}`}>
-      <body className="font-[family-name:var(--font-inter)]">
+      <body className="font-[family-name:var(--font-inter)]" suppressHydrationWarning>
         <JsonLd />
         {children}
       </body>

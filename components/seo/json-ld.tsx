@@ -1,5 +1,9 @@
 const BASE_URL = "https://craftxapp.com";
 
+/**
+ * Search engines show these answers directly, so they must match the pricing
+ * cards and lib/entitlements/limits.ts — change them together.
+ */
 const faqs: [string, string][] = [
   [
     "What is CraftX?",
@@ -11,7 +15,7 @@ const faqs: [string, string][] = [
   ],
   [
     "Is there a free plan?",
-    "Yes. The free plan includes all five tools with a one-time allocation of generations, so you can try the whole workflow before deciding to pay. It doesn't reset each month — paid plans do.",
+    "Yes. The free plan includes every tool with a one-time allocation of generations, so you can try the whole workflow before deciding to pay. It doesn't reset each month — paid plans do.",
   ],
   [
     "How much does CraftX cost?",
@@ -23,11 +27,11 @@ const faqs: [string, string][] = [
   ],
   [
     "What's included in the Creator plan?",
-    "Unlimited ideas, 50 scripts, 150 SEO sets, 30 content plans and 20 script analyses a month, plus priority processing. It costs $9.99 a month or $99 a year.",
+    "Unlimited ideas with fresh picks on your dashboard every day, plus 50 scripts, 10 hook and title sets, 150 SEO sets, 30 content plans and 20 script analyses a month. It costs $9.99 a month or $99 a year.",
   ],
   [
     "What's included in Creator Pro?",
-    "Unlimited ideas, scripts and analyses, plus 400 SEO sets and 100 content plans a month, advanced growth insights and premium support. It costs $19.99 a month or $199 a year.",
+    "Unlimited hooks and titles, ideas, scripts and script analyses, plus 400 SEO sets and 100 content plans a month and everything in Creator. It costs $19.99 a month or $199 a year.",
   ],
   [
     "Do I need AI experience?",
@@ -69,7 +73,7 @@ const schema = {
       url: BASE_URL,
       name: "CraftX",
       description:
-        "The creator growth workspace — ideas, scripts, SEO, planning, and analysis in one place.",
+        "The creator growth workspace — ideas, scripts, hooks, SEO, planning, and analysis in one place.",
       publisher: { "@id": `${BASE_URL}/#organization` },
       inLanguage: "en",
     },
@@ -85,6 +89,7 @@ const schema = {
       featureList: [
         "Idea Studio — turn a niche into content ideas",
         "Script Studio — generate hooks and full scripts",
+        "Hooks & Titles — 10 opening hooks and 10 titles for any video",
         "SEO Studio — titles, descriptions, keywords and hashtags",
         "Script Analyzer — analyse scripts and get recommendations",
         "Content Planner — weekly and 30-day posting plans",
@@ -96,7 +101,7 @@ const schema = {
           price: "0",
           priceCurrency: "USD",
           description:
-            "All five studios with a one-time allocation of generations.",
+            "Every studio with a one-time allocation of generations.",
         },
         {
           "@type": "Offer",

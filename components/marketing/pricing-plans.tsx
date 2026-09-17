@@ -17,6 +17,12 @@ type Plan = {
   planId?: "creator" | "creator_pro";
 };
 
+/**
+ * Every line below is a promise to a paying customer. The numbers mirror
+ * lib/entitlements/limits.ts — change them together — and nothing is listed
+ * that the product doesn't do today (no "priority processing", "insights" or
+ * support tiers until they actually exist).
+ */
 const plans: Plan[] = [
   {
     name: "Free",
@@ -25,9 +31,10 @@ const plans: Plan[] = [
     cta: "Get started free",
     featured: false,
     features: [
-      "All five studios included",
+      "Every studio included",
       "10 content ideas",
       "5 scripts",
+      "3 hook & title sets",
       "15 SEO sets",
       "5 content plans",
       "3 script analyses",
@@ -45,13 +52,13 @@ const plans: Plan[] = [
     planId: "creator",
     features: [
       "Unlimited content ideas",
+      "Fresh idea picks on your dashboard daily",
       "50 scripts a month",
+      "10 hook & title sets a month",
       "150 SEO sets a month",
       "30 content plans a month",
       "20 script analyses a month",
       "Creator profile/context",
-      "More projects",
-      "Priority processing",
     ],
     note: "Limits refresh on the 1st of every month.",
   },
@@ -64,13 +71,12 @@ const plans: Plan[] = [
     featured: false,
     planId: "creator_pro",
     features: [
-      "Unlimited ideas, scripts and analyses",
+      "Unlimited hooks & titles",
+      "Unlimited ideas, scripts and script analyses",
       "400 SEO sets a month",
       "100 content plans a month",
-      "Advanced growth insights",
-      "Priority AI processing",
-      "Early access to new features",
-      "Premium support",
+      "Fresh idea picks on your dashboard daily",
+      "Everything in Creator",
     ],
     note: "Limits refresh on the 1st of every month.",
   },

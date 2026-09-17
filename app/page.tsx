@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PricingSection from "@/components/marketing/pricing-section";
+import { HookIcon } from "@/components/dashboard/hook-icon";
 import {
   LightbulbIcon,
   FileTextIcon,
@@ -37,6 +38,8 @@ import {
    --------------------------------------------------------------- */
 const shell = "mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-10";
 
+type IconType = React.ComponentType<{ className?: string }>;
+
 const platforms = [
   { name: "YouTube", Icon: YoutubeIcon },
   { name: "TikTok", Icon: TiktokIcon },
@@ -56,7 +59,7 @@ const platforms = [
 // entirely. Never use two elements to render one piece of text: anything that
 // hides an element for its own reasons takes the whole thing with it.
 const heroStats = [
-  { value: "5", label: "tools in one workspace" },
+  { value: "6", label: "tools in one workspace" },
   { value: "7", label: "platforms supported" },
   { value: "$0", label: "to start, no card needed" },
 ];
@@ -88,13 +91,21 @@ const workflow = [
   { Icon: TrendingUpIcon, title: "Grow", body: "Use what you learned to make the next piece better." },
 ];
 
-// Three across instead of six, so each card has room for real content.
-// The grey skeleton bars are gone — they were filler.
+// Three across, two rows. Hooks & Titles is the accent card — it's the
+// Creator Pro headline feature.
 //
 // Creator Coach removed pre-launch: it ran on Claude Sonnet and accounted
 // for ~95% of projected API cost. Re-add the card here when revenue supports
 // turning the route back on.
-const tools = [
+const tools: {
+  Icon: IconType;
+  title: string;
+  description: string;
+  href: string;
+  accent: boolean;
+  tint: string;
+  points: string[];
+}[] = [
   {
     Icon: LightbulbIcon,
     title: "Idea Studio",
@@ -122,6 +133,19 @@ const tools = [
     ],
   },
   {
+    Icon: HookIcon,
+    title: "Hooks & Titles",
+    description: "Win the first 3 seconds.",
+    href: "/hooks",
+    accent: true,
+    tint: "bg-white/15 text-white",
+    points: [
+      "10 opening hooks across five styles",
+      "10 titles with length checks",
+      "Star the best and take them into your script",
+    ],
+  },
+  {
     Icon: SearchIcon,
     title: "SEO Studio",
     description: "Make every upload easier to discover.",
@@ -139,8 +163,8 @@ const tools = [
     title: "Script Analyzer",
     description: "Understand what's holding you back.",
     href: "/analyzer",
-    accent: true,
-    tint: "bg-white/15 text-white",
+    accent: false,
+    tint: "bg-[#fdeef6] text-[#ec4899]",
     points: [
       "An overall score out of 100",
       "Strengths and weak points, named",
@@ -167,7 +191,8 @@ const tools = [
 
    `status` is the honesty switch. Only models actually wired up in
    lib/ai/ should be "live" — everything else stays "soon" until its
-   provider is enabled. Flip the flag when you add the provider, not
+   provider is enabled, and the card shows a "Soon" badge instead of
+   the green live dot. Flip the flag when you add the provider, not
    before: a paid plan that advertises access it doesn't have yet is
    a refund request waiting to happen.
 
@@ -188,13 +213,13 @@ const models: {
   logo: string;
 }[] = [
   { name: "DeepSeek V4 Flash", provider: "DeepSeek", strength: "Fast drafting across every studio", status: "live", solo: 0, logo: "deepseek.png" },
-  { name: "Claude Fable 5.1", provider: "Anthropic", strength: "Nuanced coaching and long-form reasoning", status: "soon", solo: 20, logo: "anthropic.png" },
-  { name: "Claude Opus 5", provider: "Anthropic", strength: "Deepest reasoning for hard creative problems", status: "soon", solo: 0, logo: "anthropic.png" },
-  { name: "GPT-5.6 Sol", provider: "OpenAI", strength: "Broad general knowledge and structure", status: "soon", solo: 20, logo: "openai.png" },
-  { name: "Gemini 3.8 Flash", provider: "Google", strength: "High-volume generation at speed", status: "soon", solo: 20, logo: "google.png" },
-  { name: "Kimi K3", provider: "Moonshot AI", strength: "Long context for full transcripts", status: "soon", solo: 0, logo: "moonshot.png" },
-  { name: "Grok 4.6", provider: "xAI", strength: "Current events and trend awareness", status: "soon", solo: 30, logo: "xai.png" },
-  { name: "Qwen 3 Max", provider: "Alibaba", strength: "Strong multilingual output", status: "soon", solo: 0, logo: "" },
+  { name: "Claude Fable 5.1", provider: "Anthropic", strength: "Nuanced coaching and long-form reasoning", status: "live", solo: 20, logo: "anthropic.png" },
+  { name: "Claude Opus 5", provider: "Anthropic", strength: "Deepest reasoning for hard creative problems", status: "live", solo: 0, logo: "anthropic.png" },
+  { name: "GPT-5.6 Sol", provider: "OpenAI", strength: "Broad general knowledge and structure", status: "live", solo: 20, logo: "openai.png" },
+  { name: "Gemini 3.8 Flash", provider: "Google", strength: "High-volume generation at speed", status: "live", solo: 20, logo: "google.png" },
+  { name: "Kimi K3", provider: "Moonshot AI", strength: "Long context for full transcripts", status: "live", solo: 0, logo: "moonshot.png" },
+  { name: "Grok 4.6", provider: "xAI", strength: "Current events and trend awareness", status: "live", solo: 30, logo: "xai.png" },
+  { name: "Qwen 3 Max", provider: "Alibaba", strength: "Strong multilingual output", status: "live", solo: 0, logo: "" },
 ];
 
 /** The four claims that sit under the logo grid. */
@@ -208,10 +233,11 @@ const modelBenefits = [
 const soloTotal = models.reduce((sum, m) => sum + m.solo, 0);
 const liveCount = models.filter((m) => m.status === "live").length;
 
-const sidebarNav = [
+const sidebarNav: { Icon: IconType; label: string; active?: boolean }[] = [
   { Icon: HomeIcon, label: "Home", active: true },
   { Icon: LightbulbIcon, label: "Idea Studio" },
   { Icon: FileTextIcon, label: "Script Studio" },
+  { Icon: HookIcon, label: "Hooks & Titles" },
   { Icon: SearchIcon, label: "SEO Studio" },
   { Icon: PlayCircleIcon, label: "Script Analyzer" },
   { Icon: CalendarIcon, label: "Content Planner" },
@@ -234,6 +260,10 @@ const statChips = [
    The Free column is a ONE-TIME allocation counted over all time, while
    Creator and Creator Pro refresh on the 1st. Don't label this group
    "Monthly usage" again without changing checkAccess to match.
+
+   "Everything else" only lists things the product does today. Priority
+   processing, growth insights, early access and support tiers were
+   removed because nothing in the app backs them yet.
    --------------------------------------------------------------- */
 const comparisonGroups: {
   group: string;
@@ -244,6 +274,7 @@ const comparisonGroups: {
     rows: [
       { label: "Content ideas", free: "10", creator: "Unlimited", pro: "Unlimited" },
       { label: "Scripts", free: "5", creator: "50", pro: "Unlimited" },
+      { label: "Hook & title sets", free: "3", creator: "10", pro: "Unlimited" },
       { label: "SEO sets", free: "15", creator: "150", pro: "400" },
       { label: "Content plans", free: "5", creator: "30", pro: "100" },
       { label: "Script analyses", free: "3", creator: "20", pro: "Unlimited" },
@@ -254,6 +285,7 @@ const comparisonGroups: {
     rows: [
       { label: "Idea Studio", free: "yes", creator: "yes", pro: "yes" },
       { label: "Script Studio", free: "yes", creator: "yes", pro: "yes" },
+      { label: "Hooks & Titles", free: "yes", creator: "yes", pro: "yes" },
       { label: "SEO Studio", free: "yes", creator: "yes", pro: "yes" },
       { label: "Script Analyzer", free: "yes", creator: "yes", pro: "yes" },
       { label: "Content Planner", free: "yes", creator: "yes", pro: "yes" },
@@ -264,10 +296,8 @@ const comparisonGroups: {
     rows: [
       { label: "Creator profile context", free: "yes", creator: "yes", pro: "yes" },
       { label: "Save, copy and export your work", free: "yes", creator: "yes", pro: "yes" },
-      { label: "Priority processing", free: "no", creator: "yes", pro: "yes" },
-      { label: "Advanced growth insights", free: "no", creator: "no", pro: "yes" },
-      { label: "Early access to new features", free: "no", creator: "no", pro: "yes" },
-      { label: "Support", free: "Community", creator: "Standard", pro: "Premium" },
+      { label: "Daily idea picks on your dashboard, automatically", free: "no", creator: "yes", pro: "yes" },
+      { label: "Email support", free: "yes", creator: "yes", pro: "yes" },
     ],
   },
 ];
@@ -428,15 +458,16 @@ const faqRows: [string, string][] = [
   ["Is there a free plan?", "How does CRAFTX use my creator profile?"],
 ];
 
+// Plan answers mirror the pricing cards and components/seo/json-ld.tsx.
 const faqAnswers: Record<string, string> = {
   "What is CRAFTX?":
     "CRAFTX is a creator research and AI framework designed to help creators move from ideas to better content and sustainable growth.",
   "What's included in the Creator plan?":
-    "Unlimited ideas, 50 scripts, 150 SEO sets, 30 content plans and 20 script analyses a month, plus priority processing.",
+    "Unlimited ideas with fresh picks on your dashboard every day, plus 50 scripts, 10 hook and title sets, 150 SEO sets, 30 content plans and 20 script analyses a month.",
   "Who is CRAFTX for?":
     "Creators who want a more structured way to research, create, optimize, analyze and grow.",
   "What's included in Creator Pro?":
-    "Unlimited ideas, scripts and analyses, plus 400 SEO sets and 100 content plans a month, advanced growth insights and premium support.",
+    "Unlimited hooks and titles, ideas, scripts and script analyses, plus 400 SEO sets and 100 content plans a month and everything in Creator.",
   "Do I need AI experience?":
     "No. The tools are designed to guide creators through the workflow step by step.",
   "Can I cancel anytime?":
@@ -446,7 +477,7 @@ const faqAnswers: Record<string, string> = {
   "Does CRAFTX create content for me?":
     "CRAFTX helps you research, structure, optimize, analyze and improve content — you stay in control of what gets published.",
   "Is there a free plan?":
-    "Yes. The free plan includes all five tools with a one-time allocation of generations, so you can try the whole workflow before deciding to pay. It doesn't reset each month — paid plans do.",
+    "Yes. The free plan includes every tool with a one-time allocation of generations, so you can try the whole workflow before deciding to pay. It doesn't reset each month — paid plans do.",
   "How does CRAFTX use my creator profile?":
     "Your profile provides context about your niche, platforms, audience, goals and experience so recommendations can be more relevant.",
 };
@@ -819,7 +850,17 @@ export default function Home() {
                       <span className="text-[13px] font-medium leading-[18px] text-[#111827] sm:truncate sm:text-[15px] sm:leading-normal">
                         {m.name}
                       </span>
-                      <span className="mt-[6px] h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981] sm:mt-0" title="Available" />
+                      {/* Green dot only for models actually wired up today. */}
+                      {m.status === "live" ? (
+                        <span
+                          className="mt-[6px] h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981] sm:mt-0"
+                          title="Live"
+                        />
+                      ) : (
+                        <span className="shrink-0 rounded-full bg-[#f1f2f6] px-[6px] py-[1px] text-[10px] font-medium text-[#9ca3af]">
+                          Soon
+                        </span>
+                      )}
                     </span>
                     <span className="mt-[2px] block truncate text-[11.5px] text-[#9ca3af] sm:text-[12.5px]">
                       {m.provider}
@@ -876,7 +917,7 @@ export default function Home() {
                 <span className="ml-[4px] text-[15px] font-normal text-white/80">/month</span>
               </p>
               <p className="mt-[8px] text-[13.5px] leading-[20px] text-white/85">
-                One plan, five studios, and every generation shaped by your creator
+                One plan, six studios, and every generation shaped by your creator
                 profile.
               </p>
             </div>
@@ -1090,7 +1131,7 @@ export default function Home() {
                 Everything your content needs. One workspace.
               </h2>
               <p className="mt-[10px] max-w-[560px] text-[15px] leading-[24px] text-[#6b7280]">
-                Five tools that share one context — your niche, your audience and the
+                Six tools that share one context — your niche, your audience and the
                 work you&apos;ve already saved.
               </p>
             </div>
@@ -1357,6 +1398,7 @@ export default function Home() {
 
           <p className="mt-[14px] text-[13px] text-[#9ca3af] sm:text-[13.5px]">
             Ideas are counted individually — asking for 5 ideas uses 5 of your total.
+            A hook &amp; title set is 10 hooks and 10 titles.
           </p>
         </div>
       </section>
