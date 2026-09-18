@@ -187,51 +187,11 @@ const tools: {
 ];
 
 /* ---------------------------------------------------------------
-   FRONTIER MODELS
-
-   `status` is the honesty switch. Only models actually wired up in
-   lib/ai/ should be "live" — everything else stays "soon" until its
-   provider is enabled, and the card shows a "Soon" badge instead of
-   the green live dot. Flip the flag when you add the provider, not
-   before: a paid plan that advertises access it doesn't have yet is
-   a refund request waiting to happen.
-
-   Claude dropped to "soon" when Creator Coach was disabled — it was
-   the only route calling Anthropic. Flip it back to "live" when the
-   Coach returns.
-
-   `solo` is the rough cost of that model's own consumer plan, used
-   for the comparison below. Check these before you ship — provider
-   pricing moves, and a wrong number here is a wrong number in public.
+   The "frontier models" section was removed: it advertised seven
+   models that aren't wired up yet, priced them against plans CRAFTX
+   doesn't give you, and buried the one model that is live. If you add
+   a models section again, list only what lib/ai/ actually calls today.
    --------------------------------------------------------------- */
-const models: {
-  name: string;
-  provider: string;
-  strength: string;
-  status: "live" | "soon";
-  solo: number;
-  logo: string;
-}[] = [
-  { name: "DeepSeek V4 Flash", provider: "DeepSeek", strength: "Fast drafting across every studio", status: "live", solo: 0, logo: "deepseek.png" },
-  { name: "Claude Fable 5.1", provider: "Anthropic", strength: "Nuanced coaching and long-form reasoning", status: "live", solo: 20, logo: "anthropic.png" },
-  { name: "Claude Opus 5", provider: "Anthropic", strength: "Deepest reasoning for hard creative problems", status: "live", solo: 0, logo: "anthropic.png" },
-  { name: "GPT-5.6 Sol", provider: "OpenAI", strength: "Broad general knowledge and structure", status: "live", solo: 20, logo: "openai.png" },
-  { name: "Gemini 3.8 Flash", provider: "Google", strength: "High-volume generation at speed", status: "live", solo: 20, logo: "google.png" },
-  { name: "Kimi K3", provider: "Moonshot AI", strength: "Long context for full transcripts", status: "live", solo: 0, logo: "moonshot.png" },
-  { name: "Grok 4.6", provider: "xAI", strength: "Current events and trend awareness", status: "live", solo: 30, logo: "xai.png" },
-  { name: "Qwen 3 Max", provider: "Alibaba", strength: "Strong multilingual output", status: "live", solo: 0, logo: "" },
-];
-
-/** The four claims that sit under the logo grid. */
-const modelBenefits = [
-  { Icon: ChartIcon, title: "8+ premium models", body: "All in one place" },
-  { Icon: TrendingUpIcon, title: "One bill, not eight", body: "Compared to paying separately" },
-  { Icon: FileTextIcon, title: "Right model per job", body: "Chosen for you, automatically" },
-  { Icon: CalendarIcon, title: "No hidden fees", body: "One price, cancel anytime" },
-];
-
-const soloTotal = models.reduce((sum, m) => sum + m.solo, 0);
-const liveCount = models.filter((m) => m.status === "live").length;
 
 const sidebarNav: { Icon: IconType; label: string; active?: boolean }[] = [
   { Icon: HomeIcon, label: "Home", active: true },
@@ -324,10 +284,8 @@ function Cell({ value }: { value: string }) {
    exactly as it does now, with no broken-image icons in between.
 
    DECOR_ART   -> /public/decor/*.png   (512x512, transparent)
-   MODEL_LOGOS -> /public/models/*.png  (128x128, transparent)
    --------------------------------------------------------------- */
 const DECOR_ART = false;
-const MODEL_LOGOS = true;
 
 /** A cut-out 3D element floated in the page margin. */
 function DecorArt({
@@ -785,161 +743,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ FRONTIER MODELS ============ */}
-      {/* Sits directly under the hero: the first thing a visitor reads after
-          the headline is why this costs less than the tools they already pay
-          for. Light panel so brand logos read at full colour. */}
-      <section className="relative overflow-hidden bg-white pb-[44px] pt-[40px] sm:pb-[64px] sm:pt-[56px]">
-        <Orb className="-left-[70px] top-[80px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#dbe4ff" />
-        <Orb className="-right-[70px] bottom-[60px] h-[280px] w-[280px] opacity-60 blur-[90px]" color="#e5dcff" />
-        <DecorArt src="sparkle.png" size={54} className="block max-2xl:hidden left-[40px] top-[70px]" opacity={0.7} />
-        <DecorArt src="chat-bubbles.png" size={92} className="block max-2xl:hidden bottom-[80px] right-[34px]" opacity={0.75} />
-
-        <div className={`${shell} relative`}>
-          <div className="text-center">
-            <span className="inline-flex items-center gap-[8px] rounded-full border border-[#dfe3f5] bg-[#f4f6ff] px-[13px] py-[6px] text-[11px] tracking-[1px] text-[#5b5bd6] sm:gap-[9px] sm:px-[16px] sm:py-[7px] sm:text-[12.5px] sm:tracking-[1.2px]">
-              <span className="h-[6px] w-[6px] rounded-full bg-[#6856fd]" />
-              PREMIUM AI MODELS. ONE PRICE.
-            </span>
-
-            <h2 className="mx-auto mt-[16px] max-w-[820px] text-[27px] font-bold leading-[35px] tracking-[-0.5px] text-[#111827] sm:mt-[20px] sm:text-[36px] sm:leading-[46px] sm:tracking-[-0.72px] lg:text-[40px] lg:leading-[52px]">
-              The world&apos;s best AI models, from{" "}
-              <span
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: "linear-gradient(90deg,#6856fd,#3d98fb)" }}
-              >
-                $9.99
-              </span>
-              <span className="text-[#6b7280]">/month</span>
-            </h2>
-
-            <p className="mx-auto mt-[12px] max-w-[620px] text-[15px] leading-[24px] text-[#6b7280] sm:mt-[14px] sm:text-[16.5px] sm:leading-[27px]">
-              Each studio runs the model best suited to the job. You never pick one,
-              manage an API key, or pay a provider directly.
-            </p>
-          </div>
-
-          {/* --- the models ---
-              Two across on the phone with the logo stacked above the name.
-              Eight full-width rows was a screen and a half on its own. */}
-          <div className="mt-[26px] rounded-[22px] border border-[#e9ebf3] bg-[#fbfbfe] p-[12px] sm:mt-[38px] sm:p-[22px]">
-            <div className="grid grid-cols-2 gap-[10px] sm:gap-[14px] lg:grid-cols-4">
-              {models.map((m) => (
-                <div
-                  key={m.name}
-                  className="flex flex-col items-start gap-[8px] rounded-[15px] border border-[#eceef4] bg-white p-[12px] sm:flex-row sm:items-center sm:gap-[14px] sm:p-[16px]"
-                >
-                  <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-[#f4f5f9] sm:h-[44px] sm:w-[44px] sm:rounded-[12px]">
-                    {MODEL_LOGOS && m.logo ? (
-                      <Image
-                        src={`/models/${m.logo}`}
-                        alt={m.provider}
-                        width={128}
-                        height={128}
-                        className="h-[20px] w-[20px] object-contain sm:h-[26px] sm:w-[26px]"
-                      />
-                    ) : (
-                      <span className="text-[12px] font-semibold text-[#4b5563] sm:text-[13px]">
-                        {m.provider.slice(0, 2).toUpperCase()}
-                      </span>
-                    )}
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-start gap-[6px] sm:items-center sm:gap-[8px]">
-                      <span className="text-[13px] font-medium leading-[18px] text-[#111827] sm:truncate sm:text-[15px] sm:leading-normal">
-                        {m.name}
-                      </span>
-                      {/* Green dot only for models actually wired up today. */}
-                      {m.status === "live" ? (
-                        <span
-                          className="mt-[6px] h-[6px] w-[6px] shrink-0 rounded-full bg-[#10b981] sm:mt-0"
-                          title="Live"
-                        />
-                      ) : (
-                        <span className="shrink-0 rounded-full bg-[#f1f2f6] px-[6px] py-[1px] text-[10px] font-medium text-[#9ca3af]">
-                          Soon
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-[2px] block truncate text-[11.5px] text-[#9ca3af] sm:text-[12.5px]">
-                      {m.provider}
-                    </span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* --- why it matters --- */}
-          <div className="mt-[24px] grid grid-cols-1 gap-[16px] sm:mt-[26px] sm:grid-cols-2 sm:gap-[18px] lg:grid-cols-4">
-            {modelBenefits.map((b) => (
-              <div key={b.title} className="flex items-start gap-[13px]">
-                <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] bg-[#f3eeff] text-[#6856fd] sm:h-[38px] sm:w-[38px]">
-                  <b.Icon className="h-[18px] w-[18px] sm:h-[19px] sm:w-[19px]" />
-                </span>
-                <span>
-                  <span className="block text-[14.5px] font-medium text-[#111827]">{b.title}</span>
-                  <span className="mt-[2px] block text-[13px] leading-[19px] text-[#9ca3af]">
-                    {b.body}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* --- the cost argument --- */}
-          <div className="mt-[30px] grid grid-cols-1 gap-[12px] sm:mt-[38px] sm:gap-[16px] lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
-            <div className="rounded-[18px] border border-[#e9ebf3] bg-[#fafbfd] px-[20px] py-[20px] sm:px-[26px] sm:py-[24px]">
-              <p className="text-[13.5px] text-[#9ca3af]">Subscribing to each one yourself</p>
-              <p className="mt-[8px] text-[30px] font-bold leading-[36px] text-[#9ca3af] sm:text-[34px] sm:leading-[40px]">
-                ≈${soloTotal}
-                <span className="ml-[4px] text-[15px] font-normal">/month</span>
-              </p>
-              <p className="mt-[8px] text-[13.5px] leading-[20px] text-[#b0b5c4]">
-                {models.length} separate plans, {models.length} logins, and none of them
-                know your niche or your saved work.
-              </p>
-            </div>
-
-            {/* Points down while the cards are stacked, right once they sit side by side. */}
-            <div className="flex justify-center py-[2px] lg:px-[10px] lg:py-[4px]">
-              <span className="inline-block rotate-90 text-[20px] text-[#c3c7d0] lg:rotate-0">→</span>
-            </div>
-
-            <div
-              className="rounded-[18px] px-[20px] py-[20px] sm:px-[26px] sm:py-[24px]"
-              style={{ backgroundImage: "linear-gradient(135deg,#6856fd,#3d98fb)" }}
-            >
-              <p className="text-[13.5px] text-white/80">Inside CRAFTX Creator</p>
-              <p className="mt-[8px] text-[30px] font-bold leading-[36px] text-white sm:text-[34px] sm:leading-[40px]">
-                $9.99
-                <span className="ml-[4px] text-[15px] font-normal text-white/80">/month</span>
-              </p>
-              <p className="mt-[8px] text-[13.5px] leading-[20px] text-white/85">
-                One plan, six studios, and every generation shaped by your creator
-                profile.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-[22px] flex flex-col items-stretch gap-[16px] sm:mt-[24px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-[18px]">
-            <p className="max-w-[560px] text-[13px] leading-[20px] text-[#9ca3af]">
-              {liveCount} model{liveCount === 1 ? "" : "s"} power{liveCount === 1 ? "s" : ""}{" "}
-              CRAFTX today. The rest are rolling out to paid plans as each provider is
-              enabled — your plan price doesn&apos;t change when they land.
-            </p>
-
-            <Link
-              href="/signup"
-              className="rounded-full bg-[#0b1020] px-[26px] py-[14px] text-center text-[15px] text-white transition hover:bg-[#1b2338] sm:text-[16px]"
-            >
-              Start creating free →
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ============ PLATFORMS ============ */}
       {/* Was near-invisible grey text with icons at 40% opacity. Now legible
           bordered chips that fill the row instead of floating in it. */}
@@ -976,10 +779,10 @@ export default function Home() {
         <Orb className="-right-[90px] bottom-[80px] h-[320px] w-[320px] opacity-70 blur-[90px]" color="#cfe1ff" />
         <DotField id="dots-frag" className="block max-2xl:hidden bottom-[70px] left-[16px] h-[180px] w-[120px] opacity-50" />
         <FloatCard
-          Icon={ChartIcon}
-          value="+312%"
-          label="watch time"
-          tint="bg-[#e9f9f0] text-[#10b981]"
+          Icon={HookIcon}
+          value="10 hooks"
+          label="per set"
+          tint="bg-[#e6faf7] text-[#14b8a6]"
           className="block max-2xl:hidden right-[18px] top-[120px] rotate-[5deg]"
         />
         <DecorArt src="robot.png" size={130} className="block max-2xl:hidden left-[18px] top-[110px]" />
