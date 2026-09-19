@@ -77,6 +77,25 @@ function FeedbackIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+/** Gift box — the affiliate program entry. */
+function GiftIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect x="3" y="8" width="18" height="4" rx="1" />
+      <path d="M12 8v13M19 12v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8" />
+      <path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5" />
+    </svg>
+  );
+}
+
 // Creator Coach removed pre-launch — it ran on Claude Sonnet and accounted for
 // ~95% of projected API cost. The route and page still exist but are gated by
 // COACH_ENABLED; re-add the nav entry here when the Coach comes back.
@@ -92,6 +111,7 @@ const mainNav: { name: string; href: string; Icon: NavIcon }[] = [
 
 const accountNav: { name: string; href: string; Icon: NavIcon }[] = [
   { name: "Creator Profile", href: "/creator-profile", Icon: UserIcon },
+  { name: "Affiliate program", href: "/affiliate", Icon: GiftIcon },
   { name: "Settings", href: "/dashboard/settings", Icon: SettingsIcon },
   { name: "Help & Support", href: "/help", Icon: PlusIcon },
 ];

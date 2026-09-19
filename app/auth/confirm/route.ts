@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { claimReferral } from "@/lib/referrals/claim";
 
 /**
  * Email link confirmation — password recovery, email change, signup confirm.
@@ -29,6 +30,10 @@ import { createClient } from "@/lib/supabase/server";
  *
  * Either way this route only establishes the session. Setting the new password
  * happens on /reset-password, which requires that session.
+ *
+ * Affiliate program: after a successful confirm we try to link the account to
+ * a referrer. claimReferral only acts on accounts under 24h old that carry the
+ * referral cookie, so password resets and email changes pass through untouched.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -46,24 +51,32 @@ export async function GET(request: Request) {
   const supabase = await createClient();
 
   if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+    const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
 
     if (error) {
       console.error("[AuthConfirm] verifyOtp failed:", error.message);
       return NextResponse.redirect(`${base}/forgot-password?error=expired`);
     }
 
+    if (data.user) {
+      await claimReferral(data.user);
+    }
+
     return NextResponse.redirect(`${base}${next}`);
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
       console.error("[AuthConfirm] Code exchange failed:", error.message);
       // Nearly always because the link was opened in a different browser than
       // the one that requested it — the PKCE verifier cookie isn't there.
       return NextResponse.redirect(`${base}/forgot-password?error=expired`);
+    }
+
+    if (data.user) {
+      await claimReferral(data.user);
     }
 
     return NextResponse.redirect(`${base}${next}`);

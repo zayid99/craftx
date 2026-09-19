@@ -200,3 +200,61 @@ model Feedback {
   @@index([userId])
   @@index([status, createdAt])
 }
+
+// ─── Affiliate program ──────────────────────────────────────────────────────
+
+// Each user's personal referral code, used in links like craftxapp.com/?ref=CODE.
+model ReferralCode {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  code      String   @unique
+  createdAt DateTime @default(now())
+}
+
+// "referredUserId signed up through referrerUserId's link."
+// A user can only ever be referred once.
+model Referral {
+  id             String   @id @default(cuid())
+  referrerUserId String
+  referredUserId String   @unique
+  code           String   // code used at signup, kept for history
+  createdAt      DateTime @default(now())
+
+  @@index([referrerUserId])
+}
+
+// One row per paid Lemon Squeezy invoice from a referred user.
+// lemonSqueezyInvoiceId is unique so a retried webhook can never create a duplicate.
+model Commission {
+  id                    String    @id @default(cuid())
+  referrerUserId        String
+  referredUserId        String
+  lemonSqueezyInvoiceId String    @unique
+  paymentAmountCents    Int       // what the referred user paid, before tax, in USD cents
+  commissionCents       Int       // the affiliate's share, in USD cents
+  status                String    @default("pending") // "pending" | "available" | "paid" | "void"
+  availableAt           DateTime  // pending until this date (30-day hold for refunds)
+  payoutId              String?   // set once included in a payout
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([referrerUserId, status])
+  @@index([payoutId])
+}
+
+// A withdrawal request. Method and details are free text so payout options
+// can change without a schema change.
+model Payout {
+  id          String    @id @default(cuid())
+  userId      String
+  amountCents Int
+  method      String    // e.g. "payoneer" | "bkash"
+  details     String    // account email / number the affiliate entered
+  status      String    @default("requested") // "requested" | "paid" | "rejected"
+  adminNote   String?   // e.g. transaction ID, or rejection reason
+  requestedAt DateTime  @default(now())
+  paidAt      DateTime?
+
+  @@index([userId, status])
+  @@index([status, requestedAt])
+}

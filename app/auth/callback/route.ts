@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { claimReferral } from "@/lib/referrals/claim";
 
 /**
  * OAuth callback.
@@ -37,11 +38,16 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
     console.error("[AuthCallback] Code exchange failed:", error.message);
     return NextResponse.redirect(`${origin}/login?error=oauth`);
+  }
+
+  // Affiliate program: link brand-new accounts to whoever referred them.
+  if (data.user) {
+    await claimReferral(data.user);
   }
 
   // Behind Railway's proxy, `origin` is the internal host, not craftxapp.com.

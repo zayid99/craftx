@@ -10,7 +10,15 @@ const PROTECTED_PATHS = [
   "/analyzer",
   "/coach",
   "/creator-profile",
+  "/affiliate",
+  "/admin",
 ];
+
+// Affiliate referral tracking: craftxapp.com/?ref=CODE is remembered in this
+// cookie until signup, where it gets linked to the new account.
+const REFERRAL_COOKIE = "craftx_ref";
+const REFERRAL_COOKIE_MAX_AGE = 60 * 60 * 24 * 60; // 60 days, in seconds
+const REFERRAL_CODE_PATTERN = /^[a-z0-9-]{3,40}$/;
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -53,6 +61,21 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Remember the first referral code a logged-out visitor arrives with.
+  // Set after getUser() because Supabase may replace supabaseResponse above.
+  const refParam = request.nextUrl.searchParams.get("ref")?.trim().toLowerCase();
+  const alreadyReferred = request.cookies.has(REFERRAL_COOKIE);
+
+  if (refParam && !user && !alreadyReferred && REFERRAL_CODE_PATTERN.test(refParam)) {
+    supabaseResponse.cookies.set(REFERRAL_COOKIE, refParam, {
+      maxAge: REFERRAL_COOKIE_MAX_AGE,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
   }
 
   return supabaseResponse;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/db/prisma";
 import { planFromVariantId } from "@/lib/payments/lemonsqueezy";
+import { recordCommission, voidCommission } from "@/lib/referrals/commissions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,10 @@ export async function POST(request: NextRequest) {
     const eventName: string = payload.meta?.event_name;
     const customData = payload.meta?.custom_data;
     const attributes = payload.data?.attributes;
-    const subscriptionId: string = payload.data?.id;
+    // For subscription_* events this is the subscription ID. For
+    // subscription_payment_* events, data is a subscription INVOICE, so this is
+    // the invoice ID and the subscription ID lives in attributes.subscription_id.
+    const dataId: string = String(payload.data?.id ?? "");
 
     if (!eventName || !attributes) {
       console.error("[Webhook] Malformed payload", payload);
@@ -54,6 +58,8 @@ export async function POST(request: NextRequest) {
       case "subscription_updated":
       case "subscription_resumed":
       case "subscription_unpaused": {
+        const subscriptionId = dataId;
+
         if (!userId) {
           console.error("[Webhook] No user_id in custom_data, cannot update subscription.");
           break;
@@ -107,6 +113,7 @@ export async function POST(request: NextRequest) {
       case "subscription_cancelled":
       case "subscription_expired":
       case "subscription_paused": {
+        const subscriptionId = dataId;
         const status = mapLemonSqueezyStatus(attributes.status);
 
         await prisma.subscription.updateMany({
@@ -120,26 +127,62 @@ export async function POST(request: NextRequest) {
       }
 
       case "subscription_payment_success": {
-        // Renewal confirmed — mark active and push the renewal date forward.
-        await prisma.subscription.updateMany({
-          where: { lemonSqueezySubscriptionId: subscriptionId },
-          data: {
-            status: "active",
-            ...(attributes.renews_at
-              ? { renewsAt: new Date(attributes.renews_at) }
-              : {}),
-          },
-        });
+        const invoiceId = dataId;
+        const subscriptionId = String(attributes.subscription_id ?? "");
+
+        // Payment confirmed — mark active. renewsAt isn't on the invoice;
+        // subscription_updated keeps it current on every renewal.
+        if (subscriptionId) {
+          await prisma.subscription.updateMany({
+            where: { lemonSqueezySubscriptionId: subscriptionId },
+            data: { status: "active" },
+          });
+        }
+
+        // Affiliate commission. Prefer user_id from custom_data; on the very
+        // first payment this can arrive before subscription_created has saved
+        // the Subscription row, so the DB lookup is only a fallback.
+        let payingUserId = userId;
+        if (!payingUserId && subscriptionId) {
+          const sub = await prisma.subscription.findUnique({
+            where: { lemonSqueezySubscriptionId: subscriptionId },
+            select: { userId: true },
+          });
+          payingUserId = sub?.userId;
+        }
+
+        if (!payingUserId) {
+          console.warn(`[Webhook] Could not resolve user for invoice ${invoiceId}; no commission recorded.`);
+        } else if (attributes.status === "paid") {
+          // Amount actually paid, excluding tax, in USD cents.
+          const paymentAmountCents =
+            Number(attributes.total_usd ?? 0) - Number(attributes.tax_usd ?? 0);
+
+          await recordCommission({
+            referredUserId: payingUserId,
+            invoiceId,
+            paymentAmountCents,
+          });
+        }
         break;
       }
 
       case "subscription_payment_failed": {
-        await prisma.subscription.updateMany({
-          where: { lemonSqueezySubscriptionId: subscriptionId },
-          data: {
-            status: "past_due",
-          },
-        });
+        const subscriptionId = String(attributes.subscription_id ?? "");
+
+        if (subscriptionId) {
+          await prisma.subscription.updateMany({
+            where: { lemonSqueezySubscriptionId: subscriptionId },
+            data: {
+              status: "past_due",
+            },
+          });
+        }
+        break;
+      }
+
+      case "subscription_payment_refunded": {
+        await voidCommission(dataId);
         break;
       }
 

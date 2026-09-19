@@ -94,6 +94,10 @@ export default function SignupPage() {
         return;
       }
 
+      // Affiliate program: link this new account to whoever referred it.
+      // Best-effort — a failure here must never block signup.
+      await fetch("/api/referrals/claim", { method: "POST" }).catch(() => {});
+
       router.push("/dashboard");
       router.refresh();
     } catch {
